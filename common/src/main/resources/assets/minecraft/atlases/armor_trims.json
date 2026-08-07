@@ -1,0 +1,20 @@
+{
+  "sources": [
+    {
+      "type": "minecraft:paletted_permutations",
+      "textures": [
+        "nomendubium:entity/modularcreature/hulkingbody",
+        "nomendubium:entity/modularcreature/crunchinghead",
+        "nomendubium:entity/modularcreature/shieldedhead",
+        "nomendubium:entity/modularcreature/snarledhead",
+        "nomendubium:entity/modularcreature/beakedhead",
+        "nomendubium:entity/modularcreature/spikedtail",
+        "nomendubium:entity/modularcreature/stubbytail"
+      ],
+      "palette_key": "nomendubium:entity/modularcreature/palettes/base",
+      "permutations": {
+        "jungle": "nomendubium:entity/modularcreature/palettes/jungle"
+      }
+    }
+  ]
+}
