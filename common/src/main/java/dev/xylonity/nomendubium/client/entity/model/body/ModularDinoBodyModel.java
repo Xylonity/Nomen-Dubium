@@ -1,12 +1,12 @@
 package dev.xylonity.nomendubium.client.entity.model.body;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.xylonity.nomendubium.client.render.ModularCreatureRenderState;
+import dev.xylonity.nomendubium.client.render.ModularDinoRenderState;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import org.joml.Matrix4fc;
 
-public abstract class ModularDinoBodyModel extends EntityModel<ModularCreatureRenderState> {
+public abstract class ModularDinoBodyModel extends EntityModel<ModularDinoRenderState> {
 
     private final ModelPart body;
     private final ModelPart headConnection;

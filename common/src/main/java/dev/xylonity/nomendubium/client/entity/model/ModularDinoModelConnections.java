@@ -19,6 +19,7 @@ public final class ModularDinoModelConnections {
         float zRotation
     ) {
         final Vector3f offset = new Vector3f(connectionX, connectionY, connectionZ);
+        // Negating the rotated connection vector so the connection point remains at the local origin and the extra parts align properly
         new Quaternionf().rotationZYX(zRotation, yRotation, xRotation).transform(offset).negate();
         return PartPose.offsetAndRotation(offset.x, offset.y, offset.z, xRotation, yRotation, zRotation);
     }

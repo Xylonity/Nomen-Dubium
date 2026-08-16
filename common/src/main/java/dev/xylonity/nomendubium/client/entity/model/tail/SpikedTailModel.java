@@ -1,7 +1,7 @@
 package dev.xylonity.nomendubium.client.entity.model.tail;
 
 import dev.xylonity.nomendubium.client.entity.model.ModularDinoModelConnections;
-import dev.xylonity.nomendubium.client.render.ModularCreatureRenderState;
+import dev.xylonity.nomendubium.client.render.ModularDinoRenderState;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -11,7 +11,7 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 
-public final class SpikedTailModel extends EntityModel<ModularCreatureRenderState> {
+public final class SpikedTailModel extends EntityModel<ModularDinoRenderState> {
 
     public SpikedTailModel(ModelPart root) {
         super(root);
