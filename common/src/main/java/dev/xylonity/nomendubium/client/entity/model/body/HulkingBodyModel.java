@@ -1,4 +1,4 @@
-package dev.xylonity.nomendubium.client.model;
+package dev.xylonity.nomendubium.client.entity.model.body;
 
 import dev.xylonity.nomendubium.client.render.ModularCreatureRenderState;
 import net.minecraft.client.model.EntityModel;

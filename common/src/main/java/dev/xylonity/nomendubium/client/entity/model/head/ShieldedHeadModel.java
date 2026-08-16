@@ -1,5 +1,6 @@
-package dev.xylonity.nomendubium.client.model;
+package dev.xylonity.nomendubium.client.entity.model.head;
 
+import dev.xylonity.nomendubium.client.model.ModelConnections;
 import dev.xylonity.nomendubium.client.render.ModularCreatureRenderState;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;

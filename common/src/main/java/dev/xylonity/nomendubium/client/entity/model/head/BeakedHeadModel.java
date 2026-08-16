@@ -1,5 +1,6 @@
-package dev.xylonity.nomendubium.client.model;
+package dev.xylonity.nomendubium.client.entity.model.head;
 
+import dev.xylonity.nomendubium.client.model.ModelConnections;
 import dev.xylonity.nomendubium.client.render.ModularCreatureRenderState;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -48,18 +49,18 @@ public final class BeakedHeadModel extends EntityModel<ModularCreatureRenderStat
                 .texOffs(74, 43).addBox(-2.0F, 0.0F, -27.0F, 5.0F, 10.0F, 4.0F, new CubeDeformation(0.0F))
                 .texOffs(74, 33).addBox(-4.0F, 6.0F, -22.0F, 2.0F, 0.0F, 10.0F, new CubeDeformation(0.0F))
                 .texOffs(74, 33).mirror()
-                .addBox(3.0F, 6.0F, -22.0F, 2.0F, 0.0F, 10.0F, new CubeDeformation(0.0F)).mirror(false),
+                .addBox(3.0F, 6.099F, -22.0F, 2.0F, 0.0F, 10.0F, new CubeDeformation(0.0F)).mirror(false),
             PartPose.offset(0.0F, -10.0F, 3.0F)
         );
         head.addOrReplaceChild(
             "jaw",
             CubeListBuilder.create().texOffs(50, 18)
                 .addBox(-7.0F, -3.0F, -9.0F, 15.0F, 8.0F, 7.0F, new CubeDeformation(0.05F))
-                .texOffs(40, 65).addBox(-5.0F, -4.0F, -20.0F, 3.0F, 4.0F, 13.0F, new CubeDeformation(0.0F))
+                .texOffs(40, 65).addBox(-5.0F, -3.9F, -20.0F, 3.0F, 4.0F, 13.0F, new CubeDeformation(0.0F))
                 .texOffs(50, 0).addBox(-5.0F, 0.0F, -22.0F, 11.0F, 3.0F, 15.0F, new CubeDeformation(0.0F))
                 .texOffs(0, 61).addBox(-7.0F, 0.0F, -2.0F, 15.0F, 5.0F, 5.0F, new CubeDeformation(0.05F))
                 .texOffs(40, 65).mirror()
-                .addBox(3.0F, -4.0F, -20.0F, 3.0F, 4.0F, 13.0F, new CubeDeformation(0.0F)).mirror(false),
+                .addBox(3.0F, -3.9F, -20.0F, 3.0F, 4.0F, 13.0F, new CubeDeformation(0.0F)).mirror(false),
             PartPose.offset(0.0F, 0.0F, 0.0F)
         );
 
