@@ -1,6 +1,6 @@
 package dev.xylonity.nomendubium.client.entity.model.back;
 
-import dev.xylonity.nomendubium.client.model.ModelConnections;
+import dev.xylonity.nomendubium.client.entity.model.ModularDinoModelConnections;
 import dev.xylonity.nomendubium.client.render.ModularCreatureRenderState;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -23,7 +23,7 @@ public final class ThornsModel extends EntityModel<ModularCreatureRenderState> {
 
 		PartDefinition thorns = partdefinition.addOrReplaceChild("thorns", CubeListBuilder.create().texOffs(0, 0).addBox(0.0F, -7.0F, -18.0F, 0.0F, 7.0F, 37.0F, new CubeDeformation(0.0F))
 		.texOffs(0, 44).addBox(5.0F, -4.0F, -16.0F, 0.0F, 4.0F, 34.0F, new CubeDeformation(0.0F))
-		.texOffs(0, 44).mirror().addBox(-5.0F, -4.0F, -16.0F, 0.0F, 4.0F, 34.0F, new CubeDeformation(0.0F)).mirror(false), ModelConnections.alignExtra(0.0F, 0.0F, 0.0F));
+		.texOffs(0, 44).mirror().addBox(-5.0F, -4.0F, -16.0F, 0.0F, 4.0F, 34.0F, new CubeDeformation(0.0F)).mirror(false), ModularDinoModelConnections.alignToConnection(0.0F, 0.0F, 0.0F));
 
 		PartDefinition body_connection = thorns.addOrReplaceChild("body_connection", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 

@@ -1,8 +1,5 @@
 package dev.xylonity.nomendubium.client.entity.model.body;
 
-import dev.xylonity.nomendubium.client.model.ModelConnections;
-import dev.xylonity.nomendubium.client.render.ModularCreatureRenderState;
-import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
@@ -11,7 +8,7 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 
-public final class ShelledBodyModel extends EntityModel<ModularCreatureRenderState> {
+public final class ShelledBodyModel extends ModularDinoBodyModel {
 
 	public ShelledBodyModel(ModelPart root) {
 		super(root);

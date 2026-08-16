@@ -1,6 +1,6 @@
 package dev.xylonity.nomendubium.client.entity.model.back;
 
-import dev.xylonity.nomendubium.client.model.ModelConnections;
+import dev.xylonity.nomendubium.client.entity.model.ModularDinoModelConnections;
 import dev.xylonity.nomendubium.client.render.ModularCreatureRenderState;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -26,7 +26,7 @@ public final class SpineSailModel extends EntityModel<ModularCreatureRenderState
 		.texOffs(22, 46).addBox(0.0F, -13.0F, 8.0F, 0.0F, 1.0F, 8.0F, new CubeDeformation(0.0F))
 		.texOffs(22, 31).addBox(0.0F, -16.0F, -7.0F, 0.0F, 1.0F, 14.0F, new CubeDeformation(0.0F))
 		.texOffs(0, 31).addBox(-1.0F, -12.0F, 8.0F, 2.0F, 12.0F, 9.0F, new CubeDeformation(0.0F))
-		.texOffs(0, 0).addBox(-1.0F, -15.0F, -8.0F, 2.0F, 15.0F, 16.0F, new CubeDeformation(0.0F)), ModelConnections.alignExtra(0.0F, 0.0F, 0.0F));
+		.texOffs(0, 0).addBox(-1.0F, -15.0F, -8.0F, 2.0F, 15.0F, 16.0F, new CubeDeformation(0.0F)), ModularDinoModelConnections.alignToConnection(0.0F, 0.0F, 0.0F));
 
 		PartDefinition body_connection = sail.addOrReplaceChild("body_connection", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 

@@ -1,6 +1,6 @@
 package dev.xylonity.nomendubium.client.entity.model.back;
 
-import dev.xylonity.nomendubium.client.model.ModelConnections;
+import dev.xylonity.nomendubium.client.entity.model.ModularDinoModelConnections;
 import dev.xylonity.nomendubium.client.render.ModularCreatureRenderState;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -21,7 +21,7 @@ public final class SpikesModel extends EntityModel<ModularCreatureRenderState> {
 		MeshDefinition meshdefinition = new MeshDefinition();
 		PartDefinition partdefinition = meshdefinition.getRoot();
 
-		PartDefinition spikes = partdefinition.addOrReplaceChild("spikes", CubeListBuilder.create(), ModelConnections.alignExtra(0.0F, 0.0F, 0.0F));
+		PartDefinition spikes = partdefinition.addOrReplaceChild("spikes", CubeListBuilder.create(), ModularDinoModelConnections.alignToConnection(0.0F, 0.0F, 0.0F));
 
 		PartDefinition R_top_spikes = spikes.addOrReplaceChild("R_top_spikes", CubeListBuilder.create().texOffs(16, 23).mirror().addBox(0.0F, -15.0F, -6.0F, 3.0F, 16.0F, 4.0F, new CubeDeformation(0.0F)).mirror(false)
 		.texOffs(0, 23).mirror().addBox(0.0F, -22.0F, -13.0F, 3.0F, 23.0F, 5.0F, new CubeDeformation(0.0F)).mirror(false)

@@ -1,7 +1,5 @@
 package dev.xylonity.nomendubium.client.entity.model.body;
 
-import dev.xylonity.nomendubium.client.render.ModularCreatureRenderState;
-import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
@@ -10,7 +8,7 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 
-public final class HulkingBodyModel extends EntityModel<ModularCreatureRenderState> {
+public final class HulkingBodyModel extends ModularDinoBodyModel {
 
     public HulkingBodyModel(ModelPart root) {
         super(root);
@@ -19,7 +17,7 @@ public final class HulkingBodyModel extends EntityModel<ModularCreatureRenderSta
     public static LayerDefinition createLayer() {
         MeshDefinition mesh = new MeshDefinition();
         PartDefinition root = mesh.getRoot();
-        PartDefinition body = root.addOrReplaceChild("Body", CubeListBuilder.create(), PartPose.offset(0.0F, 24.0F, 0.0F));
+        PartDefinition body = root.addOrReplaceChild("body", CubeListBuilder.create(), PartPose.offset(0.0F, 24.0F, 0.0F));
 
         body.addOrReplaceChild(
             "torso",

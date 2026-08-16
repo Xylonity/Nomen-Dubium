@@ -1,6 +1,6 @@
 package dev.xylonity.nomendubium.client.entity.model.tail;
 
-import dev.xylonity.nomendubium.client.model.ModelConnections;
+import dev.xylonity.nomendubium.client.entity.model.ModularDinoModelConnections;
 import dev.xylonity.nomendubium.client.render.ModularCreatureRenderState;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -24,7 +24,7 @@ public final class SpearedTailModel extends EntityModel<ModularCreatureRenderSta
 		PartDefinition tail = partdefinition.addOrReplaceChild(
 			"tail",
 			CubeListBuilder.create().texOffs(0, 0).addBox(-3.0F, 0.0F, 0.0F, 6.0F, 9.0F, 30.0F, new CubeDeformation(0.0F)),
-			PartPose.offsetAndRotation(0.0F, -7.9641F, 19.4019F, 0.5236F, 0.0F, 0.0F)
+			ModularDinoModelConnections.alignToConnection(0.0F, 4.0F, 3.0F, 0.5236F, 0.0F, 0.0F)
 		);
 
 		PartDefinition tail_tip = tail.addOrReplaceChild("tail_tip", CubeListBuilder.create().texOffs(32, 55).addBox(-2.0F, -15.0F, 0.0F, 4.0F, 15.0F, 7.0F, new CubeDeformation(0.0F))

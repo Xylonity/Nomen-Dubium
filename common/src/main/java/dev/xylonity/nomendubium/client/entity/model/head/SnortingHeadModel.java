@@ -1,6 +1,6 @@
 package dev.xylonity.nomendubium.client.entity.model.head;
 
-import dev.xylonity.nomendubium.client.model.ModelConnections;
+import dev.xylonity.nomendubium.client.entity.model.ModularDinoModelConnections;
 import dev.xylonity.nomendubium.client.render.ModularCreatureRenderState;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -24,7 +24,7 @@ public final class SnortingHeadModel extends EntityModel<ModularCreatureRenderSt
 		PartDefinition entire_head = partdefinition.addOrReplaceChild(
 			"entire_head",
 			CubeListBuilder.create(),
-			ModelConnections.alignHead(0.0F, -12.0F, -20.0F)
+			ModularDinoModelConnections.alignToConnection(0.0F, -12.0F, -20.0F)
 		);
 
 		PartDefinition right_ear = entire_head.addOrReplaceChild("right_ear", CubeListBuilder.create().texOffs(0, 50).addBox(-1.0F, 0.0F, -3.0F, 1.0F, 19.0F, 7.0F, new CubeDeformation(0.0F)), PartPose.offset(-6.51F, -20.0F, -24.0F));

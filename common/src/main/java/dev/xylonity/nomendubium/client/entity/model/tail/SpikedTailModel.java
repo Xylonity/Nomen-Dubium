@@ -1,6 +1,6 @@
 package dev.xylonity.nomendubium.client.entity.model.tail;
 
-import dev.xylonity.nomendubium.client.model.ModelConnections;
+import dev.xylonity.nomendubium.client.entity.model.ModularDinoModelConnections;
 import dev.xylonity.nomendubium.client.render.ModularCreatureRenderState;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -24,7 +24,7 @@ public final class SpikedTailModel extends EntityModel<ModularCreatureRenderStat
             "tail",
             CubeListBuilder.create().texOffs(0, 43)
                 .addBox(-6.0F, -6.0F, 0.0F, 12.0F, 13.0F, 21.0F, new CubeDeformation(0.0F)),
-            ModelConnections.alignTail(0.0F, 0.0F, 0.0F)
+            ModularDinoModelConnections.alignToConnection(0.0F, 0.0F, 0.0F)
         );
         tail.addOrReplaceChild(
             "tail_tip",

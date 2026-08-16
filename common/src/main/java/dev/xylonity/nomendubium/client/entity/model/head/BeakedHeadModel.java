@@ -1,6 +1,6 @@
 package dev.xylonity.nomendubium.client.entity.model.head;
 
-import dev.xylonity.nomendubium.client.model.ModelConnections;
+import dev.xylonity.nomendubium.client.entity.model.ModularDinoModelConnections;
 import dev.xylonity.nomendubium.client.render.ModularCreatureRenderState;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -23,7 +23,7 @@ public final class BeakedHeadModel extends EntityModel<ModularCreatureRenderStat
         PartDefinition entireHead = root.addOrReplaceChild(
             "entire_head",
             CubeListBuilder.create(),
-            ModelConnections.alignHead(0.0F, -8.0F, 3.0F)
+            ModularDinoModelConnections.alignToConnection(0.0F, -8.0F, 3.0F)
         );
         entireHead.addOrReplaceChild(
             "neck",
