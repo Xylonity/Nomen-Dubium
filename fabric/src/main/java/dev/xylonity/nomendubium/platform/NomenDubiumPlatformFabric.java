@@ -4,6 +4,7 @@ import dev.xylonity.nomendubium.NomenDubium;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
 import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -38,6 +39,17 @@ public class NomenDubiumPlatformFabric implements NomenDubiumPlatform {
     public <T extends Item> Supplier<T> registerItem(String name, Function<ResourceKey<Item>, T> factory) {
         final ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, NomenDubium.of(name));
         final T value = Registry.register(BuiltInRegistries.ITEM, key, factory.apply(key));
+        return () -> value;
+    }
+
+    @Override
+    public <T> Supplier<DataComponentType<T>> registerDataComponent(String name, Supplier<DataComponentType<T>> factory) {
+        final DataComponentType<T> value = Registry.register(
+            BuiltInRegistries.DATA_COMPONENT_TYPE,
+            NomenDubium.of(name),
+            factory.get()
+        );
+
         return () -> value;
     }
 

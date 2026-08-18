@@ -2,6 +2,7 @@ package dev.xylonity.nomendubium.platform;
 
 import dev.xylonity.nomendubium.NomenDubium;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -32,6 +33,7 @@ public class NomenDubiumPlatformNeoForge implements NomenDubiumPlatform {
 
     private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(Registries.BLOCK, NomenDubium.MOD_ID);
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(Registries.ITEM, NomenDubium.MOD_ID);
+    private static final DeferredRegister<DataComponentType<?>> DATA_COMPONENT_TYPES = DeferredRegister.create(Registries.DATA_COMPONENT_TYPE, NomenDubium.MOD_ID);
     private static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(Registries.ENTITY_TYPE, NomenDubium.MOD_ID);
     private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, NomenDubium.MOD_ID);
     private static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(Registries.MENU, NomenDubium.MOD_ID);
@@ -45,6 +47,7 @@ public class NomenDubiumPlatformNeoForge implements NomenDubiumPlatform {
         }
 
         BLOCKS.register(eventBus);
+        DATA_COMPONENT_TYPES.register(eventBus);
         ITEMS.register(eventBus);
         ENTITY_TYPES.register(eventBus);
         BLOCK_ENTITY_TYPES.register(eventBus);
@@ -62,6 +65,12 @@ public class NomenDubiumPlatformNeoForge implements NomenDubiumPlatform {
     @Override
     public <T extends Item> Supplier<T> registerItem(String name, Function<ResourceKey<Item>, T> factory) {
         return ITEMS.register(name, id -> factory.apply(ResourceKey.create(Registries.ITEM, id)));
+    }
+
+    @Override
+    public <T> Supplier<DataComponentType<T>> registerDataComponent(String name, Supplier<DataComponentType<T>> factory) {
+        final DeferredHolder<DataComponentType<?>, DataComponentType<T>> holder = DATA_COMPONENT_TYPES.register(name, factory);
+        return holder;
     }
 
     @Override
