@@ -109,7 +109,45 @@ public class GeologistTableMenu extends AbstractContainerMenu {
 
     @Override
     public @NonNull ItemStack quickMoveStack(@NonNull Player player, int i) {
-        return null;
+        if (i < 0 || i >= this.slots.size()) {
+            return ItemStack.EMPTY;
+        }
+
+        final Slot slot = this.slots.get(i);
+        if (!slot.hasItem()) {
+            return ItemStack.EMPTY;
+        }
+
+        // Keeps a copy because moving the stack modifies the stack itself
+        final ItemStack stack = slot.getItem();
+        final ItemStack original = stack.copy();
+
+        // If the clicked slot is the table one
+        if (i == TABLE_SLOT) {
+            // The encased fossil stays locked in the table, while a finished reward can be taken out
+            if (stack.is(NomenDubiumItems.ENCASED_FOSSIL.get())) {
+                return ItemStack.EMPTY;
+            }
+
+            if (!this.moveItemStackTo(stack, PLAYER_SLOT_START, this.slots.size(), true)) {
+                return ItemStack.EMPTY;
+            }
+
+        }
+        // Only encased fossils can be moved from the player inventory into the table slot
+        else if (!stack.is(NomenDubiumItems.ENCASED_FOSSIL.get()) || !this.moveItemStackTo(stack, TABLE_SLOT, TABLE_SLOT + 1, false)) {
+            return ItemStack.EMPTY;
+        }
+
+        // Clears the source slot if everything moved
+        if (stack.isEmpty()) {
+            slot.setByPlayer(ItemStack.EMPTY);
+        }
+        else {
+            slot.setChanged();
+        }
+
+        return original;
     }
 
     @Override
