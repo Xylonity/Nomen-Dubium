@@ -17,7 +17,6 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -77,7 +76,7 @@ public class NomenDubiumPlatformFabric implements NomenDubiumPlatform {
     }
 
     @Override
-    public Supplier<CreativeModeTab> registerCreativeTab(String name, Component title, Supplier<ItemStack> icon, List<Supplier<? extends ItemLike>> entries) {
+    public Supplier<CreativeModeTab> registerCreativeTab(String name, Component title, Supplier<ItemStack> icon, List<Supplier<ItemStack>> entries) {
         final ResourceKey<CreativeModeTab> key = ResourceKey.create(Registries.CREATIVE_MODE_TAB, NomenDubium.of(name));
         final CreativeModeTab tab = FabricCreativeModeTab.builder()
             .title(title).icon(icon).displayItems((_, output) -> entries.forEach(entry -> output.accept(entry.get())))
