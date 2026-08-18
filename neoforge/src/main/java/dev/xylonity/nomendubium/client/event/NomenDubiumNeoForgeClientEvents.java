@@ -1,9 +1,9 @@
 package dev.xylonity.nomendubium.client.event;
 
 import dev.xylonity.nomendubium.NomenDubium;
+import dev.xylonity.nomendubium.client.screen.PaleontologyTableScreen;
 import dev.xylonity.nomendubium.client.util.ChimeraModelLayers;
 import dev.xylonity.nomendubium.client.entity.render.chimera.ChimeraRenderer;
-import dev.xylonity.nomendubium.client.screen.GeologistTableScreen;
 import dev.xylonity.nomendubium.registry.NomenDubiumEntities;
 import dev.xylonity.nomendubium.registry.NomenDubiumMenus;
 import net.neoforged.api.distmarker.Dist;
@@ -29,6 +29,6 @@ public final class NomenDubiumNeoForgeClientEvents {
 
     @SubscribeEvent
     public static void registerScreens(RegisterMenuScreensEvent event) {
-        event.register(NomenDubiumMenus.GEOLOGIST_TABLE.get(), GeologistTableScreen::new);
+        event.register(NomenDubiumMenus.PALEONTOLOGY_TABLE.get(), PaleontologyTableScreen::new);
     }
 }

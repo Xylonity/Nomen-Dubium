@@ -2,7 +2,7 @@ package dev.xylonity.nomendubium.client.event;
 
 import dev.xylonity.nomendubium.client.util.ChimeraModelLayers;
 import dev.xylonity.nomendubium.client.entity.render.chimera.ChimeraRenderer;
-import dev.xylonity.nomendubium.client.screen.GeologistTableScreen;
+import dev.xylonity.nomendubium.client.screen.PaleontologyTableScreenReal;
 import dev.xylonity.nomendubium.registry.NomenDubiumEntities;
 import dev.xylonity.nomendubium.registry.NomenDubiumMenus;
 import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
@@ -17,7 +17,7 @@ public final class NomenDubiumFabricClientEvents {
         );
 
         EntityRenderers.register(NomenDubiumEntities.CHIMERA.get(), ChimeraRenderer::new);
-        MenuScreens.register(NomenDubiumMenus.GEOLOGIST_TABLE.get(), GeologistTableScreen::new);
+        MenuScreens.register(NomenDubiumMenus.PALEONTOLOGY_TABLE.get(), PaleontologyTableScreenReal::new);
     }
 
 }
