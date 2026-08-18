@@ -8,11 +8,36 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.NonNull;
 
 public class GeologistTableMenu extends AbstractContainerMenu {
+
+    public static final int STATE_IDLE = 0;
+    public static final int STATE_PLAYING = 1;
+    public static final int STATE_WON = 2;
+    public static final int STATE_LOST = 3;
+    public static final int STATE_COUNTDOWN = 4;
+
+    public static final int TOOL_CHISEL = 0;
+    public static final int TOOL_HAMMER = 1;
+    public static final int TOOL_BRUSH = 2;
+
+    private static final int DATA_STATE = 0;
+    private static final int DATA_TOOL = 1;
+    private static final int DATA_ROUND_REMAINING = 2;
+    private static final int DATA_ROUND_DURATION = 3;
+    private static final int DATA_GLOBAL_REMAINING = 4;
+    private static final int DATA_PROGRESS = 5;
+    private static final int DATA_ROUND_INDEX = 6;
+    private static final int DATA_COUNTDOWN_REMAINING = 7;
+    private static final int DATA_HELD_TOOL = 8;
+    private static final int DATA_FOSSIL_CATEGORY = 9;
+    private static final int DATA_COUNT = 10;
+
+    private final int[] gameData = new int[DATA_COUNT];
 
     private final Container container;
     private final ContainerLevelAccess access;
@@ -52,6 +77,11 @@ public class GeologistTableMenu extends AbstractContainerMenu {
         });
 
         this.addStandardInventorySlots(inventory, 48, 129);
+
+        for (int i = 0; i < DATA_COUNT; i++) {
+            this.addDataSlot(DataSlot.shared(this.gameData, i));
+        }
+
     }
 
     @Override
@@ -63,5 +93,22 @@ public class GeologistTableMenu extends AbstractContainerMenu {
     public boolean stillValid(@NonNull Player player) {
         return this.container.stillValid(player);
     }
+
+    private int get(int index) {
+        return this.gameData[index];
+    }
+
+    private void set(int index, int value) {
+        this.gameData[index] = value;
+    }
+
+    //@Override
+    //public void broadcastChanges() {
+    //    if (!this.player.level().isClientSide()) {
+    //        this.tick();
+    //    }
+
+    //    super.broadcastChanges();
+    //}
 
 }
