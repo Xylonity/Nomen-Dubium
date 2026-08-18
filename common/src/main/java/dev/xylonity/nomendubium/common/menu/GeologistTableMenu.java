@@ -55,13 +55,13 @@ public class GeologistTableMenu extends AbstractContainerMenu {
     }
 
     @Override
-    public ItemStack quickMoveStack(Player player, int i) {
+    public @NonNull ItemStack quickMoveStack(@NonNull Player player, int i) {
         return null;
     }
 
     @Override
-    public boolean stillValid(Player player) {
-        return false;
+    public boolean stillValid(@NonNull Player player) {
+        return this.container.stillValid(player);
     }
 
 }
