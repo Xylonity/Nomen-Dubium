@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "nomendubium:geologist_table"
+          "name": "nomendubium:paleontology_table"
         }
       ],
       "conditions": [

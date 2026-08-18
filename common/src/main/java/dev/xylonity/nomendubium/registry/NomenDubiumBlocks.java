@@ -1,7 +1,7 @@
 package dev.xylonity.nomendubium.registry;
 
 import dev.xylonity.nomendubium.NomenDubium;
-import dev.xylonity.nomendubium.common.block.GeologistTableBlock;
+import dev.xylonity.nomendubium.common.block.PaleontologyTableBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
@@ -13,8 +13,8 @@ public final class NomenDubiumBlocks {
         ;;
     }
 
-    public static final Supplier<GeologistTableBlock> GEOLOGIST_TABLE = NomenDubium.PLATFORM.registerBlock("geologist_table",
-        key -> new GeologistTableBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.CRAFTING_TABLE).setId(key))
+    public static final Supplier<PaleontologyTableBlock> PALEONTOLOGY_TABLE = NomenDubium.PLATFORM.registerBlock("paleontology_table",
+        key -> new PaleontologyTableBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.CRAFTING_TABLE).setId(key))
     );
 
 }

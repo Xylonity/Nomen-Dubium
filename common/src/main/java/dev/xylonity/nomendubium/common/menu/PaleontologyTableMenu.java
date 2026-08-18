@@ -17,7 +17,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.Arrays;
 
-public class GeologistTableMenu extends AbstractContainerMenu {
+public class PaleontologyTableMenu extends AbstractContainerMenu {
 
     public static final int STATE_IDLE = 0;
     public static final int STATE_PLAYING = 1;
@@ -66,12 +66,12 @@ public class GeologistTableMenu extends AbstractContainerMenu {
 
     private int actionsThisRound;
 
-    public GeologistTableMenu(int containerId, Inventory inventory) {
+    public PaleontologyTableMenu(int containerId, Inventory inventory) {
         this(containerId, inventory, new SimpleContainer(1), ContainerLevelAccess.NULL);
     }
 
-    public GeologistTableMenu(int containerId, Inventory inventory, Container container, ContainerLevelAccess access) {
-        super(NomenDubiumMenus.GEOLOGIST_TABLE.get(), containerId);
+    public PaleontologyTableMenu(int containerId, Inventory inventory, Container container, ContainerLevelAccess access) {
+        super(NomenDubiumMenus.PALEONTOLOGY_TABLE.get(), containerId);
         checkContainerSize(container, 1);
 
         this.container = container;

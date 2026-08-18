@@ -13,7 +13,7 @@ import net.minecraft.world.item.Items;
 import java.util.Arrays;
 import java.util.Locale;
 
-// The geologist table chooses one of these when an encased fossil is inserted
+// The paleontology table chooses one of these when an encased fossil is inserted
 public enum FossilCategory {
     BODY,
     HEAD,

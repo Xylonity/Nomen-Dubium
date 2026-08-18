@@ -19,7 +19,7 @@ public final class NomenDubiumCreativeTabs {
         Component.translatable("creativeTab.nomendubium.tab"),
         () -> new ItemStack(NomenDubiumItems.ENCASED_FOSSIL.get()),
         List.of(
-            () -> new ItemStack(NomenDubiumItems.GEOLOGIST_TABLE.get()),
+            () -> new ItemStack(NomenDubiumItems.PALEONTOLOGY_TABLE.get()),
             () -> new ItemStack(NomenDubiumItems.ENCASED_FOSSIL.get()),
             () -> NomenDubiumItems.FOSSIL.get().createStack("shielded_head"),
             () -> NomenDubiumItems.FOSSIL.get().createStack("avian_body")

@@ -13,7 +13,7 @@ public final class NomenDubiumDataComponents {
         ;;
     }
 
-    // Decided when the encased fossil is inserted into geologist table
+    // Decided when the encased fossil is inserted into paleontology table
     public static final Supplier<DataComponentType<String>> FOSSIL_CATEGORY = registerString("fossil_category");
     // Decided by the fossil (only meant for chimera parts)
     public static final Supplier<DataComponentType<String>> FOSSIL_PART = registerString("fossil_part");

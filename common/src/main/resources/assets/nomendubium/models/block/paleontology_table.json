@@ -1,0 +1,43 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "nomendubium:block/paleontology_table_2",
+    "top": "nomendubium:block/paleontology_table_top",
+    "bottom": "nomendubium:block/paleontology_table_bottom",
+    "side1": "nomendubium:block/paleontology_table_side1",
+    "side2": "nomendubium:block/paleontology_table_2",
+    "side3": "nomendubium:block/paleontology_table_3"
+  },
+  "elements": [
+    {
+      "from": [0, 0, 0],
+      "to": [16, 16, 16],
+      "faces": {
+        "down": {
+          "texture": "#bottom",
+          "cullface": "down"
+        },
+        "up": {
+          "texture": "#top",
+          "cullface": "up"
+        },
+        "north": {
+          "texture": "#side3",
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#side1",
+          "cullface": "south"
+        },
+        "west": {
+          "texture": "#side2",
+          "cullface": "west"
+        },
+        "east": {
+          "texture": "#side2",
+          "cullface": "east"
+        }
+      }
+    }
+  ]
+}

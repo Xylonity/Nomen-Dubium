@@ -1,6 +1,6 @@
 package dev.xylonity.nomendubium.common.blockentity;
 
-import dev.xylonity.nomendubium.common.menu.GeologistTableMenu;
+import dev.xylonity.nomendubium.common.menu.PaleontologyTableMenu;
 import dev.xylonity.nomendubium.registry.NomenDubiumBlockEntities;
 import dev.xylonity.nomendubium.registry.NomenDubiumItems;
 import net.minecraft.core.BlockPos;
@@ -18,12 +18,12 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.NonNull;
 
-public final class GeologistTableBlockEntity extends BaseContainerBlockEntity {
+public final class PaleontologyTableBlockEntity extends BaseContainerBlockEntity {
 
     private NonNullList<ItemStack> items = NonNullList.withSize(1, ItemStack.EMPTY);
 
-    public GeologistTableBlockEntity(BlockPos pos, BlockState state) {
-        super(NomenDubiumBlockEntities.GEOLOGIST_TABLE.get(), pos, state);
+    public PaleontologyTableBlockEntity(BlockPos pos, BlockState state) {
+        super(NomenDubiumBlockEntities.PALEONTOLOGY_TABLE.get(), pos, state);
     }
 
     @Override
@@ -71,12 +71,12 @@ public final class GeologistTableBlockEntity extends BaseContainerBlockEntity {
 
     @Override
     protected @NonNull Component getDefaultName() {
-        return Component.translatable("container.nomendubium.geologist_table");
+        return Component.translatable("container.nomendubium.paleontology_table");
     }
 
     @Override
     protected AbstractContainerMenu createMenu(int containerId, Inventory inventory) {
-        return new GeologistTableMenu(containerId, inventory, this, ContainerLevelAccess.create(this.getLevel(), this.getBlockPos()));
+        return new PaleontologyTableMenu(containerId, inventory, this, ContainerLevelAccess.create(this.getLevel(), this.getBlockPos()));
     }
 
 }

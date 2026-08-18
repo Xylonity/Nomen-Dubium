@@ -16,7 +16,7 @@ public final class NomenDubiumItems {
         ;;
     }
 
-    public static final Supplier<BlockItem> GEOLOGIST_TABLE = NomenDubium.PLATFORM.registerItem("geologist_table", key -> createBlockItem(key, NomenDubiumBlocks.GEOLOGIST_TABLE.get()));
+    public static final Supplier<BlockItem> PALEONTOLOGY_TABLE = NomenDubium.PLATFORM.registerItem("paleontology_table", key -> createBlockItem(key, NomenDubiumBlocks.PALEONTOLOGY_TABLE.get()));
     public static final Supplier<Item> ENCASED_FOSSIL = NomenDubium.PLATFORM.registerItem("encased_fossil", key -> new EncasedFossilIem(new Item.Properties().setId(key)));
     public static final Supplier<FossilItem> FOSSIL = NomenDubium.PLATFORM.registerItem("fossil", key -> new FossilItem(new Item.Properties().stacksTo(1).setId(key)));
 

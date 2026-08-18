@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "nomendubium:block/geologist_table"
+    "model": "nomendubium:block/paleontology_table"
   }
 }

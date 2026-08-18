@@ -1,7 +1,7 @@
 package dev.xylonity.nomendubium.common.block;
 
 import com.mojang.serialization.MapCodec;
-import dev.xylonity.nomendubium.common.blockentity.GeologistTableBlockEntity;
+import dev.xylonity.nomendubium.common.blockentity.PaleontologyTableBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
@@ -14,22 +14,22 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.NonNull;
 
-public final class GeologistTableBlock extends BaseEntityBlock {
+public final class PaleontologyTableBlock extends BaseEntityBlock {
 
-    public static final MapCodec<GeologistTableBlock> CODEC = simpleCodec(GeologistTableBlock::new);
+    public static final MapCodec<PaleontologyTableBlock> CODEC = simpleCodec(PaleontologyTableBlock::new);
 
-    public GeologistTableBlock(BlockBehaviour.Properties properties) {
+    public PaleontologyTableBlock(BlockBehaviour.Properties properties) {
         super(properties);
     }
 
     @Override
-    public MapCodec<GeologistTableBlock> codec() {
+    public MapCodec<PaleontologyTableBlock> codec() {
         return CODEC;
     }
 
     @Override
     protected @NonNull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (level instanceof ServerLevel && level.getBlockEntity(pos) instanceof GeologistTableBlockEntity table) {
+        if (level instanceof ServerLevel && level.getBlockEntity(pos) instanceof PaleontologyTableBlockEntity table) {
             player.openMenu(table);
         }
 
@@ -38,7 +38,7 @@ public final class GeologistTableBlock extends BaseEntityBlock {
 
     @Override
     public @NonNull BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new GeologistTableBlockEntity(pos, state);
+        return new PaleontologyTableBlockEntity(pos, state);
     }
 
 }
