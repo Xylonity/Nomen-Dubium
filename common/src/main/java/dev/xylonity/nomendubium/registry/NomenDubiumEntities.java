@@ -1,7 +1,7 @@
 package dev.xylonity.nomendubium.registry;
 
 import dev.xylonity.nomendubium.NomenDubium;
-import dev.xylonity.nomendubium.entity.ModularDinoEntity;
+import dev.xylonity.nomendubium.entity.ChimeraEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 
@@ -13,7 +13,7 @@ public final class NomenDubiumEntities {
         ;;
     }
 
-    public static final Supplier<EntityType<ModularDinoEntity>> MODULAR_DINO = NomenDubium.PLATFORM.registerEntity("modular_dino",
-            key -> EntityType.Builder.of(ModularDinoEntity::new, MobCategory.CREATURE).sized(3.0F, 3.0F).build(key));
+    public static final Supplier<EntityType<ChimeraEntity>> CHIMERA = NomenDubium.PLATFORM.registerEntity("chimera",
+            key -> EntityType.Builder.of(ChimeraEntity::new, MobCategory.CREATURE).sized(3.0F, 3.0F).build(key));
 
 }

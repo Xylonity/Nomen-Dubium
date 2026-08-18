@@ -8,7 +8,7 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 
-public final class LankyBodyModel extends ModularDinoBodyModel {
+public final class LankyBodyModel extends ChimeraBodyModel {
 
 	public LankyBodyModel(ModelPart root) {
 		super(root);

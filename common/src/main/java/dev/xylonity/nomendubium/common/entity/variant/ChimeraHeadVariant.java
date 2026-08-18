@@ -1,19 +1,19 @@
 package dev.xylonity.nomendubium.common.entity.variant;
 
-public enum ModularDinoHeadVariant {
+public enum ChimeraHeadVariant {
     CRUNCHING,
     SHIELDED,
     SNARLED,
     BEAKED,
     SNORTING;
 
-    private static final ModularDinoHeadVariant[] VALUES = values();
+    private static final ChimeraHeadVariant[] VALUES = values();
 
-    public static ModularDinoHeadVariant index(int index) {
+    public static ChimeraHeadVariant index(int index) {
         return VALUES[Math.floorMod(index, VALUES.length)];
     }
 
-    public ModularDinoHeadVariant next() {
+    public ChimeraHeadVariant next() {
         return index(ordinal() + 1);
     }
 

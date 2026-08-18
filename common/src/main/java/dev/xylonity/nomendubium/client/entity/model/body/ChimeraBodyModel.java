@@ -1,19 +1,19 @@
 package dev.xylonity.nomendubium.client.entity.model.body;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.xylonity.nomendubium.client.render.ModularDinoRenderState;
+import dev.xylonity.nomendubium.client.render.ChimeraRenderState;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import org.joml.Matrix4fc;
 
-public abstract class ModularDinoBodyModel extends EntityModel<ModularDinoRenderState> {
+public abstract class ChimeraBodyModel extends EntityModel<ChimeraRenderState> {
 
     private final ModelPart body;
     private final ModelPart headConnection;
     private final ModelPart tailConnection;
     private final ModelPart backConnection;
 
-    protected ModularDinoBodyModel(ModelPart root) {
+    protected ChimeraBodyModel(ModelPart root) {
         super(root);
         this.body = root.getChild("body");
         this.headConnection = this.body.getChild("head_connection");

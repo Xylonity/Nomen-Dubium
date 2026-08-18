@@ -4,7 +4,7 @@ import net.minecraft.client.model.geom.PartPose;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-public final class ModularDinoModelConnections {
+public final class ChimeraModelConnections {
 
     public static PartPose alignToConnection(float connectionX, float connectionY, float connectionZ) {
         return PartPose.offset(-connectionX, -connectionY, -connectionZ);

@@ -8,7 +8,7 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 
-public final class ShelledBodyModel extends ModularDinoBodyModel {
+public final class ShelledBodyModel extends ChimeraBodyModel {
 
 	public ShelledBodyModel(ModelPart root) {
 		super(root);

@@ -1,7 +1,7 @@
 package dev.xylonity.nomendubium.client.entity.model.head;
 
-import dev.xylonity.nomendubium.client.entity.model.ModularDinoModelConnections;
-import dev.xylonity.nomendubium.client.render.ModularDinoRenderState;
+import dev.xylonity.nomendubium.client.entity.model.ChimeraModelConnections;
+import dev.xylonity.nomendubium.client.render.ChimeraRenderState;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -11,7 +11,7 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 
-public final class SnarledHeadModel extends EntityModel<ModularDinoRenderState> {
+public final class SnarledHeadModel extends EntityModel<ChimeraRenderState> {
 
     public SnarledHeadModel(ModelPart root) {
         super(root);
@@ -23,7 +23,7 @@ public final class SnarledHeadModel extends EntityModel<ModularDinoRenderState> 
         PartDefinition entireHead = root.addOrReplaceChild(
             "entire_head",
             CubeListBuilder.create(),
-            ModularDinoModelConnections.alignToConnection(0.0F, -4.0F, 8.0F)
+            ChimeraModelConnections.alignToConnection(0.0F, -4.0F, 8.0F)
         );
         PartDefinition head = entireHead.addOrReplaceChild("Head", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
         head.addOrReplaceChild(

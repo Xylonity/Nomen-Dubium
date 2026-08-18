@@ -2,7 +2,7 @@ package dev.xylonity.nomendubium.common.entity.variant;
 
 import java.util.Locale;
 
-public enum ModularDinoPaletteVariant {
+public enum ChimeraPaletteVariant {
     NORMAL,
     JUNGLE,
     GRASSLAND,
@@ -24,13 +24,13 @@ public enum ModularDinoPaletteVariant {
     OPALINE,
     OBSIDIAN;
 
-    private static final ModularDinoPaletteVariant[] VALUES = values();
+    private static final ChimeraPaletteVariant[] VALUES = values();
 
-    public static ModularDinoPaletteVariant index(int index) {
+    public static ChimeraPaletteVariant index(int index) {
         return VALUES[Math.floorMod(index, VALUES.length)];
     }
 
-    public ModularDinoPaletteVariant next() {
+    public ChimeraPaletteVariant next() {
         return index(ordinal() + 1);
     }
 

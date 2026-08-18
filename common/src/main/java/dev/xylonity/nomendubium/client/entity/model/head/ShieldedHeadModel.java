@@ -1,7 +1,7 @@
 package dev.xylonity.nomendubium.client.entity.model.head;
 
-import dev.xylonity.nomendubium.client.entity.model.ModularDinoModelConnections;
-import dev.xylonity.nomendubium.client.render.ModularDinoRenderState;
+import dev.xylonity.nomendubium.client.entity.model.ChimeraModelConnections;
+import dev.xylonity.nomendubium.client.render.ChimeraRenderState;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -11,7 +11,7 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 
-public final class ShieldedHeadModel extends EntityModel<ModularDinoRenderState> {
+public final class ShieldedHeadModel extends EntityModel<ChimeraRenderState> {
 
     public ShieldedHeadModel(ModelPart root) {
         super(root);
@@ -23,7 +23,7 @@ public final class ShieldedHeadModel extends EntityModel<ModularDinoRenderState>
         PartDefinition entireHead = root.addOrReplaceChild(
             "entire_head",
             CubeListBuilder.create(),
-            ModularDinoModelConnections.alignToConnection(0.0F, -19.0F, 16.0F)
+            ChimeraModelConnections.alignToConnection(0.0F, -19.0F, 16.0F)
         );
         entireHead.addOrReplaceChild(
             "Neck",

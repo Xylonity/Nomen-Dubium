@@ -1,19 +1,19 @@
 package dev.xylonity.nomendubium.common.entity.variant;
 
-public enum ModularDinoBodyVariant {
+public enum ChimeraBodyVariant {
     HULKING,
     SHELLED,
     AVIAN,
     LANKY,
     PUFFY;
 
-    private static final ModularDinoBodyVariant[] VALUES = values();
+    private static final ChimeraBodyVariant[] VALUES = values();
 
-    public static ModularDinoBodyVariant index(int index) {
+    public static ChimeraBodyVariant index(int index) {
         return VALUES[Math.floorMod(index, VALUES.length)];
     }
 
-    public ModularDinoBodyVariant next() {
+    public ChimeraBodyVariant next() {
         return index(ordinal() + 1);
     }
 

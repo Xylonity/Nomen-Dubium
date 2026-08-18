@@ -1,7 +1,7 @@
 package dev.xylonity.nomendubium.client.entity.model.tail;
 
-import dev.xylonity.nomendubium.client.entity.model.ModularDinoModelConnections;
-import dev.xylonity.nomendubium.client.render.ModularDinoRenderState;
+import dev.xylonity.nomendubium.client.entity.model.ChimeraModelConnections;
+import dev.xylonity.nomendubium.client.render.ChimeraRenderState;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -11,7 +11,7 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 
-public final class StubbyTailModel extends EntityModel<ModularDinoRenderState> {
+public final class StubbyTailModel extends EntityModel<ChimeraRenderState> {
 
     public StubbyTailModel(ModelPart root) {
         super(root);
@@ -24,7 +24,7 @@ public final class StubbyTailModel extends EntityModel<ModularDinoRenderState> {
             "tail",
             CubeListBuilder.create().texOffs(0, 0)
                 .addBox(-6.0F, -10.0F, -6.0F, 12.0F, 13.0F, 13.0F, new CubeDeformation(0.0F)),
-            ModularDinoModelConnections.alignToConnection(0.0F, -4.0F, -6.0F)
+            ChimeraModelConnections.alignToConnection(0.0F, -4.0F, -6.0F)
         );
         tail.addOrReplaceChild(
             "tail_tip",

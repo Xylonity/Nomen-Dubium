@@ -1,6 +1,6 @@
 package dev.xylonity.nomendubium.common.entity.variant;
 
-public enum ModularDinoBackVariant {
+public enum ChimeraBackVariant {
     NONE,
     BONEY_PLATES,
     DORSAL_SCALES,
@@ -8,13 +8,13 @@ public enum ModularDinoBackVariant {
     SPINE_SAIL,
     THORNS;
 
-    private static final ModularDinoBackVariant[] VALUES = values();
+    private static final ChimeraBackVariant[] VALUES = values();
 
-    public static ModularDinoBackVariant index(int index) {
+    public static ChimeraBackVariant index(int index) {
         return VALUES[Math.floorMod(index, VALUES.length)];
     }
 
-    public ModularDinoBackVariant next() {
+    public ChimeraBackVariant next() {
         return index(ordinal() + 1);
     }
 

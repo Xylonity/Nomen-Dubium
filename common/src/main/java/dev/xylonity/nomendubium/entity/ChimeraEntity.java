@@ -1,10 +1,10 @@
 package dev.xylonity.nomendubium.entity;
 
-import dev.xylonity.nomendubium.common.entity.variant.ModularDinoBodyVariant;
-import dev.xylonity.nomendubium.common.entity.variant.ModularDinoBackVariant;
-import dev.xylonity.nomendubium.common.entity.variant.ModularDinoHeadVariant;
-import dev.xylonity.nomendubium.common.entity.variant.ModularDinoPaletteVariant;
-import dev.xylonity.nomendubium.common.entity.variant.ModularDinoTailVariant;
+import dev.xylonity.nomendubium.common.entity.variant.ChimeraBodyVariant;
+import dev.xylonity.nomendubium.common.entity.variant.ChimeraBackVariant;
+import dev.xylonity.nomendubium.common.entity.variant.ChimeraHeadVariant;
+import dev.xylonity.nomendubium.common.entity.variant.ChimeraPaletteVariant;
+import dev.xylonity.nomendubium.common.entity.variant.ChimeraTailVariant;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -21,26 +21,26 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.NonNull;
 
-public final class ModularDinoEntity extends PathfinderMob {
+public final class ChimeraEntity extends PathfinderMob {
 
-    private static final EntityDataAccessor<Integer> BODY = SynchedEntityData.defineId(ModularDinoEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> HEAD = SynchedEntityData.defineId(ModularDinoEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> TAIL = SynchedEntityData.defineId(ModularDinoEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> BACK = SynchedEntityData.defineId(ModularDinoEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> PALETTE = SynchedEntityData.defineId(ModularDinoEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> BODY = SynchedEntityData.defineId(ChimeraEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> HEAD = SynchedEntityData.defineId(ChimeraEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> TAIL = SynchedEntityData.defineId(ChimeraEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> BACK = SynchedEntityData.defineId(ChimeraEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> PALETTE = SynchedEntityData.defineId(ChimeraEntity.class, EntityDataSerializers.INT);
 
-    public ModularDinoEntity(EntityType<? extends ModularDinoEntity> type, Level level) {
+    public ChimeraEntity(EntityType<? extends ChimeraEntity> type, Level level) {
         super(type, level);
     }
 
     @Override
     protected void defineSynchedData(SynchedEntityData.@NonNull Builder entityData) {
         super.defineSynchedData(entityData);
-        entityData.define(BODY, ModularDinoBodyVariant.HULKING.index());
-        entityData.define(HEAD, ModularDinoHeadVariant.CRUNCHING.index());
-        entityData.define(TAIL, ModularDinoTailVariant.SPIKED.index());
-        entityData.define(BACK, ModularDinoBackVariant.NONE.index());
-        entityData.define(PALETTE, ModularDinoPaletteVariant.NORMAL.index());
+        entityData.define(BODY, ChimeraBodyVariant.HULKING.index());
+        entityData.define(HEAD, ChimeraHeadVariant.CRUNCHING.index());
+        entityData.define(TAIL, ChimeraTailVariant.SPIKED.index());
+        entityData.define(BACK, ChimeraBackVariant.NONE.index());
+        entityData.define(PALETTE, ChimeraPaletteVariant.NORMAL.index());
     }
 
     @Override
@@ -102,12 +102,12 @@ public final class ModularDinoEntity extends PathfinderMob {
 
     @Override
     protected void readAdditionalSaveData(ValueInput input) {
-        setBodyVariant(ModularDinoBodyVariant.index(input.getIntOr("bodyvariant", ModularDinoBodyVariant.HULKING.index())));
-        setHeadVariant(ModularDinoHeadVariant.index(input.getIntOr("headvariant", ModularDinoHeadVariant.CRUNCHING.index())));
-        setTailVariant(ModularDinoTailVariant.index(input.getIntOr("tailvariant", ModularDinoTailVariant.SPIKED.index())));
-        setBackVariant(ModularDinoBackVariant.index(input.getIntOr("backvariant", ModularDinoBackVariant.NONE.index())));
-        final int legacyPalette = input.getBooleanOr("junglepalette", false) ? ModularDinoPaletteVariant.JUNGLE.index() : ModularDinoPaletteVariant.NORMAL.index();
-        setPaletteVariant(ModularDinoPaletteVariant.index(input.getIntOr("palettevariant", legacyPalette)));
+        setBodyVariant(ChimeraBodyVariant.index(input.getIntOr("bodyvariant", ChimeraBodyVariant.HULKING.index())));
+        setHeadVariant(ChimeraHeadVariant.index(input.getIntOr("headvariant", ChimeraHeadVariant.CRUNCHING.index())));
+        setTailVariant(ChimeraTailVariant.index(input.getIntOr("tailvariant", ChimeraTailVariant.SPIKED.index())));
+        setBackVariant(ChimeraBackVariant.index(input.getIntOr("backvariant", ChimeraBackVariant.NONE.index())));
+        final int legacyPalette = input.getBooleanOr("junglepalette", false) ? ChimeraPaletteVariant.JUNGLE.index() : ChimeraPaletteVariant.NORMAL.index();
+        setPaletteVariant(ChimeraPaletteVariant.index(input.getIntOr("palettevariant", legacyPalette)));
     }
 
     @Override
@@ -119,43 +119,43 @@ public final class ModularDinoEntity extends PathfinderMob {
         output.putInt("palettevariant", getPaletteVariant().index());
     }
 
-    public ModularDinoBodyVariant getBodyVariant() {
-        return ModularDinoBodyVariant.index(entityData.get(BODY));
+    public ChimeraBodyVariant getBodyVariant() {
+        return ChimeraBodyVariant.index(entityData.get(BODY));
     }
 
-    public void setBodyVariant(ModularDinoBodyVariant variant) {
+    public void setBodyVariant(ChimeraBodyVariant variant) {
         entityData.set(BODY, variant.index());
     }
 
-    public ModularDinoHeadVariant getHeadVariant() {
-        return ModularDinoHeadVariant.index(entityData.get(HEAD));
+    public ChimeraHeadVariant getHeadVariant() {
+        return ChimeraHeadVariant.index(entityData.get(HEAD));
     }
 
-    public void setHeadVariant(ModularDinoHeadVariant variant) {
+    public void setHeadVariant(ChimeraHeadVariant variant) {
         entityData.set(HEAD, variant.index());
     }
 
-    public ModularDinoTailVariant getTailVariant() {
-        return ModularDinoTailVariant.index(entityData.get(TAIL));
+    public ChimeraTailVariant getTailVariant() {
+        return ChimeraTailVariant.index(entityData.get(TAIL));
     }
 
-    public void setTailVariant(ModularDinoTailVariant variant) {
+    public void setTailVariant(ChimeraTailVariant variant) {
         entityData.set(TAIL, variant.index());
     }
 
-    public ModularDinoBackVariant getBackVariant() {
-        return ModularDinoBackVariant.index(entityData.get(BACK));
+    public ChimeraBackVariant getBackVariant() {
+        return ChimeraBackVariant.index(entityData.get(BACK));
     }
 
-    public void setBackVariant(ModularDinoBackVariant variant) {
+    public void setBackVariant(ChimeraBackVariant variant) {
         entityData.set(BACK, variant.index());
     }
 
-    public ModularDinoPaletteVariant getPaletteVariant() {
-        return ModularDinoPaletteVariant.index(entityData.get(PALETTE));
+    public ChimeraPaletteVariant getPaletteVariant() {
+        return ChimeraPaletteVariant.index(entityData.get(PALETTE));
     }
 
-    public void setPaletteVariant(ModularDinoPaletteVariant variant) {
+    public void setPaletteVariant(ChimeraPaletteVariant variant) {
         entityData.set(PALETTE, variant.index());
     }
 

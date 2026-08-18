@@ -27,7 +27,7 @@ import dev.xylonity.nomendubium.client.entity.model.tail.StubbyTailModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 
-public final class ModularDinoModelLayers {
+public final class ChimeraModelLayers {
 
     public static final ModelLayerLocation HULKING_BODY = layer("hulkingbody");
     public static final ModelLayerLocation SHELLED_BODY = layer("shelledbody");

@@ -1,19 +1,19 @@
 package dev.xylonity.nomendubium.common.entity.variant;
 
-public enum ModularDinoTailVariant {
+public enum ChimeraTailVariant {
     SPIKED,
     STUBBY,
     CLUBBED,
     FAN,
     SPEARED;
 
-    private static final ModularDinoTailVariant[] VALUES = values();
+    private static final ChimeraTailVariant[] VALUES = values();
 
-    public static ModularDinoTailVariant index(int index) {
+    public static ChimeraTailVariant index(int index) {
         return VALUES[Math.floorMod(index, VALUES.length)];
     }
 
-    public ModularDinoTailVariant next() {
+    public ChimeraTailVariant next() {
         return index(ordinal() + 1);
     }
 

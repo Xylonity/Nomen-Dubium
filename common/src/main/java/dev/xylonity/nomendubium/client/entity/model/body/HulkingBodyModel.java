@@ -8,7 +8,7 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 
-public final class HulkingBodyModel extends ModularDinoBodyModel {
+public final class HulkingBodyModel extends ChimeraBodyModel {
 
     public HulkingBodyModel(ModelPart root) {
         super(root);

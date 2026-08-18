@@ -1,7 +1,7 @@
 package dev.xylonity.nomendubium.client.entity.model.back;
 
-import dev.xylonity.nomendubium.client.entity.model.ModularDinoModelConnections;
-import dev.xylonity.nomendubium.client.render.ModularDinoRenderState;
+import dev.xylonity.nomendubium.client.entity.model.ChimeraModelConnections;
+import dev.xylonity.nomendubium.client.render.ChimeraRenderState;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -11,7 +11,7 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 
-public final class BoneyPlatesModel extends EntityModel<ModularDinoRenderState> {
+public final class BoneyPlatesModel extends EntityModel<ChimeraRenderState> {
 
 	public BoneyPlatesModel(ModelPart root) {
 		super(root);
@@ -21,7 +21,7 @@ public final class BoneyPlatesModel extends EntityModel<ModularDinoRenderState> 
 		MeshDefinition meshdefinition = new MeshDefinition();
 		PartDefinition partdefinition = meshdefinition.getRoot();
 
-		PartDefinition boney_plates = partdefinition.addOrReplaceChild("boney_plates", CubeListBuilder.create().texOffs(0, 0).addBox(0.0F, -15.0F, -20.0F, 0.0F, 15.0F, 41.0F, new CubeDeformation(0.0F)), ModularDinoModelConnections.alignToConnection(0.0F, 0.0F, 0.0F));
+		PartDefinition boney_plates = partdefinition.addOrReplaceChild("boney_plates", CubeListBuilder.create().texOffs(0, 0).addBox(0.0F, -15.0F, -20.0F, 0.0F, 15.0F, 41.0F, new CubeDeformation(0.0F)), ChimeraModelConnections.alignToConnection(0.0F, 0.0F, 0.0F));
 
 		PartDefinition body_connection = boney_plates.addOrReplaceChild("body_connection", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
