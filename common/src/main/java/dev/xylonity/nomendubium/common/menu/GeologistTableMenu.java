@@ -1,5 +1,6 @@
 package dev.xylonity.nomendubium.common.menu;
 
+import dev.xylonity.nomendubium.common.item.fossil.util.FossilCategory;
 import dev.xylonity.nomendubium.registry.NomenDubiumItems;
 import dev.xylonity.nomendubium.registry.NomenDubiumMenus;
 import net.minecraft.world.Container;
@@ -130,6 +131,48 @@ public class GeologistTableMenu extends AbstractContainerMenu {
     //    super.broadcastChanges();
     //}
 
+    public int getGameState() {
+        return this.get(DATA_STATE);
+    }
 
+    public int getTool() {
+        return this.get(DATA_TOOL);
+    }
+
+    public int getRoundTicksRemaining() {
+        return this.get(DATA_ROUND_REMAINING);
+    }
+
+    public int getRoundDuration() {
+        return this.get(DATA_ROUND_DURATION);
+    }
+
+    public int getGlobalTicksRemaining() {
+        return this.get(DATA_GLOBAL_REMAINING);
+    }
+
+    public int getProgress() {
+        return this.get(DATA_PROGRESS);
+    }
+
+    public int getRoundIndex() {
+        return this.get(DATA_ROUND_INDEX);
+    }
+
+    public int getCountdownTicksRemaining() {
+        return this.get(DATA_COUNTDOWN_REMAINING);
+    }
+
+    public int getHeldTool() {
+        return this.get(DATA_HELD_TOOL);
+    }
+
+    public FossilCategory getFossilCategory() {
+        return FossilCategory.index(this.get(DATA_FOSSIL_CATEGORY));
+    }
+
+    public boolean hasWorkpiece() {
+        return !this.container.getItem(TABLE_SLOT).isEmpty();
+    }
 
 }
