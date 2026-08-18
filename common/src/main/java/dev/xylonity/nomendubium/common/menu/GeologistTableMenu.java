@@ -135,6 +135,7 @@ public class GeologistTableMenu extends AbstractContainerMenu {
     }
 
     private void tick() {
+        // So it doesn't tick twice, just in case
         final long tick = this.player.level().getGameTime();
         if (tick == this.lastGameTick) {
             return;
@@ -142,44 +143,67 @@ public class GeologistTableMenu extends AbstractContainerMenu {
 
         this.lastGameTick = tick;
 
-        // Checks if the workpiece (the only slot on the table) is the correct item (encased fossil)
+        // The game only runs while an encased fossil is in the table slot
         final ItemStack workpiece = this.container.getItem(TABLE_SLOT);
         final boolean hasEncasedFossil = workpiece.is(NomenDubiumItems.ENCASED_FOSSIL.get());
 
         if (!hasEncasedFossil) {
-            // TODO: fail detection
+            if (workpiece.isEmpty()) {
+                // Keeps the lost state visible after the encased fossil has been consumed
+                if (this.getGameState() != STATE_LOST) {
+                    this.resetGame();
+                }
+
+            }
+            // A different item interrupts the current attempt without starting a new one (if the reward is in the slot)
+            else if (this.getGameState() == STATE_PLAYING || this.getGameState() == STATE_COUNTDOWN) {
+                this.set(DATA_STATE, STATE_IDLE);
+                this.set(DATA_HELD_TOOL, -1);
+            }
+
             return;
         }
 
+        // Syncs the fossil category so the client can render the matching fossil
         final FossilCategory category = this.getOrAssignCategory(workpiece);
         this.set(DATA_FOSSIL_CATEGORY, category.ordinal());
 
+        // A newly inserted fossil begins with a fresh countdown
         if (this.getGameState() == STATE_IDLE || this.getGameState() == STATE_LOST) {
             this.startCountdown();
             return;
         }
+
+        // Finishes the countdown before any round timer or player action can progress
         if (this.getGameState() == STATE_COUNTDOWN) {
             this.set(DATA_COUNTDOWN_REMAINING, this.get(DATA_COUNTDOWN_REMAINING) - 1);
             if (this.get(DATA_COUNTDOWN_REMAINING) <= 0) {
                 this.startGame();
             }
+
             return;
         }
+
+        // Terminal states stay frozen until the workpiece changes
         if (this.getGameState() != STATE_PLAYING) {
             return;
         }
 
+        // Global time always advances but the round time only advances with the requested tool held
         this.set(DATA_GLOBAL_REMAINING, this.get(DATA_GLOBAL_REMAINING) - 1);
         if (this.getHeldTool() == this.getTool()) {
             this.set(DATA_ROUND_REMAINING, this.get(DATA_ROUND_REMAINING) - 1);
         }
 
+        // The global countdown takes priority if both timers expire on the same tick
         if (this.get(DATA_GLOBAL_REMAINING) <= 0) {
             this.set(DATA_GLOBAL_REMAINING, 0);
             this.failGame();
-        } else if (this.get(DATA_ROUND_REMAINING) <= 0) {
+        }
+        else if (this.get(DATA_ROUND_REMAINING) <= 0) {
             this.startNextRound();
         }
+
     }
 
     public int getGameState() {
