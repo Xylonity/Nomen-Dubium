@@ -113,6 +113,12 @@ public class GeologistTableMenu extends AbstractContainerMenu {
     }
 
     @Override
+    public void removed(@NonNull Player player) {
+        super.removed(player);
+        this.container.stopOpen(player);
+    }
+
+    @Override
     public boolean stillValid(@NonNull Player player) {
         return this.container.stillValid(player);
     }
@@ -123,6 +129,62 @@ public class GeologistTableMenu extends AbstractContainerMenu {
 
     private void set(int index, int value) {
         this.gameData[index] = value;
+    }
+
+    @Override
+    public boolean clickMenuButton(Player player, int buttonId) {
+        // Tool selection uses separated button ids so they don't clash with the action ids below
+        if (buttonId >= BUTTON_SELECT_TOOL_BASE && buttonId < BUTTON_SELECT_TOOL_BASE + 3) {
+            if (this.getGameState() != STATE_PLAYING) {
+                return false;
+            }
+
+            this.set(DATA_HELD_TOOL, buttonId - BUTTON_SELECT_TOOL_BASE);
+
+            return true;
+        }
+
+        // Releasing the tool stops the round timer until the correct one is held again
+        if (buttonId == BUTTON_RELEASE_TOOL) {
+            if (this.getGameState() != STATE_PLAYING) {
+                return false;
+            }
+
+            this.set(DATA_HELD_TOOL, -1);
+
+            return true;
+        }
+
+        // Ignores invalid actions
+        if (buttonId < TOOL_CHISEL || buttonId > TOOL_BRUSH || this.getGameState() != STATE_PLAYING || this.getTool() != buttonId || this.getHeldTool() != buttonId) {
+            return false;
+        }
+
+        if (player.level().isClientSide()) {
+            return true;
+        }
+
+        if (!this.container.getItem(TABLE_SLOT).is(NomenDubiumItems.ENCASED_FOSSIL.get())) {
+            return false;
+        }
+
+        // Limits actions to one per tick
+        final long tick = player.level().getGameTime();
+        if (tick == this.lastActionTick || this.actionsThisRound >= maxActions(buttonId)) {
+            return false;
+        }
+
+        this.lastActionTick = tick;
+        this.actionsThisRound++;
+
+        this.set(DATA_PROGRESS, Math.min(MAX_PROGRESS, this.get(DATA_PROGRESS) + progressPerAction(buttonId)));
+
+        // Reaching the cap immediately turns the encased fossil into the reward per se
+        if (this.get(DATA_PROGRESS) >= MAX_PROGRESS) {
+            this.finishGame();
+        }
+
+        return true;
     }
 
     @Override
