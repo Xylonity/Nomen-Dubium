@@ -293,5 +293,41 @@ public class GeologistTableMenu extends AbstractContainerMenu {
         this.lastActionTick = Long.MIN_VALUE;
     }
 
+    private static int maxActions(int tool) {
+        return switch (tool) {
+            case TOOL_CHISEL -> 15;
+            case TOOL_HAMMER -> 100;
+            case TOOL_BRUSH -> 40;
+            default -> 0;
+        };
+    }
+
+    private static int progressPerAction(int tool) {
+        return switch (tool) {
+            case TOOL_CHISEL -> 13;
+            case TOOL_HAMMER -> 3;
+            case TOOL_BRUSH -> 7;
+            default -> 0;
+        };
+
+    }
+
+    private void finishGame() {
+        final FossilCategory category = this.getFossilCategory();
+        this.container.setItem(TABLE_SLOT, category.randomResult(this.player.level().getRandom()));
+        this.container.setChanged();
+
+        this.set(DATA_PROGRESS, MAX_PROGRESS);
+        this.set(DATA_STATE, STATE_WON);
+        this.set(DATA_HELD_TOOL, -1);
+    }
+
+    private void failGame() {
+        this.container.setItem(TABLE_SLOT, ItemStack.EMPTY);
+        this.container.setChanged();
+
+        this.set(DATA_STATE, STATE_LOST);
+        this.set(DATA_HELD_TOOL, -1);
+    }
 
 }
