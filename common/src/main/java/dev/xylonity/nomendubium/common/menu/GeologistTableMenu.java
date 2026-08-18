@@ -37,6 +37,17 @@ public class GeologistTableMenu extends AbstractContainerMenu {
     private static final int DATA_FOSSIL_CATEGORY = 9;
     private static final int DATA_COUNT = 10;
 
+    public static final int BUTTON_SELECT_TOOL_BASE = 10;
+    public static final int BUTTON_RELEASE_TOOL = 13;
+
+    public static final int MAX_PROGRESS = 600;
+    public static final int GLOBAL_DURATION = 20 * 60;
+    public static final int COUNTDOWN_DURATION = 20 * 3;
+    private static final int INITIAL_ROUND_DURATION = 90;
+    private static final int MIN_ROUND_DURATION = 34;
+    private static final int CHISEL_ROUND_TIME_BONUS = 30;
+    private static final float ROUND_DURATION_SCALE = 0.75F;
+
     private final int[] gameData = new int[DATA_COUNT];
 
     private final Container container;
