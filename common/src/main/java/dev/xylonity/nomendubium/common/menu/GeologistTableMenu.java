@@ -37,6 +37,9 @@ public class GeologistTableMenu extends AbstractContainerMenu {
     private static final int DATA_FOSSIL_CATEGORY = 9;
     private static final int DATA_COUNT = 10;
 
+    private static final int TABLE_SLOT = 0;
+    private static final int PLAYER_SLOT_START = 1;
+
     public static final int BUTTON_SELECT_TOOL_BASE = 10;
     public static final int BUTTON_RELEASE_TOOL = 13;
 
@@ -53,6 +56,11 @@ public class GeologistTableMenu extends AbstractContainerMenu {
     private final Container container;
     private final ContainerLevelAccess access;
     private final Player player;
+
+    private long lastGameTick = Long.MIN_VALUE;
+    private long lastActionTick = Long.MIN_VALUE;
+
+    private int actionsThisRound;
 
     public GeologistTableMenu(int containerId, Inventory inventory) {
         this(containerId, inventory, new SimpleContainer(1), ContainerLevelAccess.NULL);
@@ -121,5 +129,7 @@ public class GeologistTableMenu extends AbstractContainerMenu {
 
     //    super.broadcastChanges();
     //}
+
+
 
 }
