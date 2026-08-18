@@ -1,7 +1,7 @@
 package dev.xylonity.nomendubium.registry;
 
 import dev.xylonity.nomendubium.NomenDubium;
-import dev.xylonity.nomendubium.entity.ChimeraEntity;
+import dev.xylonity.nomendubium.common.entity.ChimeraEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 
