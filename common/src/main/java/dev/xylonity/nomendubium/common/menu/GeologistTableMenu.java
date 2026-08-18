@@ -19,6 +19,7 @@ public class GeologistTableMenu extends AbstractContainerMenu {
 
     public GeologistTableMenu(int containerId, Inventory inventory, Container container, ContainerLevelAccess access) {
         super(NomenDubiumMenus.GEOLOGIST_TABLE.get(), containerId);
+        checkContainerSize(container, 1);
     }
 
     @Override
