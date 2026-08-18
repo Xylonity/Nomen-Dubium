@@ -50,6 +50,8 @@ public class GeologistTableMenu extends AbstractContainerMenu {
             }
 
         });
+
+        this.addStandardInventorySlots(inventory, 48, 129);
     }
 
     @Override
