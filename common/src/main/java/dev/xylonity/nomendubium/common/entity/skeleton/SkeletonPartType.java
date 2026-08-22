@@ -82,10 +82,6 @@ public enum SkeletonPartType {
         return category() == ChimeraPartCategory.BODY;
     }
 
-    public float modelYRotation() {
-        return this == SHELLED_BODY ? 180F : 0F;
-    }
-
     public Vec3 attachmentOffset(ChimeraPartCategory attachment, float yaw) {
         if (connections == null) {
             return Vec3.ZERO;
@@ -102,8 +98,8 @@ public enum SkeletonPartType {
         return new Vec3(-Math.sin(angle) * distance, -connection.y / 16D, Math.cos(angle) * distance);
     }
 
-    public AABB interactionBox(Vec3 position, float yaw, float parentBodyModelYRotation) {
-        return bounds.at(position, yaw + parentBodyModelYRotation, isBody());
+    public AABB interactionBox(Vec3 position, float yaw) {
+        return bounds.at(position, yaw, isBody());
     }
 
     private static Map<String, SkeletonPartType> createPartLookup() {
