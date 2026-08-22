@@ -27,7 +27,7 @@ public final class NomenDubiumItems {
     public static final Supplier<HuntersArrowItem> HUNTERS_ARROW = NomenDubium.PLATFORM.registerItem("hunters_arrow", key -> new HuntersArrowItem(new Item.Properties().setId(key)));
     public static final Supplier<PrehistoricMawItem> PREHISTORIC_MAW = NomenDubium.PLATFORM.registerItem("prehistoric_maw", key -> new PrehistoricMawItem(new Item.Properties().stacksTo(1).setId(key)));
     public static final Supplier<FossilisedMawItem> FOSSILISED_MAW = NomenDubium.PLATFORM.registerItem("fossilised_maw", key -> new FossilisedMawItem(new Item.Properties().stacksTo(1).setId(key)));
-    public static final Supplier<RegeneratingChopItem> REGENERATING_CHOP = NomenDubium.PLATFORM.registerItem("regenerating_chop", key -> new RegeneratingChopItem(new Item.Properties().durability(RegeneratingChopItem.MAX_DURABILITY).food(new FoodProperties.Builder().nutrition(6).saturationModifier(0.8F).build()).setId(key)));
+    public static final Supplier<RegeneratingChopItem> REGENERATING_CHOP = NomenDubium.PLATFORM.registerItem("regenerating_chop", key -> new RegeneratingChopItem(new Item.Properties().durability(100).food(new FoodProperties.Builder().nutrition(6).saturationModifier(0.8F).build()).setId(key)));
 
     private static BlockItem createBlockItem(ResourceKey<Item> key, Block block) {
         final BlockItem item = new BlockItem(
