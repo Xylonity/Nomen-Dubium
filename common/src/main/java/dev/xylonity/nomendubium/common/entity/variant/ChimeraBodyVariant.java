@@ -1,6 +1,6 @@
 package dev.xylonity.nomendubium.common.entity.variant;
 
-public enum ChimeraBodyVariant {
+public enum ChimeraBodyVariant implements ChimeraPartVariant {
     HULKING,
     SHELLED,
     AVIAN,
@@ -20,4 +20,10 @@ public enum ChimeraBodyVariant {
     public int index() {
         return ordinal();
     }
+
+    @Override
+    public ChimeraPartCategory category() {
+        return ChimeraPartCategory.BODY;
+    }
+
 }

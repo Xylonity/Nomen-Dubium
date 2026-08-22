@@ -1,6 +1,6 @@
 package dev.xylonity.nomendubium.common.entity.variant;
 
-public enum ChimeraHeadVariant {
+public enum ChimeraHeadVariant implements ChimeraPartVariant {
     CRUNCHING,
     SHIELDED,
     SNARLED,
@@ -19,6 +19,11 @@ public enum ChimeraHeadVariant {
 
     public int index() {
         return ordinal();
+    }
+
+    @Override
+    public ChimeraPartCategory category() {
+        return ChimeraPartCategory.HEAD;
     }
 
 }

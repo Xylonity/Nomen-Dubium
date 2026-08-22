@@ -1,6 +1,8 @@
 package dev.xylonity.nomendubium.common.entity.variant;
 
-public enum ChimeraBackVariant {
+import java.util.Arrays;
+
+public enum ChimeraBackVariant implements ChimeraPartVariant {
     NONE,
     BONEY_PLATES,
     DORSAL_SCALES,
@@ -14,12 +16,21 @@ public enum ChimeraBackVariant {
         return VALUES[Math.floorMod(index, VALUES.length)];
     }
 
+    public static ChimeraBackVariant[] fossilValues() {
+        return Arrays.stream(VALUES).filter(variant -> variant != NONE).toArray(ChimeraBackVariant[]::new);
+    }
+
     public ChimeraBackVariant next() {
         return index(ordinal() + 1);
     }
 
     public int index() {
         return ordinal();
+    }
+
+    @Override
+    public ChimeraPartCategory category() {
+        return ChimeraPartCategory.BACK;
     }
 
 }

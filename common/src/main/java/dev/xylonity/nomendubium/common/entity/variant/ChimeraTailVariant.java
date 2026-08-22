@@ -1,6 +1,6 @@
 package dev.xylonity.nomendubium.common.entity.variant;
 
-public enum ChimeraTailVariant {
+public enum ChimeraTailVariant implements ChimeraPartVariant {
     SPIKED,
     STUBBY,
     CLUBBED,
@@ -19,6 +19,11 @@ public enum ChimeraTailVariant {
 
     public int index() {
         return ordinal();
+    }
+
+    @Override
+    public ChimeraPartCategory category() {
+        return ChimeraPartCategory.TAIL;
     }
 
 }
