@@ -21,6 +21,10 @@ public final class NomenDubiumCreativeTabs {
         List.of(
             () -> new ItemStack(NomenDubiumItems.PALEONTOLOGY_TABLE.get()),
             () -> new ItemStack(NomenDubiumItems.ENCASED_FOSSIL.get()),
+            () -> new ItemStack(NomenDubiumItems.HUNTERS_ARROW.get()),
+            () -> new ItemStack(NomenDubiumItems.PREHISTORIC_MAW.get()),
+            () -> new ItemStack(NomenDubiumItems.FOSSILISED_MAW.get()),
+            () -> new ItemStack(NomenDubiumItems.REGENERATING_CHOP.get()),
             () -> NomenDubiumItems.FOSSIL.get().createStack("shielded_head"),
             () -> NomenDubiumItems.FOSSIL.get().createStack("avian_body")
         )
