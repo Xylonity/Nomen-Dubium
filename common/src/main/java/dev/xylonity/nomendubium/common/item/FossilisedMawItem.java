@@ -1,6 +1,7 @@
 package dev.xylonity.nomendubium.common.item;
 
 import dev.xylonity.nomendubium.common.entity.FossilisedMawProjectileEntity;
+import dev.xylonity.nomendubium.registry.NomenDubiumItems;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -16,7 +17,7 @@ import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.NonNull;
 
-public final class FossilisedMawItem extends Item {
+public final class FossilisedMawItem extends Item implements Restorable {
 
     public FossilisedMawItem(Properties properties) {
         super(properties);
@@ -68,6 +69,11 @@ public final class FossilisedMawItem extends Item {
         player.awardStat(Stats.ITEM_USED.get(this));
 
         return true;
+    }
+
+    @Override
+    public Item getRestorableItem() {
+        return NomenDubiumItems.PREHISTORIC_MAW.get();
     }
 
 }
