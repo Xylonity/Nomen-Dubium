@@ -1,0 +1,22 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "property": "minecraft:display_context",
+    "cases": [
+      {
+        "when": [
+          "gui",
+          "ground"
+        ],
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/fossilised_maw_item"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "nomendubium:item/fossilised_maw"
+    }
+  }
+}
