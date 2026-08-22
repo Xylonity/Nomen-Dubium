@@ -1,7 +1,6 @@
 package dev.xylonity.nomendubium.client.entity.model.chimera.skeleton.tail;
 
-import dev.xylonity.nomendubium.client.entity.model.chimera.ChimeraModelConnections;
-import dev.xylonity.nomendubium.client.entity.render.skeleton.SkeletonPartRenderState;
+import dev.xylonity.nomendubium.client.projectile.renderer.SkeletonPartRenderState;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
