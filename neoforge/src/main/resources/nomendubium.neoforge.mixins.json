@@ -1,7 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "dev.xylonity.nomendubium.mixins",
+  "package": "dev.xylonity.nomendubium.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [],
   "client": [],

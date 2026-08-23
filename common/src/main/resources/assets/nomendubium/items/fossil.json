@@ -5,16 +5,149 @@
     "component": "nomendubium:fossil_part",
     "cases": [
       {
+        "when": "hulking_body",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/hulking_body_fossil"
+        }
+      },
+      {
+        "when": "shelled_body",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/shelled_body_fossil"
+        }
+      },
+      {
+        "when": "avian_body",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/avian_body_fossil"
+        }
+      },
+      {
+        "when": "lanky_body",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/lanky_body_fossil"
+        }
+      },
+      {
+        "when": "puffy_body",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/puffy_body_fossil"
+        }
+      },
+      {
+        "when": "crunching_head",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/crunching_head_fossil"
+        }
+      },
+      {
         "when": "shielded_head",
         "model": {
           "type": "minecraft:model",
           "model": "nomendubium:item/shielded_head_fossil"
         }
+      },
+      {
+        "when": "snarled_head",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/snarled_head_fossil"
+        }
+      },
+      {
+        "when": "beaked_head",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/beaked_head_fossil"
+        }
+      },
+      {
+        "when": "snorting_head",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/snorting_head_fossil"
+        }
+      },
+      {
+        "when": "spiked_tail",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/spiked_tail_fossil"
+        }
+      },
+      {
+        "when": "stubby_tail",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/stubby_tail_fossil"
+        }
+      },
+      {
+        "when": "clubbed_tail",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/clubbed_tail_fossil"
+        }
+      },
+      {
+        "when": "fan_tail",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/fan_tail_fossil"
+        }
+      },
+      {
+        "when": "speared_tail",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/speared_tail_fossil"
+        }
+      },
+      {
+        "when": "boney_plates_back",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/boney_plates_back_fossil"
+        }
+      },
+      {
+        "when": "dorsal_scales_back",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/dorsal_scales_back_fossil"
+        }
+      },
+      {
+        "when": "spikes_back",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/spikes_back_fossil"
+        }
+      },
+      {
+        "when": "spine_sail_back",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/spine_sail_back_fossil"
+        }
+      },
+      {
+        "when": "thorns_back",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/thorns_back_fossil"
+        }
       }
     ],
     "fallback": {
       "type": "minecraft:model",
-      "model": "minecraft:item/wooden_sword"
+      "model": "nomendubium:item/shielded_head_fossil"
     }
   }
 }

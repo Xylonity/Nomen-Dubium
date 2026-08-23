@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "nomendubium:item/stubby_tail_fossil"
+  }
+}
