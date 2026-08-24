@@ -27,6 +27,8 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import java.util.List;
 import java.util.function.Supplier;
 
+/// Doing this to avoid duplicated code on both loaders
+/// TODO: refactor into knightlib's event system
 public final class SkeletonPartModelLayers {
 
     public static final ModelLayerLocation HULKING_BODY = layer("skeleton/hulking_body");

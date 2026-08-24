@@ -27,6 +27,8 @@ import dev.xylonity.nomendubium.client.entity.model.chimera.normal.tail.StubbyTa
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 
+/// Doing this to avoid duplicated code on both loaders
+/// TODO: refactor into knightlib's event system
 public final class ChimeraModelLayers {
 
     public static final ModelLayerLocation HULKING_BODY = layer("hulkingbody");

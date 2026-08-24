@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "nomendubium:hunters_arrow"
+    "nomendubium:hunters_arrow",
+    "nomendubium:primitive_arrow"
   ]
 }
