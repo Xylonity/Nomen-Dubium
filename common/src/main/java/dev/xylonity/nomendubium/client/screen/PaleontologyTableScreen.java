@@ -14,10 +14,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import org.jspecify.annotations.NonNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /// Some of the implementation is derived from the cornelius companions! screen
 /// https://github.com/Xylonity/Companions/blob/v1.20.1/common/src/main/java/dev/xylonity/companions/client/gui/screen/CorneliusScreen.java
@@ -124,10 +121,12 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
         }
         // On game lose
         if (gameState == PaleontologyTableMenu.STATE_LOST && this.seenGameState != PaleontologyTableMenu.STATE_LOST) {
-            // TODO: particles
+            this.spawnFossilBreakParticles(this.lastFossilTexture);
         }
 
         this.seenGameState = gameState;
+
+
     }
 
     @Override
@@ -318,6 +317,38 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
         this.toolAngularVelocity += (toAngle - this.toolAngle) * 0.22F;
         this.toolAngularVelocity *= 0.72F;
         this.toolAngle += this.toolAngularVelocity;
+    }
+
+    private void spawnFossilBreakParticles(Identifier fossilTexture) {
+        final Random random = new Random();
+        final float centerX = FOSSIL_X + FOSSIL_SIZE / 2f;
+        final float centerY = FOSSIL_Y + FOSSIL_SIZE / 2f;
+        for (int i = 0; i < 52; i++) {
+            final double offsetX = (random.nextDouble() - 0.5) * FOSSIL_SIZE * 0.9;
+            final double offsetY = (random.nextDouble() - 0.5) * FOSSIL_SIZE * 0.9;
+            final double distance = Math.max(4.0D, Math.sqrt(offsetX * offsetX + offsetY * offsetY));
+            final double speed = 0.18D + random.nextDouble() * 0.72D;
+            final int size = 2 + random.nextInt(4);
+            final int bounds = FOSSIL_TEXTURE_SIZE - size;
+            this.dustParticles.add(new DustParticle(
+                    centerX + offsetX, centerY + offsetY,
+                    offsetX / distance * speed + random.nextDouble() * 0.5 - 0.25,
+                    offsetY / distance * speed - 0.25 - random.nextDouble() * 0.55,
+                    20 + random.nextInt(17), 2 + random.nextFloat() * 3.5f, fossilTexture,
+                    random.nextInt(bounds + 1),
+                    random.nextInt(bounds + 1), size)
+            );
+
+        }
+
+        this.removeExtraParticles();
+    }
+
+    private void removeExtraParticles() {
+        while (this.dustParticles.size() > 96) {
+            this.dustParticles.removeFirst();
+        }
+
     }
 
     private void extractTool(GuiGraphicsExtractor graphics, Identifier texture, int tool, int ox, int oy, int mouseX, int mouseY) {
