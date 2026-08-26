@@ -5,7 +5,7 @@ import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.xylonity.nomendubium.NomenDubium;
 import dev.xylonity.nomendubium.common.menu.PaleontologyTableMenu;
-import dev.xylonity.nomendubium.common.menu.PaleontologyTableMenuReal;
+import dev.xylonity.nomendubium.common.menu.PaleontologyTableMenu;
 import dev.xylonity.nomendubium.mixin.GuiGraphicsExtractorAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -57,6 +57,7 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
     private static final int TOOL_WIDTH = 32;
     private static final int TOOL_HEIGHT = 34;
     private static final int[] TOOL_Y = { 10, 36, 62 };
+    private static final int TOOL_DROP_WIDTH = (GUI_WIDTH + 2) / 3;
     private static final int HELD_TOOL_WIDTH = 32;
     private static final int HELD_TOOL_HEIGHT = 34;
 
@@ -69,6 +70,11 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
 
     private static final int CHISEL_PARTS = 13;
     private static final int CHISEL_GUIDE_DURATION = 60;
+    private static final float CHISEL_START_RADIUS = 9.0F;
+    private static final float CHISEL_TRACE_TOLERANCE = 9.0F;
+    private static final float CHISEL_MAX_TRACE_STEP = 0.75F;
+    private static final float CHISEL_BACKTRACK_TOLERANCE = 0.22F;
+    private static final float CHISEL_REQUIRED_PROGRESS = 0.88F;
 
     private static final int BAR_Y = 15;
     private static final int BAR_WIDTH = 10;
@@ -152,7 +158,7 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
             this.resetBrushCircle();
             this.moveChiselPath();
         }
-        if (this.isCorrectToolSelected() && this.selectedTool == PaleontologyTableMenuReal.TOOL_CHISEL && !this.tracingChisel && ++this.chiselGuideAge >= CHISEL_GUIDE_DURATION) {
+        if (this.isCorrectToolSelected() && this.selectedTool == PaleontologyTableMenu.TOOL_CHISEL && !this.tracingChisel && ++this.chiselGuideAge >= CHISEL_GUIDE_DURATION) {
             this.moveChiselPath();
         }
 
@@ -207,7 +213,7 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
         this.extractTool(graphics, BRUSH, PaleontologyTableMenu.TOOL_BRUSH, ox, oy, mouseX, mouseY);
 
         // Chisel arrows
-        if (this.isCorrectToolSelected() && this.selectedTool == PaleontologyTableMenuReal.TOOL_CHISEL) {
+        if (this.isCorrectToolSelected() && this.selectedTool == PaleontologyTableMenu.TOOL_CHISEL) {
             this.extractChiselGuide(graphics, ox, oy);
         }
 
@@ -268,6 +274,85 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
         }
 
         return super.mouseReleased(event);
+    }
+
+    @Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (event.button() == 0) {
+            final int x = (int) event.x() - this.leftPos;
+            final int y = (int) event.y() - this.topPos;
+
+            if (this.selectedTool >= 0 && inside(x, y, 0, 0, TOOL_DROP_WIDTH, GUI_HEIGHT)) {
+                this.releaseTool();
+                return true;
+            }
+
+            if (this.isPlaying() && this.selectedTool < 0) {
+                int tool = isToolAt(x, y);
+                if (tool >= 0) {
+                    this.selectTool(tool, event.x(), event.y());
+                    return true;
+                }
+
+            }
+
+            if (this.isCorrectToolSelected()) {
+                if (this.selectedTool == PaleontologyTableMenu.TOOL_CHISEL && this.isNearChiselStart(x, y)) {
+                    this.tracingChisel = true;
+                    this.chiselTraceProgress = 0.0F;
+                    this.chiselGuideAge = 0;
+                    return true;
+                }
+                if (this.selectedTool == PaleontologyTableMenu.TOOL_HAMMER && inside(x, y, FOSSIL_X, FOSSIL_Y, FOSSIL_SIZE, FOSSIL_SIZE)) {
+                    this.sendToolAction(PaleontologyTableMenu.TOOL_HAMMER, x, y);
+                    return true;
+                }
+                if (this.selectedTool == PaleontologyTableMenu.TOOL_BRUSH && this.isValidBrushRadius(x, y)) {
+                    this.beginBrushCircle(x, y);
+                    return true;
+                }
+
+            }
+
+        }
+
+        return super.mouseClicked(event, doubleClick);
+    }
+
+    private boolean isNearChiselStart(float x, float y) {
+        final float dx = x - this.chiselPathX[0];
+        final float dy = y - this.chiselPathY[0];
+        return dx * dx + dy * dy <= CHISEL_START_RADIUS * CHISEL_START_RADIUS;
+    }
+
+    private void beginBrushCircle(float x, float y) {
+        float centerX = FOSSIL_X + FOSSIL_SIZE / 2.0F;
+        float centerY = FOSSIL_Y + FOSSIL_SIZE / 2.0F;
+        this.draggingBrush = true;
+        this.brushStartAngle = (float)Math.atan2(y - centerY, x - centerX);
+        this.brushLastAngle = this.brushStartAngle;
+        this.brushRotation = 0.0F;
+        this.brushDustRotation = 0.0F;
+        this.brushDirection = 0;
+        this.spawnToolParticles(x, y, true, 2);
+    }
+
+    private void releaseTool() {
+        this.selectedTool = -1;
+        this.resetBrushCircle();
+        this.resetChiselTrace();
+        this.resetToolSwing();
+        this.sendMenuButton(PaleontologyTableMenu.BUTTON_RELEASE_TOOL);
+    }
+
+    private void selectTool(int tool, double mouseX, double mouseY) {
+        this.selectedTool = tool;
+        this.lastCursorX = mouseX;
+        this.lastCursorY = mouseY;
+        this.cursorTracking = true;
+        this.toolAngle = 0;
+        this.toolAngularVelocity = 0;
+        this.sendMenuButton(PaleontologyTableMenu.BUTTON_SELECT_TOOL_BASE + tool);
     }
 
     private void extractChiselGuide(GuiGraphicsExtractor graphics, int ox, int oy) {
