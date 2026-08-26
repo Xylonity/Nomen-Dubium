@@ -126,6 +126,21 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
 
         this.seenGameState = gameState;
 
+        if (this.menu.getGameState() == PaleontologyTableMenuReal.STATE_PLAYING && this.menu.getRoundIndex() != this.seenRound) {
+            this.seenRound = this.menu.getRoundIndex();
+            this.chiselPathIndex = 0;
+            this.resetBrushCircle();
+        }
+
+        // Ticks pop animation
+        this.tickFossilStage();
+
+        if (this.menu.getGameState() != PaleontologyTableMenuReal.STATE_PLAYING) {
+            this.selectedTool = -1;
+            this.resetBrushCircle();
+            this.resetChiselTrace();
+            this.resetToolSwing();
+        }
 
     }
 
@@ -299,6 +314,29 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
         graphics.fill(x + 2, top, right - 2, Math.min(bottom - 2, top + 1), color);
     }
 
+    private void tickFossilStage() {
+        if (!this.menu.hasWorkpiece()) {
+            this.seenFossilStage = -1;
+            this.fossilPopAge = FOSSIL_POP_DURATION;
+            return;
+        }
+
+        final int stage = this.getFossilStage();
+        if (this.seenFossilStage < 0 || stage < this.seenFossilStage) {
+            this.seenFossilStage = stage;
+            this.fossilPopAge = FOSSIL_POP_DURATION;
+        }
+        else if (stage > this.seenFossilStage) {
+            this.seenFossilStage = stage;
+            this.fossilPopAge = 0;
+            this.spawnFossilStageDust();
+        }
+        else if (this.fossilPopAge < FOSSIL_POP_DURATION) {
+            this.fossilPopAge++;
+        }
+
+    }
+
     private void updateToolSwing(double mouseX, double mouseY) {
         if (!this.cursorTracking) {
             this.lastCursorX = mouseX;
@@ -338,6 +376,27 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
                     random.nextInt(bounds + 1),
                     random.nextInt(bounds + 1), size)
             );
+
+        }
+
+        this.removeExtraParticles();
+    }
+
+    private void spawnFossilStageDust() {
+        final Random random = new Random();
+        final float centerX = FOSSIL_X + FOSSIL_SIZE / 2f;
+        final float centerY = FOSSIL_Y + FOSSIL_SIZE / 2f;
+        for (int i = 0; i < 26; i++) {
+            final double offsetX = (random.nextDouble() - 0.5D) * FOSSIL_SIZE * 1.05;
+            final double offsetY = (random.nextDouble() - 0.5D) * FOSSIL_SIZE * 0.9;
+            final double distance = Math.max(5.0D, Math.sqrt(offsetX * offsetX + offsetY * offsetY));
+            final double speed = 0.08D + random.nextDouble() * 0.48D;
+            this.dustParticles.add(new DustParticle(
+                    centerX + offsetX, centerY + offsetY,
+                    offsetX / distance * speed + random.nextDouble() * 0.34 - 0.17,
+                    offsetY / distance * speed - 0.08 - random.nextDouble() * 0.3,
+                    13 + random.nextInt(11), 4 + random.nextFloat() * 6f, true
+            ));
 
         }
 
