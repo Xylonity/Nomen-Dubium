@@ -3,7 +3,6 @@ package dev.xylonity.nomendubium.client.screen;
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import dev.xylonity.nomendubium.NomenDubium;
 import dev.xylonity.nomendubium.common.menu.PaleontologyTableMenu;
-import dev.xylonity.nomendubium.common.menu.PaleontologyTableMenu;
 import dev.xylonity.nomendubium.common.menu.PaleontologyTableMenuReal;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -55,6 +54,12 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
     private static final int[] TOOL_Y = { 10, 36, 62 };
     private static final int HELD_TOOL_WIDTH = 32;
     private static final int HELD_TOOL_HEIGHT = 34;
+
+    private static final int BAR_Y = 15;
+    private static final int BAR_WIDTH = 10;
+    private static final int BAR_HEIGHT = 70;
+    private static final int ROUND_BAR_X = 215;
+    private static final int PROGRESS_BAR_X = 229;
 
     private final List<DustParticle> dustParticles = new ArrayList<>();
     private final Map<Identifier, Boolean> availableCategoryTextures = new HashMap<>();
@@ -164,6 +169,8 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
 
         // Game instructions
         this.extractInstruction(graphics, ox, oy);
+        // Progress bars
+        this.extractProgressBars(graphics, ox, oy);
         // Game start countdown
         this.extractCountdown(graphics, ox, oy, partialTick);
 
@@ -251,6 +258,46 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
         final int textY = oy + INSTRUCTION_AREA_Y + (INSTRUCTION_AREA_HEIGHT - this.font.lineHeight) / 2;
 
         graphics.text(this.font, instruction, textX, textY, color, true);
+    }
+
+    private void extractProgressBars(GuiGraphicsExtractor graphics, int ox, int oy) {
+        if (!this.isPlaying() && this.menu.getGameState() != PaleontologyTableMenuReal.STATE_WON) {
+            return;
+        }
+
+        final int height = BAR_HEIGHT - 4;
+        final int round = this.menu.getRoundDuration() <= 0 ? 0 : Mth.clamp(this.menu.getRoundTicksRemaining() * height / this.menu.getRoundDuration(), 0, height);
+        this.extractProgressBar(graphics, ox + ROUND_BAR_X, oy + BAR_Y, round, 0xFF9F382E, 0xFFF0745D);
+
+        final int seconds = Math.max(0, (this.menu.getGlobalTicksRemaining() + 19) / 20);
+        final String time = String.format("%d:%02d", seconds / 60, seconds % 60);
+
+        graphics.text(this.font, Component.translatable("gui.nomendubium.time", time), ox + 6, oy + 4, 0xFFFFFFFF, true);
+
+        final int progress = Mth.clamp(this.menu.getProgress() * height / PaleontologyTableMenuReal.MAX_PROGRESS, 0, height);
+        this.extractProgressBar(graphics, ox + PROGRESS_BAR_X, oy + BAR_Y, progress, 0xFFA97832, 0xFFE9C765);
+    }
+
+    private void extractProgressBar(GuiGraphicsExtractor graphics, int x, int y, int filled, int fillColor, int color) {
+        final int right = x + BAR_WIDTH;
+        final int bottom = y + BAR_HEIGHT;
+
+        graphics.fill(x + 2, y + 2, right + 2, bottom + 2, 0x66000000);
+        graphics.fill(x, y, right, bottom, 0xFF3A291F);
+        graphics.outline(x, y, BAR_WIDTH, BAR_HEIGHT, 0xFFE1C28A);
+        graphics.fill(x + 2, y + 2, right - 2, bottom - 2, 0xFF1B1512);
+
+        if (filled <= 0) {
+            return;
+        }
+
+        final int top = bottom - 2 - filled;
+        graphics.fill(x + 2, top, right - 2, bottom - 2, fillColor);
+        if (filled > 2) {
+            graphics.fill(x + 3, top + 1, x + 5, bottom - 3, color);
+        }
+
+        graphics.fill(x + 2, top, right - 2, Math.min(bottom - 2, top + 1), color);
     }
 
     private void updateToolSwing(double mouseX, double mouseY) {
