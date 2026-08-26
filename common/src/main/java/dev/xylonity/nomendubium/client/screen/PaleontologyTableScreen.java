@@ -3,7 +3,7 @@ package dev.xylonity.nomendubium.client.screen;
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import dev.xylonity.nomendubium.NomenDubium;
 import dev.xylonity.nomendubium.common.menu.PaleontologyTableMenu;
-import dev.xylonity.nomendubium.common.menu.PaleontologyTableMenuReal;
+import dev.xylonity.nomendubium.common.menu.PaleontologyTableMenu;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -16,7 +16,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.*;
 
-/// Some of the implementation is derived from the cornelius companions! screen
+/// Some chunks of the implementation are derived from the cornelius companions! screen
 /// https://github.com/Xylonity/Companions/blob/v1.20.1/common/src/main/java/dev/xylonity/companions/client/gui/screen/CorneliusScreen.java
 public class PaleontologyTableScreen extends AbstractContainerScreen<PaleontologyTableMenu> {
 
@@ -126,7 +126,7 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
 
         this.seenGameState = gameState;
 
-        if (this.menu.getGameState() == PaleontologyTableMenuReal.STATE_PLAYING && this.menu.getRoundIndex() != this.seenRound) {
+        if (this.menu.getGameState() == PaleontologyTableMenu.STATE_PLAYING && this.menu.getRoundIndex() != this.seenRound) {
             this.seenRound = this.menu.getRoundIndex();
             this.chiselPathIndex = 0;
             this.resetBrushCircle();
@@ -135,7 +135,7 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
         // Ticks pop animation
         this.tickFossilStage();
 
-        if (this.menu.getGameState() != PaleontologyTableMenuReal.STATE_PLAYING) {
+        if (this.menu.getGameState() != PaleontologyTableMenu.STATE_PLAYING) {
             this.selectedTool = -1;
             this.resetBrushCircle();
             this.resetChiselTrace();
@@ -213,6 +213,23 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
     }
 
     @Override
+    public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+        final int x = (int)event.x() - this.leftPos;
+        final int y = (int)event.y() - this.topPos;
+        if (event.button() == 0 && this.tracingChisel && this.isCorrectToolSelected() && this.selectedTool == PaleontologyTableMenu.TOOL_CHISEL) {
+            // TODO: chisel path
+            return true;
+        }
+
+        if (event.button() == 0 && this.draggingBrush && this.isCorrectToolSelected()) {
+            // TODO: brush
+            return true;
+        }
+        
+        return super.mouseDragged(event, dx, dy);
+    }
+
+    @Override
     public boolean mouseReleased(MouseButtonEvent event) {
         if (event.button() == 0 && (this.draggingBrush || this.tracingChisel)) {
             this.resetBrushCircle();
@@ -275,7 +292,7 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
     }
 
     private void extractProgressBars(GuiGraphicsExtractor graphics, int ox, int oy) {
-        if (!this.isPlaying() && this.menu.getGameState() != PaleontologyTableMenuReal.STATE_WON) {
+        if (!this.isPlaying() && this.menu.getGameState() != PaleontologyTableMenu.STATE_WON) {
             return;
         }
 
@@ -288,7 +305,7 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
 
         graphics.text(this.font, Component.translatable("gui.nomendubium.time", time), ox + 6, oy + 4, 0xFFFFFFFF, true);
 
-        final int progress = Mth.clamp(this.menu.getProgress() * height / PaleontologyTableMenuReal.MAX_PROGRESS, 0, height);
+        final int progress = Mth.clamp(this.menu.getProgress() * height / PaleontologyTableMenu.MAX_PROGRESS, 0, height);
         this.extractProgressBar(graphics, ox + PROGRESS_BAR_X, oy + BAR_Y, progress, 0xFFA97832, 0xFFE9C765);
     }
 
@@ -335,6 +352,10 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
             this.fossilPopAge++;
         }
 
+    }
+
+    private boolean isCorrectToolSelected() {
+        return this.isPlaying() && this.selectedTool == this.menu.getTool();
     }
 
     private void updateToolSwing(double mouseX, double mouseY) {
