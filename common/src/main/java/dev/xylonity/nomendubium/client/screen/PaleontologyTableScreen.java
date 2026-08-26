@@ -40,6 +40,9 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
             NomenDubium.of("textures/gui/fossil_4.png")
     };
 
+    private static final Identifier[] IMPACT_TEXTURES = createParticleTextures("big_smoke_", 12);
+    private static final Identifier[] BRUSH_DUST_TEXTURES = createBrushDustTextures();
+
     private static final int GUI_WIDTH = 256;
     private static final int GUI_HEIGHT = 210;
 
@@ -801,6 +804,24 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
             default -> "brush";
         };
 
+    }
+
+    private static Identifier[] createParticleTextures(String prefix, int frameCount) {
+        final Identifier[] textures = new Identifier[frameCount];
+        for (int i = 0; i < textures.length; i++) {
+            textures[i] = Identifier.withDefaultNamespace("textures/particle/" + prefix + i + ".png");
+        }
+
+        return textures;
+    }
+
+    private static Identifier[] createBrushDustTextures() {
+        final Identifier[] textures = new Identifier[8];
+        for (int i = 0; i < textures.length; i++) {
+            textures[i] = Identifier.withDefaultNamespace("textures/particle/generic_" + i + ".png");
+        }
+
+        return textures;
     }
 
     private Identifier getFossilTexture(int stage) {
