@@ -68,6 +68,7 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
     private static final float BRUSH_DUST_STEP = 0.24F;
 
     private static final int CHISEL_PARTS = 13;
+    private static final int CHISEL_GUIDE_DURATION = 60;
 
     private static final int BAR_Y = 15;
     private static final int BAR_WIDTH = 10;
@@ -157,6 +158,7 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
 
         // Ticks pop animation
         this.tickFossilStage();
+        this.tickFeedback();
 
         if (this.menu.getGameState() != PaleontologyTableMenu.STATE_PLAYING) {
             this.selectedTool = -1;
@@ -580,6 +582,10 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
         }
 
         removeExtraParticles();
+    }
+
+    private void tickFeedback() {
+        this.dustParticles.removeIf(DustParticle::tick);
     }
 
     private void removeExtraParticles() {
