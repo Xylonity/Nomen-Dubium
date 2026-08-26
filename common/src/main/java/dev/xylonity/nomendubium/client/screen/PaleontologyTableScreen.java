@@ -149,6 +149,10 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
             this.seenRound = this.menu.getRoundIndex();
             this.chiselPathIndex = 0;
             this.resetBrushCircle();
+            this.moveChiselPath();
+        }
+        if (this.isCorrectToolSelected() && this.selectedTool == PaleontologyTableMenuReal.TOOL_CHISEL && !this.tracingChisel && ++this.chiselGuideAge >= CHISEL_GUIDE_DURATION) {
+            this.moveChiselPath();
         }
 
         // Ticks pop animation
@@ -347,6 +351,34 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
         final float dy = y - centerY;
         final float radius = Mth.sqrt(dx * dx + dy * dy);
         return radius >= BRUSH_MIN_RADIUS && radius <= BRUSH_MAX_RADIUS;
+    }
+
+    private void moveChiselPath() {
+        final Random random = new Random();
+        final float centerX = FOSSIL_X + FOSSIL_SIZE / 2f + random.nextFloat() * 6f - 3f;
+        final float centerY = FOSSIL_Y + FOSSIL_SIZE / 2f + random.nextFloat() * 6f - 3f;
+        final float angle = random.nextFloat() * Mth.TWO_PI;
+        final float halfLength = 15 + random.nextFloat() * 2.5F;
+        final float directionX = Mth.cos(angle);
+        final float directionY = Mth.sin(angle);
+        final float normalX = -directionY;
+        final float bend = (random.nextBoolean() ? 1 : -1) * (2f + random.nextFloat() * 3f);
+        final float startX = centerX - directionX * halfLength;
+        final float startY = centerY - directionY * halfLength;
+        final float endX = centerX + directionX * halfLength;
+        final float endY = centerY + directionY * halfLength;
+        final float controlX = centerX + normalX * bend;
+        final float controlY = centerY + directionX * bend;
+
+        for (int sample = 0; sample < CHISEL_PARTS; sample++) {
+            final float sam = sample / (CHISEL_PARTS - 1f);
+            final float inverse = 1.0F - sam;
+            this.chiselPathX[sample] = inverse * inverse * startX + 2.0F * inverse * sam * controlX + sam * sam * endX;
+            this.chiselPathY[sample] = inverse * inverse * startY + 2.0F * inverse * sam * controlY + sam * sam * endY;
+        }
+
+        this.chiselGuideAge = 0;
+        this.resetChiselTrace();
     }
 
     private void extractCountdown(GuiGraphicsExtractor graphics, int ox, int oy, float partialTick) {
