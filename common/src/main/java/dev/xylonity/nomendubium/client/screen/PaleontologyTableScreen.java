@@ -3,7 +3,7 @@ package dev.xylonity.nomendubium.client.screen;
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import dev.xylonity.nomendubium.NomenDubium;
 import dev.xylonity.nomendubium.common.menu.PaleontologyTableMenu;
-import dev.xylonity.nomendubium.common.menu.PaleontologyTableMenu;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -51,6 +51,13 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
     private static final int[] TOOL_Y = { 10, 36, 62 };
     private static final int HELD_TOOL_WIDTH = 32;
     private static final int HELD_TOOL_HEIGHT = 34;
+
+    private static final float BRUSH_MIN_RADIUS = 4.0F;
+    private static final float BRUSH_MAX_RADIUS = 46.0F;
+    private static final float BRUSH_REQUIRED_ROTATION = Mth.TWO_PI * 0.78F;
+    private static final float BRUSH_MAX_ANGLE_STEP = 1.15F;
+    private static final float BRUSH_REVERSE_PENALTY = 0.75F;
+    private static final float BRUSH_DUST_STEP = 0.24F;
 
     private static final int BAR_Y = 15;
     private static final int BAR_WIDTH = 10;
@@ -222,7 +229,7 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
         }
 
         if (event.button() == 0 && this.draggingBrush && this.isCorrectToolSelected()) {
-            // TODO: brush
+            this.updateBrushCircle(x, y);
             return true;
         }
         
@@ -238,6 +245,86 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
         }
 
         return super.mouseReleased(event);
+    }
+
+    private void updateBrushCircle(float x, float y) {
+        if (!this.isValidBrushRadius(x, y)) {
+            this.resetBrushCircle();
+            return;
+        }
+
+        final float centerX = FOSSIL_X + FOSSIL_SIZE / 2.0F;
+        final float centerY = FOSSIL_Y + FOSSIL_SIZE / 2.0F;
+        final float angle = (float)Math.atan2(y - centerY, x - centerX);
+        final float delta = (float)Math.atan2(Math.sin(angle - this.brushLastAngle), Math.cos(angle - this.brushLastAngle));
+
+        this.brushLastAngle = angle;
+
+        if (Math.abs(delta) < 0.004F || Math.abs(delta) > BRUSH_MAX_ANGLE_STEP) {
+            return;
+        }
+
+        final int direction = delta > 0.0F ? 1 : -1;
+        if (this.brushDirection == 0) {
+            this.brushDirection = direction;
+        }
+
+        if (direction == this.brushDirection) {
+            this.brushRotation += Math.abs(delta);
+            this.brushDustRotation += Math.abs(delta);
+            while (this.brushDustRotation >= BRUSH_DUST_STEP) {
+                this.spawnToolParticles(x, y, true, 2);
+                this.brushDustRotation -= BRUSH_DUST_STEP;
+            }
+
+        }
+        else {
+            this.brushRotation -= Math.abs(delta) * BRUSH_REVERSE_PENALTY;
+            if (this.brushRotation <= 0.0F) {
+                this.brushRotation = 0.0F;
+                this.brushDirection = direction;
+                this.brushStartAngle = angle;
+            }
+
+        }
+
+        if (this.brushRotation >= BRUSH_REQUIRED_ROTATION) {
+            this.sendToolAction(PaleontologyTableMenu.TOOL_BRUSH, Math.round(x), Math.round(y));
+            this.brushRotation -= BRUSH_REQUIRED_ROTATION;
+            this.brushStartAngle = angle - this.brushDirection * this.brushRotation;
+        }
+
+    }
+
+    private void sendToolAction(int tool, int x, int y) {
+        if (this.sendMenuButton(tool)) {
+            this.spawnFeedback(tool, x, y);
+        }
+
+    }
+
+    private boolean sendMenuButton(int button) {
+        if (this.menu.clickMenuButton(this.minecraft.player, button)) {
+            Minecraft.getInstance().gameMode.handleInventoryButtonClick(this.menu.containerId, button);
+            return true;
+        }
+
+        return false;
+    }
+
+    private void spawnFeedback(int tool, int x, int y) {
+        final boolean brushDust = tool == PaleontologyTableMenu.TOOL_BRUSH;
+        final int particleCount = brushDust ? 7 : tool == PaleontologyTableMenu.TOOL_HAMMER ? 6 : 4;
+        this.spawnToolParticles(x, y, brushDust, particleCount);
+    }
+
+    private boolean isValidBrushRadius(float x, float y) {
+        final float centerX = FOSSIL_X + FOSSIL_SIZE / 2.0F;
+        final float centerY = FOSSIL_Y + FOSSIL_SIZE / 2.0F;
+        final float dx = x - centerX;
+        final float dy = y - centerY;
+        final float radius = Mth.sqrt(dx * dx + dy * dy);
+        return radius >= BRUSH_MIN_RADIUS && radius <= BRUSH_MAX_RADIUS;
     }
 
     private void extractCountdown(GuiGraphicsExtractor graphics, int ox, int oy, float partialTick) {
@@ -422,6 +509,23 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
         }
 
         this.removeExtraParticles();
+    }
+
+    private void spawnToolParticles(float x, float y, boolean brushDust, int particleCount) {
+        final Random random = new Random();
+        for (int i = 0; i < particleCount; i++) {
+            this.dustParticles.add(new DustParticle(
+                    x + random.nextDouble() * 7d - 3.5,
+                    y + random.nextDouble() * 5d - 2.5,
+                    random.nextDouble() * (brushDust ? 1.1D : 0.8D) - (brushDust ? 0.55D : 0.4D),
+                    -0.15D - random.nextDouble() * (brushDust ? 0.35D : 0.5D),
+                    9 + random.nextInt(brushDust ? 5 : 7),
+                    brushDust ? 4.0F + random.nextFloat() * 3.5F : 7.5F + random.nextFloat() * 4.5F, brushDust
+            ));
+
+        }
+
+        removeExtraParticles();
     }
 
     private void removeExtraParticles() {
