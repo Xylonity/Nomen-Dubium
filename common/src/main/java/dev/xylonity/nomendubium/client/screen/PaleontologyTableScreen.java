@@ -47,12 +47,14 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
     private Identifier lastFossilTexture = FOSSIL_TEXTURES[0];
     private int fossilPopAge = FOSSIL_POP_DURATION;
 
-    private int selectedTool = -1;
+    private int seenGameState = PaleontologyTableMenuReal.STATE_IDLE;
+    private int seenRound = -1;
 
     private boolean cursorTracking;
     private double lastCursorX;
     private double lastCursorY;
 
+    private int selectedTool = -1;
     private float toolAngle;
     private float toolAngularVelocity;
 
@@ -62,6 +64,22 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
         this.inventoryLabelY = 117;
         this.titleLabelX = 8;
         this.titleLabelY = 4;
+    }
+
+    @Override
+    protected void containerTick() {
+        super.containerTick();
+        final int gameState = this.menu.getGameState();
+        // Updates the fossil texture
+        if (this.menu.hasWorkpiece()) {
+            this.lastFossilTexture = this.getFossilTexture(this.getFossilStage());
+        }
+        // On game lose
+        if (gameState == PaleontologyTableMenu.STATE_LOST && this.seenGameState != PaleontologyTableMenu.STATE_LOST) {
+            // TODO: particles
+        }
+
+        this.seenGameState = gameState;
     }
 
     @Override
