@@ -13,6 +13,11 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import org.jspecify.annotations.NonNull;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /// Some of the implementation is derived from the cornelius companions! screen
 /// https://github.com/Xylonity/Companions/blob/v1.20.1/common/src/main/java/dev/xylonity/companions/client/gui/screen/CorneliusScreen.java
 public class PaleontologyTableScreen extends AbstractContainerScreen<PaleontologyTableMenu> {
@@ -44,9 +49,13 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
     private static final int HELD_TOOL_WIDTH = 32;
     private static final int HELD_TOOL_HEIGHT = 34;
 
+    private final List<DustParticle> dustParticles = new ArrayList<>();
+    private final Map<Identifier, Boolean> availableCategoryTextures = new HashMap<>();
+
     private Identifier lastFossilTexture = FOSSIL_TEXTURES[0];
     private int fossilPopAge = FOSSIL_POP_DURATION;
 
+    private int seenFossilStage = -1;
     private int seenGameState = PaleontologyTableMenuReal.STATE_IDLE;
     private int seenRound = -1;
 
@@ -64,6 +73,20 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
         this.inventoryLabelY = 117;
         this.titleLabelX = 8;
         this.titleLabelY = 4;
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        this.seenRound = -1;
+        this.seenFossilStage = -1;
+        this.fossilPopAge = FOSSIL_POP_DURATION;
+        this.seenGameState = this.menu.getGameState();
+        this.lastFossilTexture = FOSSIL_TEXTURES[0];
+        this.selectedTool = -1;
+        this.dustParticles.clear();
+        this.availableCategoryTextures.clear();
+        this.resetToolSwing();
     }
 
     @Override
@@ -227,6 +250,66 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
 
     private int getFossilStage() {
         return 0;
+    }
+
+    private void resetToolSwing() {
+        this.cursorTracking = false;
+        this.toolAngle = 0.0F;
+        this.toolAngularVelocity = 0.0F;
+    }
+
+    /// 2D cast of a generic particle
+    private static final class DustParticle {
+
+        private double x;
+        private double y;
+        private double velocityX;
+        private double velocityY;
+        private final int lifetime;
+        private final float size;
+        private final boolean brushDust;
+        private final Identifier texture;
+        private final int fragmentU;
+        private final int fragmentV;
+        private final int fragmentSize;
+        private int age;
+
+        private DustParticle(double x, double y, double velocityX, double velocityY, int lifetime, float size, boolean brushDust) {
+            this.x = x;
+            this.y = y;
+            this.velocityX = velocityX;
+            this.velocityY = velocityY;
+            this.lifetime = lifetime;
+            this.size = size;
+            this.brushDust = brushDust;
+            this.texture = null;
+            this.fragmentU = 0;
+            this.fragmentV = 0;
+            this.fragmentSize = 0;
+        }
+
+        private DustParticle(double x, double y, double velocityX, double velocityY, int lifetime, float size, Identifier texture, int fragmentU, int fragmentV, int fragmentSize) {
+            this.x = x;
+            this.y = y;
+            this.velocityX = velocityX;
+            this.velocityY = velocityY;
+            this.lifetime = lifetime;
+            this.size = size;
+            this.brushDust = false;
+            this.texture = texture;
+            this.fragmentU = fragmentU;
+            this.fragmentV = fragmentV;
+            this.fragmentSize = fragmentSize;
+        }
+
+        private boolean tick() {
+            this.x += this.velocityX;
+            this.y += this.velocityY;
+            this.velocityX *= 0.88D;
+            this.velocityY = this.velocityY * 0.92D - 0.015D;
+            return ++this.age >= this.lifetime;
+        }
+
     }
 
 }
