@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.xylonity.nomendubium.NomenDubium;
 import dev.xylonity.nomendubium.common.menu.PaleontologyTableMenu;
 import dev.xylonity.nomendubium.common.menu.PaleontologyTableMenu;
+import dev.xylonity.nomendubium.common.menu.PaleontologyTableMenuReal;
 import dev.xylonity.nomendubium.mixin.GuiGraphicsExtractorAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -253,7 +254,7 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
         final int x = (int)event.x() - this.leftPos;
         final int y = (int)event.y() - this.topPos;
         if (event.button() == 0 && this.tracingChisel && this.isCorrectToolSelected() && this.selectedTool == PaleontologyTableMenu.TOOL_CHISEL) {
-            // TODO: chisel path
+            this.updateChiselTrace(x, y);
             return true;
         }
 
@@ -319,6 +320,29 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
         return super.mouseClicked(event, doubleClick);
     }
 
+    private void updateChiselTrace(float x, float y) {
+        final ChiselPathHit hit = this.findClosestChiselPathPoint(x, y);
+        final float toleranceSquared = CHISEL_TRACE_TOLERANCE * CHISEL_TRACE_TOLERANCE;
+        final boolean leftGuide = hit.distanceSquared() > toleranceSquared;
+        final boolean backtracked = hit.progress() + CHISEL_BACKTRACK_TOLERANCE < this.chiselTraceProgress;
+        final boolean skippedAhead = hit.progress() > this.chiselTraceProgress + CHISEL_MAX_TRACE_STEP;
+        if (leftGuide || backtracked || skippedAhead) {
+            this.resetChiselTrace();
+            return;
+        }
+
+        this.chiselTraceProgress = Math.max(this.chiselTraceProgress, hit.progress());
+        this.chiselGuideAge = 0;
+        if (this.chiselTraceProgress >= CHISEL_REQUIRED_PROGRESS) {
+            final int last = CHISEL_PARTS - 1;
+            final int impactX = Math.round(this.chiselPathX[last]);
+            final int impactY = Math.round(this.chiselPathY[last]);
+            this.sendToolAction(PaleontologyTableMenuReal.TOOL_CHISEL, impactX, impactY);
+            this.moveChiselPath();
+        }
+
+    }
+
     private boolean isNearChiselStart(float x, float y) {
         final float dx = x - this.chiselPathX[0];
         final float dy = y - this.chiselPathY[0];
@@ -358,6 +382,31 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
     private void extractChiselGuide(GuiGraphicsExtractor graphics, int ox, int oy) {
         graphics.nextStratum();
         ((GuiGraphicsExtractorAccessor) graphics).nomendubium$getGuiRenderState().addGuiElement(new ChiselGuideRenderState(new Matrix3x2f(graphics.pose()), this.chiselPathX, this.chiselPathY, ox, oy, null));
+    }
+
+    private ChiselPathHit findClosestChiselPathPoint(float x, float y) {
+        float closestDistanceSqr = Float.MAX_VALUE;
+        float closestProgress = 0.0F;
+        for (int sample = 0; sample < CHISEL_PARTS - 1; sample++) {
+            final float startX = this.chiselPathX[sample];
+            final float startY = this.chiselPathY[sample];
+            final float segmentX = this.chiselPathX[sample + 1] - startX;
+            final float segmentY = this.chiselPathY[sample + 1] - startY;
+            final float lengthSquared = segmentX * segmentX + segmentY * segmentY;
+            final float projection = lengthSquared <= 0.0001 ? 0 : Mth.clamp(((x - startX) * segmentX + (y - startY) * segmentY) / lengthSquared, 0, 1);
+            final float nearestX = startX + segmentX * projection;
+            final float nearestY = startY + segmentY * projection;
+            final float dx = x - nearestX;
+            final float dy = y - nearestY;
+            final float distanceSquared = dx * dx + dy * dy;
+            if (distanceSquared < closestDistanceSqr) {
+                closestDistanceSqr = distanceSquared;
+                closestProgress = (sample + projection) / (CHISEL_PARTS - 1.0F);
+            }
+
+        }
+
+        return new ChiselPathHit(closestProgress, closestDistanceSqr);
     }
 
     private void updateBrushCircle(float x, float y) {
@@ -780,6 +829,13 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
     private void resetChiselTrace() {
         this.tracingChisel = false;
         this.chiselTraceProgress = 0;
+    }
+
+    private record ChiselPathHit(
+            float progress,
+            float distanceSquared
+    ) {
+        ;;
     }
 
     private static final class ChiselGuideRenderState implements GuiElementRenderState {
