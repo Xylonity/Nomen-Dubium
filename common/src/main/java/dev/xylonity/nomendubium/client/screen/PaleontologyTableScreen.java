@@ -49,7 +49,12 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
 
     private int selectedTool = -1;
 
+    private boolean cursorTracking;
+    private double lastCursorX;
+    private double lastCursorY;
+
     private float toolAngle;
+    private float toolAngularVelocity;
 
     public PaleontologyTableScreen(PaleontologyTableMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -99,6 +104,7 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
         // If a tool is selected, tool rendering
         if (this.selectedTool >= 0) {
             final Identifier texture = toolTexture(this.selectedTool);
+            this.updateToolSwing(mouseX, mouseY);
             graphics.nextStratum();
 
             graphics.pose().pushMatrix();
@@ -111,6 +117,26 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
             graphics.pose().popMatrix();
         }
 
+    }
+
+    private void updateToolSwing(double mouseX, double mouseY) {
+        if (!this.cursorTracking) {
+            this.lastCursorX = mouseX;
+            this.lastCursorY = mouseY;
+            this.cursorTracking = true;
+            return;
+        }
+
+        final double dx = mouseX - this.lastCursorX;
+        final double dy = mouseY - this.lastCursorY;
+        this.lastCursorX = mouseX;
+        this.lastCursorY = mouseY;
+
+        final double speed = Math.sqrt(dx * dx + dy * dy);
+        final float toAngle = speed < 0.01 ? 0 : (float)(-dx / speed * Math.min(0.35, speed * 0.058));
+        this.toolAngularVelocity += (toAngle - this.toolAngle) * 0.22F;
+        this.toolAngularVelocity *= 0.72F;
+        this.toolAngle += this.toolAngularVelocity;
     }
 
     private void extractTool(GuiGraphicsExtractor graphics, Identifier texture, int tool, int ox, int oy, int mouseX, int mouseY) {
