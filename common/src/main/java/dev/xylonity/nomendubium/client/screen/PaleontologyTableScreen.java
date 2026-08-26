@@ -4,8 +4,10 @@ import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import dev.xylonity.nomendubium.NomenDubium;
 import dev.xylonity.nomendubium.common.menu.PaleontologyTableMenu;
 import dev.xylonity.nomendubium.common.menu.PaleontologyTableMenu;
+import dev.xylonity.nomendubium.common.menu.PaleontologyTableMenuReal;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -63,6 +65,19 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
     private int seenFossilStage = -1;
     private int seenGameState = PaleontologyTableMenu.STATE_IDLE;
     private int seenRound = -1;
+
+    private boolean draggingBrush;
+    private boolean tracingChisel;
+
+    private int chiselPathIndex;
+    private int chiselGuideAge;
+    private float chiselTraceProgress;
+
+    private float brushStartAngle;
+    private float brushLastAngle;
+    private float brushRotation;
+    private float brushDustRotation;
+    private int brushDirection;
 
     private boolean cursorTracking;
     private double lastCursorX;
@@ -168,6 +183,23 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
             graphics.pose().popMatrix();
         }
 
+    }
+
+    /// No title
+    @Override
+    protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
+        ;;
+    }
+
+    @Override
+    public boolean mouseReleased(MouseButtonEvent event) {
+        if (event.button() == 0 && (this.draggingBrush || this.tracingChisel)) {
+            this.resetBrushCircle();
+            this.resetChiselTrace();
+            return true;
+        }
+
+        return super.mouseReleased(event);
     }
 
     private void extractCountdown(GuiGraphicsExtractor graphics, int ox, int oy, float partialTick) {
@@ -327,6 +359,20 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
         this.cursorTracking = false;
         this.toolAngle = 0.0F;
         this.toolAngularVelocity = 0.0F;
+    }
+
+    private void resetBrushCircle() {
+        this.draggingBrush = false;
+        this.brushStartAngle = 0.0F;
+        this.brushLastAngle = 0.0F;
+        this.brushRotation = 0.0F;
+        this.brushDustRotation = 0.0F;
+        this.brushDirection = 0;
+    }
+
+    private void resetChiselTrace() {
+        this.tracingChisel = false;
+        this.chiselTraceProgress = 0;
     }
 
     /// 2D cast of a generic particle
