@@ -67,6 +67,8 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
     private static final float BRUSH_REVERSE_PENALTY = 0.75F;
     private static final float BRUSH_DUST_STEP = 0.24F;
 
+    private static final int CHISEL_PARTS = 13;
+
     private static final int BAR_Y = 15;
     private static final int BAR_WIDTH = 10;
     private static final int BAR_HEIGHT = 70;
@@ -89,6 +91,8 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
     private int chiselPathIndex;
     private int chiselGuideAge;
     private float chiselTraceProgress;
+    private final float[] chiselPathX = new float[CHISEL_PARTS];
+    private final float[] chiselPathY = new float[CHISEL_PARTS];
 
     private float brushStartAngle;
     private float brushLastAngle;
