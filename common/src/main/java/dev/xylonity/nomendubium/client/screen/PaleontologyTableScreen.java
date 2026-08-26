@@ -3,7 +3,7 @@ package dev.xylonity.nomendubium.client.screen;
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import dev.xylonity.nomendubium.NomenDubium;
 import dev.xylonity.nomendubium.common.menu.PaleontologyTableMenu;
-import dev.xylonity.nomendubium.common.menu.PaleontologyTableMenuReal;
+import dev.xylonity.nomendubium.common.menu.PaleontologyTableMenu;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -42,6 +42,11 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
     private static final int FOSSIL_TEXTURE_SIZE = 80;
     private static final int FOSSIL_POP_DURATION = 10;
 
+    private static final int INSTRUCTION_AREA_X = 142;
+    private static final int INSTRUCTION_AREA_Y = 96;
+    private static final int INSTRUCTION_AREA_WIDTH = GUI_WIDTH - INSTRUCTION_AREA_X - 4;
+    private static final int INSTRUCTION_AREA_HEIGHT = 20;
+
     private static final int TOOL_X = 11;
     private static final int TOOL_WIDTH = 32;
     private static final int TOOL_HEIGHT = 34;
@@ -56,7 +61,7 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
     private int fossilPopAge = FOSSIL_POP_DURATION;
 
     private int seenFossilStage = -1;
-    private int seenGameState = PaleontologyTableMenuReal.STATE_IDLE;
+    private int seenGameState = PaleontologyTableMenu.STATE_IDLE;
     private int seenRound = -1;
 
     private boolean cursorTracking;
@@ -138,9 +143,14 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
         graphics.outline(ox + 118, oy + 96, 20, 20, 0xFFE5C48A);
 
         // Tool rendering at the left of the gui
-        this.extractTool(graphics, CHISEL, PaleontologyTableMenuReal.TOOL_CHISEL, ox, oy, mouseX, mouseY);
-        this.extractTool(graphics, HAMMER, PaleontologyTableMenuReal.TOOL_HAMMER, ox, oy, mouseX, mouseY);
-        this.extractTool(graphics, BRUSH, PaleontologyTableMenuReal.TOOL_BRUSH, ox, oy, mouseX, mouseY);
+        this.extractTool(graphics, CHISEL, PaleontologyTableMenu.TOOL_CHISEL, ox, oy, mouseX, mouseY);
+        this.extractTool(graphics, HAMMER, PaleontologyTableMenu.TOOL_HAMMER, ox, oy, mouseX, mouseY);
+        this.extractTool(graphics, BRUSH, PaleontologyTableMenu.TOOL_BRUSH, ox, oy, mouseX, mouseY);
+
+        // Game instructions
+        this.extractInstruction(graphics, ox, oy);
+        // Game start countdown
+        this.extractCountdown(graphics, ox, oy, partialTick);
 
         // If a tool is selected, tool rendering
         if (this.selectedTool >= 0) {
@@ -158,6 +168,57 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
             graphics.pose().popMatrix();
         }
 
+    }
+
+    private void extractCountdown(GuiGraphicsExtractor graphics, int ox, int oy, float partialTick) {
+        if (this.menu.getGameState() != PaleontologyTableMenu.STATE_COUNTDOWN) {
+            return;
+        }
+
+        final float elapsed = Mth.clamp(PaleontologyTableMenu.COUNTDOWN_DURATION - this.menu.getCountdownTicksRemaining() + partialTick, 0, PaleontologyTableMenu.COUNTDOWN_DURATION - 0.001F);
+        final int segment = Math.min(2, (int)(elapsed / 20f));
+        final int number = 3 - segment;
+        final float phase = (elapsed - segment * 20f) / 20f;
+        final float enter = Mth.clamp(phase / 0.28F, 0, 1);
+        final float eased = 1.0F - (float)Math.pow(1.0F - enter, 3.0D);
+        final float pop = Mth.clamp((phase - 0.78F) / 0.22f, 0, 1);
+        final float scale = 0.7F + eased * 2.8F + pop * 0.75F;
+        final int alpha = Mth.clamp((int)((1.0F - pop) * 255.0F), 0, 255);
+
+        graphics.nextStratum();
+        graphics.pose().pushMatrix();
+
+        graphics.pose().translate(ox + GUI_WIDTH / 2f, oy + 58);
+        graphics.pose().scale(scale, scale);
+        graphics.centeredText(this.font, Integer.toString(number), 0, -this.font.lineHeight / 2, alpha << 24 | 0x00FFE7A0);
+
+        graphics.pose().popMatrix();
+    }
+
+    private void extractInstruction(GuiGraphicsExtractor graphics, int ox, int oy) {
+        final Component instruction;
+        int color = 0xFFFFFFFF;
+        switch (this.menu.getGameState()) {
+            case PaleontologyTableMenu.STATE_PLAYING -> instruction = Component.translatable(
+                    "gui.nomendubium.tool." + toolName(this.menu.getTool())
+            );
+            case PaleontologyTableMenu.STATE_WON -> {
+                instruction = Component.translatable("gui.nomendubium.finished");
+                color = 0xFF77EE88;
+            }
+            case PaleontologyTableMenu.STATE_LOST -> {
+                instruction = Component.translatable("gui.nomendubium.time_up");
+                color = 0xFFFF7777;
+            }
+            case PaleontologyTableMenu.STATE_COUNTDOWN -> instruction = Component.empty();
+            default -> instruction = Component.translatable("gui.nomendubium.insert_fossil");
+        }
+
+        final int textWidth = this.font.width(instruction);
+        final int textX = ox + INSTRUCTION_AREA_X + Math.max(0, (INSTRUCTION_AREA_WIDTH - textWidth) / 2);
+        final int textY = oy + INSTRUCTION_AREA_Y + (INSTRUCTION_AREA_HEIGHT - this.font.lineHeight) / 2;
+
+        graphics.text(this.font, instruction, textX, textY, color, true);
     }
 
     private void updateToolSwing(double mouseX, double mouseY) {
@@ -223,7 +284,7 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
 
     /// Whether the game is active or not
     private boolean isPlaying() {
-        return this.menu.getGameState() == PaleontologyTableMenuReal.STATE_PLAYING;
+        return this.menu.getGameState() == PaleontologyTableMenu.STATE_PLAYING;
     }
 
     private float getFossilPopScale(float partialTick) {
@@ -242,6 +303,16 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
             case PaleontologyTableMenu.TOOL_HAMMER -> HAMMER;
             default -> BRUSH;
         };
+
+    }
+
+    private static String toolName(int tool) {
+        return switch (tool) {
+            case PaleontologyTableMenu.TOOL_CHISEL -> "chisel";
+            case PaleontologyTableMenu.TOOL_HAMMER -> "hammer";
+            default -> "brush";
+        };
+
     }
 
     private Identifier getFossilTexture(int stage) {
