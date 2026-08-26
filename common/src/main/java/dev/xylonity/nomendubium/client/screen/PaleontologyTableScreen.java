@@ -1,17 +1,25 @@
 package dev.xylonity.nomendubium.client.screen;
 
+import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.xylonity.nomendubium.NomenDubium;
 import dev.xylonity.nomendubium.common.menu.PaleontologyTableMenu;
+import dev.xylonity.nomendubium.common.menu.PaleontologyTableMenuReal;
+import dev.xylonity.nomendubium.mixin.GuiGraphicsExtractorAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.render.TextureSetup;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.state.gui.GuiElementRenderState;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
+import org.joml.Matrix3x2f;
 import org.jspecify.annotations.NonNull;
 
 import java.util.*;
@@ -188,6 +196,11 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
         this.extractTool(graphics, HAMMER, PaleontologyTableMenu.TOOL_HAMMER, ox, oy, mouseX, mouseY);
         this.extractTool(graphics, BRUSH, PaleontologyTableMenu.TOOL_BRUSH, ox, oy, mouseX, mouseY);
 
+        // Chisel arrows
+        if (this.isCorrectToolSelected() && this.selectedTool == PaleontologyTableMenuReal.TOOL_CHISEL) {
+            this.extractChiselGuide(graphics, ox, oy);
+        }
+
         // Game instructions
         this.extractInstruction(graphics, ox, oy);
         // Progress bars
@@ -245,6 +258,11 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
         }
 
         return super.mouseReleased(event);
+    }
+
+    private void extractChiselGuide(GuiGraphicsExtractor graphics, int ox, int oy) {
+        graphics.nextStratum();
+        ((GuiGraphicsExtractorAccessor) graphics).nomendubium$getGuiRenderState().addGuiElement(new ChiselGuideRenderState(new Matrix3x2f(graphics.pose()), this.chiselPathX, this.chiselPathY, ox, oy, null));
     }
 
     private void updateBrushCircle(float x, float y) {
@@ -635,6 +653,138 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
     private void resetChiselTrace() {
         this.tracingChisel = false;
         this.chiselTraceProgress = 0;
+    }
+
+    private static final class ChiselGuideRenderState implements GuiElementRenderState {
+
+        private static final int COLOR = 0x80FFF4D2;
+        private static final int PARTS = 12;
+        private static final float MARGIN = 7;
+
+        private final Matrix3x2f pose;
+        private final float[] pathX;
+        private final float[] pathY;
+        private final ScreenRectangle scissorArea;
+        private final ScreenRectangle bounds;
+
+        private ChiselGuideRenderState(Matrix3x2f pose, float[] pathX, float[] pathY, float offsetX, float offsetY, ScreenRectangle scissorArea) {
+            this.pose = pose;
+            this.pathX = pathX.clone();
+            this.pathY = pathY.clone();
+            this.scissorArea = scissorArea;
+
+            float minX = Float.MAX_VALUE;
+            float minY = Float.MAX_VALUE;
+            float maxX = -Float.MAX_VALUE;
+            float maxY = -Float.MAX_VALUE;
+            for (int sample = 0; sample < this.pathX.length; sample++) {
+                this.pathX[sample] += offsetX;
+                this.pathY[sample] += offsetY;
+                minX = Math.min(minX, this.pathX[sample]);
+                minY = Math.min(minY, this.pathY[sample]);
+                maxX = Math.max(maxX, this.pathX[sample]);
+                maxY = Math.max(maxY, this.pathY[sample]);
+            }
+
+            final int left = Mth.floor(minX - MARGIN);
+            final int top = Mth.floor(minY - MARGIN);
+            final int right = Mth.ceil(maxX + MARGIN);
+            final int bottom = Mth.ceil(maxY + MARGIN);
+            final ScreenRectangle bounds = new ScreenRectangle(left, top, right - left, bottom - top).transformMaxBounds(pose);
+            this.bounds = scissorArea == null ? bounds : scissorArea.intersection(bounds);
+        }
+
+        @Override
+        public void buildVertices(@NonNull VertexConsumer vertices) {
+            addPath(vertices, this.pose, this.pathX, this.pathY, 1.0F, 0x60E9D7AA);
+            addPoint(vertices, this.pose, this.pathX[0], this.pathY[0], 1.8F, COLOR);
+
+            final int last = this.pathX.length - 1;
+            addArrow(vertices, this.pose, this.pathX[last - 1], this.pathY[last - 1], this.pathX[last], this.pathY[last], 3.8F, COLOR);
+        }
+
+        @Override
+        public RenderPipeline pipeline() {
+            return RenderPipelines.GUI;
+        }
+
+        @Override
+        public TextureSetup textureSetup() {
+            return TextureSetup.noTexture();
+        }
+
+        @Override
+        public ScreenRectangle scissorArea() {
+            return this.scissorArea;
+        }
+
+        @Override
+        public ScreenRectangle bounds() {
+            return this.bounds;
+        }
+
+        private static void addPath(VertexConsumer vertices, Matrix3x2f pose, float[] pathX, float[] pathY, float width, int color) {
+            for (int segment = 0; segment < pathX.length - 1; segment++) {
+                addRibbonSegment(vertices, pose, pathX[segment], pathY[segment], pathX[segment + 1], pathY[segment + 1], width, color);
+            }
+
+        }
+
+        private static void addRibbonSegment(VertexConsumer vertices, Matrix3x2f pose, float startX, float startY, float endX, float endY, float width, int color) {
+            final float directionX = endX - startX;
+            final float directionY = endY - startY;
+            final float length = Mth.sqrt(directionX * directionX + directionY * directionY);
+            if (length <= 0.0001) {
+                return;
+            }
+
+            final float normalX = -directionY / length * width * 0.5F;
+            final float normalY = directionX / length * width * 0.5F;
+
+            addVertex(vertices, pose, startX - normalX, startY - normalY, color);
+            addVertex(vertices, pose, startX + normalX, startY + normalY, color);
+            addVertex(vertices, pose, endX + normalX, endY + normalY, color);
+            addVertex(vertices, pose, endX - normalX, endY - normalY, color);
+        }
+
+        private static void addPoint(VertexConsumer vertices, Matrix3x2f pose, float centerX, float centerY, float radius, int color) {
+            for (int segment = 0; segment < PARTS; segment++) {
+                final float angle0 = Mth.TWO_PI * segment / PARTS;
+                final float angle1 = Mth.TWO_PI * (segment + 1) / PARTS;
+                addVertex(vertices, pose, centerX, centerY, color);
+                addVertex(vertices, pose, centerX + Mth.cos(angle1) * radius, centerY + Mth.sin(angle1) * radius, color);
+                addVertex(vertices, pose, centerX + Mth.cos(angle0) * radius, centerY + Mth.sin(angle0) * radius, color);
+                addVertex(vertices, pose, centerX, centerY, color);
+            }
+
+        }
+
+        private static void addArrow(VertexConsumer vertices, Matrix3x2f pose, float previousX, float previousY, float endX, float endY, float size, int color) {
+            float directionX = endX - previousX;
+            float directionY = endY - previousY;
+            final float length = Mth.sqrt(directionX * directionX + directionY * directionY);
+            if (length <= 0.0001) {
+                return;
+            }
+
+            directionX /= length;
+            directionY /= length;
+
+            final float normalX = -directionY * size * 0.65F;
+            final float normalY = directionX * size * 0.65F;
+            final float baseX = endX - directionX * size;
+            final float baseY = endY - directionY * size;
+
+            addVertex(vertices, pose, endX, endY, color);
+            addVertex(vertices, pose, baseX - normalX, baseY - normalY, color);
+            addVertex(vertices, pose, baseX + normalX, baseY + normalY, color);
+            addVertex(vertices, pose, endX, endY, color);
+        }
+
+        private static void addVertex(VertexConsumer vertices, Matrix3x2f pose, float x, float y, int color) {
+            vertices.addVertexWith2DPose(pose, x, y).setColor(color);
+        }
+
     }
 
     /// 2D cast of a generic particle
