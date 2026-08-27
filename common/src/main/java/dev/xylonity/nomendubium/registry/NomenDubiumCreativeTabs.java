@@ -21,6 +21,8 @@ public final class NomenDubiumCreativeTabs {
         List.of(
             () -> new ItemStack(NomenDubiumItems.PALEONTOLOGY_TABLE.get()),
             () -> new ItemStack(NomenDubiumItems.ROOT_OF_LIFE.get()),
+            () -> new ItemStack(NomenDubiumItems.FOSSIL_BLOCK.get()),
+            () -> new ItemStack(NomenDubiumItems.SEDIMENT.get()),
             () -> new ItemStack(NomenDubiumItems.COALDEN_LOG.get()),
             () -> new ItemStack(NomenDubiumItems.COALDEN_WOOD.get()),
             () -> new ItemStack(NomenDubiumItems.COALDEN_STRIPPED_LOG.get()),

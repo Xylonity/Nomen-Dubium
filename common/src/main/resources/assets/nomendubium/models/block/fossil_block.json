@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "side": "nomendubium:block/fossil_block",
+    "end": "nomendubium:block/fossil_block_top"
+  }
+}

@@ -13,8 +13,11 @@ import dev.xylonity.nomendubium.common.block.CoaldenStairBlock;
 import dev.xylonity.nomendubium.common.block.CoaldenStandingSignBlock;
 import dev.xylonity.nomendubium.common.block.CoaldenTrapDoorBlock;
 import dev.xylonity.nomendubium.common.block.CoaldenWallSignBlock;
+import dev.xylonity.nomendubium.common.block.FossilBlock;
 import dev.xylonity.nomendubium.common.block.PaleontologyTableBlock;
 import dev.xylonity.nomendubium.common.block.RootOfLifeBlock;
+import dev.xylonity.nomendubium.common.block.SedimentBlock;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
@@ -35,6 +38,18 @@ public final class NomenDubiumBlocks {
     );
     public static final Supplier<RootOfLifeBlock> ROOT_OF_LIFE = NomenDubium.PLATFORM.registerBlock("root_of_life",
         key -> new RootOfLifeBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.DANDELION).setId(key))
+    );
+    public static final Supplier<FossilBlock> FOSSIL_BLOCK = NomenDubium.PLATFORM.registerBlock("fossil_block",
+        key -> new FossilBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.BONE_BLOCK).setId(key))
+    );
+    public static final Supplier<SedimentBlock> SEDIMENT = NomenDubium.PLATFORM.registerBlock("sediment",
+        key -> new SedimentBlock(
+            BlockBehaviour.Properties.ofFullCopy(Blocks.SNOW)
+                .strength(1.5F, 6.0F)
+                .sound(SoundType.GRAVEL)
+                .requiresCorrectToolForDrops()
+                .setId(key)
+        )
     );
 
     public static final Supplier<CoaldenPillarBlock> COALDEN_LOG = NomenDubium.PLATFORM.registerBlock("coalden_log",
