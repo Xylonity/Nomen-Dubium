@@ -17,10 +17,10 @@ import org.jspecify.annotations.Nullable;
 
 public final class TreeOfLifeMenu extends AbstractContainerMenu {
 
-    private static final int INGREDIENT_SLOT = 0;
-    private static final int ROOT_OF_LIFE_SLOT = 1;
-    private static final int RESULT_SLOT = 2;
-    private static final int SLOT_COUNT = 3;
+    public static final int INGREDIENT_SLOT = 0;
+    public static final int ROOT_OF_LIFE_SLOT = 1;
+    public static final int RESULT_SLOT = 2;
+    public static final int SLOT_COUNT = 3;
 
     private static final int PLAYER_SLOT_START = SLOT_COUNT;
     private static final int PLAYER_INVENTORY_END = PLAYER_SLOT_START + 27;
