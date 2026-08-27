@@ -33,10 +33,10 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
     private static final Identifier HAMMER = NomenDubium.of("textures/gui/hammer.png");
     private static final Identifier BRUSH = NomenDubium.of("textures/gui/brush.png");
     private static final Identifier[] FOSSIL_TEXTURES = {
-            NomenDubium.of("textures/gui/fossil_1.png"),
-            NomenDubium.of("textures/gui/fossil_2.png"),
-            NomenDubium.of("textures/gui/fossil_3.png"),
-            NomenDubium.of("textures/gui/fossil_4.png")
+            NomenDubium.of("textures/gui/fossil_0.png"),
+            NomenDubium.of("textures/gui/fossil_body_1.png"),
+            NomenDubium.of("textures/gui/fossil_body_2.png"),
+            NomenDubium.of("textures/gui/fossil_body_3.png")
     };
 
     private static final Identifier[] IMPACT_TEXTURES = createParticleTextures("big_smoke_", 12);
@@ -858,8 +858,12 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
     }
 
     private Identifier getFossilTexture(int stage) {
+        if (stage == 0) {
+            return FOSSIL_TEXTURES[0];
+        }
+
         final FossilCategory category = this.menu.getFossilCategory();
-        final Identifier categoryTexture = NomenDubium.of("textures/gui/fossil_" + category.serializedName() + "_" + (stage + 1) + ".png");
+        final Identifier categoryTexture = NomenDubium.of("textures/gui/fossil_" + category.serializedName() + "_" + stage + ".png");
         final boolean available = this.availableCategoryTextures.computeIfAbsent(categoryTexture, texture -> this.minecraft.getResourceManager().getResource(texture).isPresent());
         return available ? categoryTexture : FOSSIL_TEXTURES[stage];
     }
