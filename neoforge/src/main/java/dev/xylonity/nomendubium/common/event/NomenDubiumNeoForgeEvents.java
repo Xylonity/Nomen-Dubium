@@ -2,6 +2,7 @@ package dev.xylonity.nomendubium.common.event;
 
 import dev.xylonity.nomendubium.NomenDubium;
 import dev.xylonity.nomendubium.common.entity.ChimeraEntity;
+import dev.xylonity.nomendubium.common.entity.TreeOfLifeEntity;
 import dev.xylonity.nomendubium.registry.NomenDubiumEntities;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -13,6 +14,7 @@ public final class NomenDubiumNeoForgeEvents {
     @SubscribeEvent
     public static void registerEntityAttributes(EntityAttributeCreationEvent event) {
         event.put(NomenDubiumEntities.CHIMERA.get(), ChimeraEntity.createAttributes().build());
+        event.put(NomenDubiumEntities.TREE_OF_LIFE.get(), TreeOfLifeEntity.createAttributes().build());
     }
 
 }
