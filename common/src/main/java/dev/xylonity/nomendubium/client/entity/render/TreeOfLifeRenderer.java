@@ -5,8 +5,11 @@ import dev.xylonity.nomendubium.client.entity.model.TreeOfLifeModel;
 import dev.xylonity.nomendubium.common.entity.TreeOfLifeEntity;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.layers.LivingEntityEmissiveLayer;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
 
 public final class TreeOfLifeRenderer extends LivingEntityRenderer<TreeOfLifeEntity, LivingEntityRenderState, TreeOfLifeModel> {
 
@@ -14,6 +17,13 @@ public final class TreeOfLifeRenderer extends LivingEntityRenderer<TreeOfLifeEnt
 
     public TreeOfLifeRenderer(EntityRendererProvider.Context context) {
         super(context, new TreeOfLifeModel(context.bakeLayer(TreeOfLifeModel.LAYER_LOCATION)), 1.25F);
+        this.addLayer(new LivingEntityEmissiveLayer<>(
+            this, _ -> TEXTURE,
+            (_, ageInTicks) -> 0.65F + 0.35F * Mth.sin(ageInTicks * 0.08F),
+            new TreeOfLifeModel(context.bakeLayer(TreeOfLifeModel.LAYER_LOCATION)),
+            RenderTypes::entityTranslucentEmissive, false
+        ));
+        
     }
 
     @Override
