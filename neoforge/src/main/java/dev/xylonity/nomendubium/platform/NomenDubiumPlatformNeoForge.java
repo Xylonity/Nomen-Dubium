@@ -12,6 +12,9 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -35,6 +38,8 @@ public class NomenDubiumPlatformNeoForge implements NomenDubiumPlatform {
     private static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(Registries.ENTITY_TYPE, NomenDubium.MOD_ID);
     private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, NomenDubium.MOD_ID);
     private static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(Registries.MENU, NomenDubium.MOD_ID);
+    private static final DeferredRegister<RecipeType<?>> RECIPE_TYPES = DeferredRegister.create(Registries.RECIPE_TYPE, NomenDubium.MOD_ID);
+    private static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(Registries.RECIPE_SERIALIZER, NomenDubium.MOD_ID);
     private static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, NomenDubium.MOD_ID);
 
     private static boolean registered;
@@ -50,6 +55,8 @@ public class NomenDubiumPlatformNeoForge implements NomenDubiumPlatform {
         ENTITY_TYPES.register(eventBus);
         BLOCK_ENTITY_TYPES.register(eventBus);
         MENU_TYPES.register(eventBus);
+        RECIPE_TYPES.register(eventBus);
+        RECIPE_SERIALIZERS.register(eventBus);
         CREATIVE_TABS.register(eventBus);
 
         registered = true;
@@ -89,6 +96,24 @@ public class NomenDubiumPlatformNeoForge implements NomenDubiumPlatform {
     @Override
     public <T extends AbstractContainerMenu> Supplier<MenuType<T>> registerMenu(String name, MenuFactory<T> factory) {
         final DeferredHolder<MenuType<?>, MenuType<T>> holder = MENU_TYPES.register(name, () -> new MenuType<>(factory::create, FeatureFlags.VANILLA_SET));
+        return holder;
+    }
+
+    @Override
+    public <T extends Recipe<?>> Supplier<RecipeType<T>> registerRecipeType(String name) {
+        final DeferredHolder<RecipeType<?>, RecipeType<T>> holder = RECIPE_TYPES.register(name, () -> new RecipeType<>() {
+            @Override
+            public String toString() {
+                return NomenDubium.of(name).toString();
+            }
+            
+        });
+        return holder;
+    }
+
+    @Override
+    public <T extends Recipe<?>> Supplier<RecipeSerializer<T>> registerRecipeSerializer(String name, Supplier<RecipeSerializer<T>> factory) {
+        final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<T>> holder = RECIPE_SERIALIZERS.register(name, factory);
         return holder;
     }
 

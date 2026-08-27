@@ -16,6 +16,9 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -73,6 +76,25 @@ public class NomenDubiumPlatformFabric implements NomenDubiumPlatform {
         final ResourceKey<MenuType<?>> key = ResourceKey.create(Registries.MENU, NomenDubium.of(name));
         final MenuType<T> type = new MenuType<>(factory::create, FeatureFlags.VANILLA_SET);
         final MenuType<T> value = Registry.register(BuiltInRegistries.MENU, key, type);
+        return () -> value;
+    }
+
+    @Override
+    public <T extends Recipe<?>> Supplier<RecipeType<T>> registerRecipeType(String name) {
+        final RecipeType<T> type = new RecipeType<>() {
+            @Override
+            public String toString() {
+                return NomenDubium.of(name).toString();
+            }
+
+        };
+        final RecipeType<T> value = Registry.register(BuiltInRegistries.RECIPE_TYPE, NomenDubium.of(name), type);
+        return () -> value;
+    }
+
+    @Override
+    public <T extends Recipe<?>> Supplier<RecipeSerializer<T>> registerRecipeSerializer(String name, Supplier<RecipeSerializer<T>> factory) {
+        final RecipeSerializer<T> value = Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, NomenDubium.of(name), factory.get());
         return () -> value;
     }
 

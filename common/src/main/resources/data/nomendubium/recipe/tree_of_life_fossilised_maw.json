@@ -1,0 +1,10 @@
+{
+  "type": "nomendubium:tree_of_life",
+  "ingredient": "nomendubium:fossilised_maw",
+  "root_of_life_count": 1,
+  "processing_time": 200,
+  "result": {
+    "id": "nomendubium:prehistoric_maw",
+    "count": 1
+  }
+}
