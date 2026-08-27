@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/door_top_left_open",
+  "textures": {
+    "bottom": "nomendubium:block/coalden_door_bottom",
+    "top": "nomendubium:block/coalden_door_top"
+  }
+}

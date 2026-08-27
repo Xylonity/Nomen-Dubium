@@ -20,7 +20,6 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.List;
@@ -79,8 +78,11 @@ public class NomenDubiumPlatformNeoForge implements NomenDubiumPlatform {
     }
 
     @Override
-    public <T extends BlockEntity> Supplier<BlockEntityType<T>> registerBlockEntity(String name, BlockEntityFactory<T> factory, Supplier<? extends Block> validBlock) {
-        final DeferredHolder<BlockEntityType<?>, BlockEntityType<T>> holder = BLOCK_ENTITY_TYPES.register(name, () -> new BlockEntityType<>(factory::create, Set.of(validBlock.get())));
+    public <T extends BlockEntity> Supplier<BlockEntityType<T>> registerBlockEntity(String name, BlockEntityFactory<T> factory, List<Supplier<? extends Block>> validBlocks) {
+        final DeferredHolder<BlockEntityType<?>, BlockEntityType<T>> holder = BLOCK_ENTITY_TYPES.register(name, () -> new BlockEntityType<>(
+            factory::create,
+            validBlocks.stream().map(Supplier::get).collect(java.util.stream.Collectors.toUnmodifiableSet())
+        ));
         return holder;
     }
 

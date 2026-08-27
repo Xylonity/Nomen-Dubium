@@ -60,9 +60,10 @@ public class NomenDubiumPlatformFabric implements NomenDubiumPlatform {
     }
 
     @Override
-    public <T extends BlockEntity> Supplier<BlockEntityType<T>> registerBlockEntity(String name, BlockEntityFactory<T> factory, Supplier<? extends Block> validBlock) {
+    public <T extends BlockEntity> Supplier<BlockEntityType<T>> registerBlockEntity(String name, BlockEntityFactory<T> factory, List<Supplier<? extends Block>> validBlocks) {
         final ResourceKey<BlockEntityType<?>> key = ResourceKey.create(Registries.BLOCK_ENTITY_TYPE, NomenDubium.of(name));
-        final BlockEntityType<T> type = FabricBlockEntityTypeBuilder.create(factory::create, validBlock.get()).build();
+        final Block[] blocks = validBlocks.stream().map(Supplier::get).toArray(Block[]::new);
+        final BlockEntityType<T> type = FabricBlockEntityTypeBuilder.create(factory::create, blocks).build();
         final BlockEntityType<T> value = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, key, type);
         return () -> value;
     }

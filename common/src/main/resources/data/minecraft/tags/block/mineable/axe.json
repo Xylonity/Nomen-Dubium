@@ -1,6 +1,21 @@
 {
   "replace": false,
   "values": [
-    "nomendubium:paleontology_table"
+    "nomendubium:paleontology_table",
+    "nomendubium:coalden_log",
+    "nomendubium:coalden_wood",
+    "nomendubium:coalden_stripped_log",
+    "nomendubium:coalden_stripped_wood",
+    "nomendubium:coalden_planks",
+    "nomendubium:coalden_stairs",
+    "nomendubium:coalden_slab",
+    "nomendubium:coalden_fence",
+    "nomendubium:coalden_fence_gate",
+    "nomendubium:coalden_door",
+    "nomendubium:coalden_trapdoor",
+    "nomendubium:coalden_pressure_plate",
+    "nomendubium:coalden_button",
+    "nomendubium:coalden_sign",
+    "nomendubium:coalden_wall_sign"
   ]
 }

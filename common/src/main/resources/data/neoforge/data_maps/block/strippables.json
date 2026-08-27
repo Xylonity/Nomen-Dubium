@@ -1,0 +1,10 @@
+{
+  "values": {
+    "nomendubium:coalden_log": {
+      "stripped_block": "nomendubium:coalden_stripped_log"
+    },
+    "nomendubium:coalden_wood": {
+      "stripped_block": "nomendubium:coalden_stripped_wood"
+    }
+  }
+}

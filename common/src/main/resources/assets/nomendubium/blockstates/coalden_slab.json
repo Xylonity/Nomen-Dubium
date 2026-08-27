@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "nomendubium:block/coalden_slab"
+    },
+    "type=double": {
+      "model": "nomendubium:block/coalden_planks"
+    },
+    "type=top": {
+      "model": "nomendubium:block/coalden_slab_top"
+    }
+  }
+}

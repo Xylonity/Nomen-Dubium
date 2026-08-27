@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "nomendubium:block/coalden_log",
+    "side": "nomendubium:block/coalden_log"
+  }
+}

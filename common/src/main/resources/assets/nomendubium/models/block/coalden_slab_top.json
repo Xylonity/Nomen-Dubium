@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab_top",
+  "textures": {
+    "bottom": "nomendubium:block/coalden_planks",
+    "side": "nomendubium:block/coalden_planks",
+    "top": "nomendubium:block/coalden_planks"
+  }
+}
