@@ -14,6 +14,7 @@ import dev.xylonity.nomendubium.common.block.CoaldenStandingSignBlock;
 import dev.xylonity.nomendubium.common.block.CoaldenTrapDoorBlock;
 import dev.xylonity.nomendubium.common.block.CoaldenWallSignBlock;
 import dev.xylonity.nomendubium.common.block.PaleontologyTableBlock;
+import dev.xylonity.nomendubium.common.block.RootOfLifeBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
@@ -31,6 +32,9 @@ public final class NomenDubiumBlocks {
 
     public static final Supplier<PaleontologyTableBlock> PALEONTOLOGY_TABLE = NomenDubium.PLATFORM.registerBlock("paleontology_table",
         key -> new PaleontologyTableBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.CRAFTING_TABLE).setId(key))
+    );
+    public static final Supplier<RootOfLifeBlock> ROOT_OF_LIFE = NomenDubium.PLATFORM.registerBlock("root_of_life",
+        key -> new RootOfLifeBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.DANDELION).setId(key))
     );
 
     public static final Supplier<CoaldenPillarBlock> COALDEN_LOG = NomenDubium.PLATFORM.registerBlock("coalden_log",

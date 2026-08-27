@@ -20,6 +20,7 @@ public final class NomenDubiumCreativeTabs {
         () -> new ItemStack(NomenDubiumItems.ENCASED_FOSSIL.get()),
         List.of(
             () -> new ItemStack(NomenDubiumItems.PALEONTOLOGY_TABLE.get()),
+            () -> new ItemStack(NomenDubiumItems.ROOT_OF_LIFE.get()),
             () -> new ItemStack(NomenDubiumItems.COALDEN_LOG.get()),
             () -> new ItemStack(NomenDubiumItems.COALDEN_WOOD.get()),
             () -> new ItemStack(NomenDubiumItems.COALDEN_STRIPPED_LOG.get()),
@@ -38,6 +39,9 @@ public final class NomenDubiumCreativeTabs {
             () -> new ItemStack(NomenDubiumItems.AMBER.get()),
             () -> new ItemStack(NomenDubiumItems.FOSSIL_BONE.get()),
             () -> new ItemStack(NomenDubiumItems.SAP_OF_LIFE.get()),
+            () -> new ItemStack(NomenDubiumItems.FOSSILISED_APPLE.get()),
+            () -> new ItemStack(NomenDubiumItems.FOSSILISED_SHELL.get()),
+            () -> new ItemStack(NomenDubiumItems.SHATTERED_DIAMOND.get()),
             () -> new ItemStack(NomenDubiumItems.HUNTERS_ARROW.get()),
             () -> new ItemStack(NomenDubiumItems.PRIMITIVE_ARROW.get()),
             () -> new ItemStack(NomenDubiumItems.PREHISTORIC_MAW.get()),
