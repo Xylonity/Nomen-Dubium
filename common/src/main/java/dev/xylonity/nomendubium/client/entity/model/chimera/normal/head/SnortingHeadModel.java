@@ -25,18 +25,18 @@ public final class SnortingHeadModel extends ChimeraHeadModel {
 			ChimeraModelConnections.alignToConnection(0.0F, -12.0F, -20.0F)
 		);
 
-		PartDefinition head_control = entire_head.addOrReplaceChild("head_control", CubeListBuilder.create(), PartPose.ZERO);
+		PartDefinition head_control = entire_head.addOrReplaceChild("head_control", CubeListBuilder.create(), PartPose.offset(0.0F, -12.0F, -20.0F));
 
-		PartDefinition right_ear = head_control.addOrReplaceChild("right_ear", CubeListBuilder.create().texOffs(0, 50).addBox(-1.0F, 0.0F, -3.0F, 1.0F, 19.0F, 7.0F, new CubeDeformation(0.0F)), PartPose.offset(-6.51F, -20.0F, -24.0F));
+		PartDefinition right_ear = head_control.addOrReplaceChild("right_ear", CubeListBuilder.create().texOffs(0, 50).addBox(-1.0F, 0.0F, -3.0F, 1.0F, 19.0F, 7.0F, new CubeDeformation(0.0F)), PartPose.offset(-6.51F, -8.0F, -4.0F));
 
-		PartDefinition left_ear = head_control.addOrReplaceChild("left_ear", CubeListBuilder.create().texOffs(48, 0).addBox(0.0F, 0.0F, -3.0F, 1.0F, 19.0F, 7.0F, new CubeDeformation(0.0F)), PartPose.offset(6.51F, -20.0F, -24.0F));
+		PartDefinition left_ear = head_control.addOrReplaceChild("left_ear", CubeListBuilder.create().texOffs(48, 0).addBox(0.0F, 0.0F, -3.0F, 1.0F, 19.0F, 7.0F, new CubeDeformation(0.0F)), PartPose.offset(6.51F, -8.0F, -4.0F));
 
-		PartDefinition nose = head_control.addOrReplaceChild("nose", CubeListBuilder.create().texOffs(44, 40).addBox(-6.5F, -2.0F, -9.0F, 13.0F, 2.0F, 9.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -17.0F, -31.0F));
+		PartDefinition nose = head_control.addOrReplaceChild("nose", CubeListBuilder.create().texOffs(44, 40).addBox(-6.5F, -2.0F, -9.0F, 13.0F, 2.0F, 9.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -5.0F, -11.0F));
 
-		PartDefinition lower_beak = head_control.addOrReplaceChild("lower_beak", CubeListBuilder.create().texOffs(0, 29).addBox(-6.5F, -7.0F, -8.0F, 13.0F, 12.0F, 9.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -10.0F, -32.0F));
+		PartDefinition lower_beak = head_control.addOrReplaceChild("lower_beak", CubeListBuilder.create().texOffs(0, 29).addBox(-6.5F, -7.0F, -8.0F, 13.0F, 12.0F, 9.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 2.0F, -12.0F));
 
 		PartDefinition head = head_control.addOrReplaceChild("head", CubeListBuilder.create().texOffs(44, 29).addBox(-6.5F, 7.5F, -11.5F, 13.0F, 0.0F, 11.0F, new CubeDeformation(0.0F))
-		.texOffs(0, 0).addBox(-6.5F, -7.5F, -11.5F, 13.0F, 18.0F, 11.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -12.5F, -19.5F));
+		.texOffs(0, 0).addBox(-6.5F, -7.5F, -11.5F, 13.0F, 18.0F, 11.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -0.5F, 0.5F));
 
 		PartDefinition body_connection = entire_head.addOrReplaceChild("body_connection", CubeListBuilder.create(), PartPose.offset(0.0F, -12.0F, -20.0F));
 

@@ -23,12 +23,12 @@ public final class ShieldedHeadModel extends ChimeraHeadModel {
             CubeListBuilder.create(),
             ChimeraModelConnections.alignToConnection(0.0F, -19.0F, 16.0F)
         );
-        PartDefinition headControl = entireHead.addOrReplaceChild("head_control", CubeListBuilder.create(), PartPose.ZERO);
+        PartDefinition headControl = entireHead.addOrReplaceChild("head_control", CubeListBuilder.create(), PartPose.offset(0.0F, -19.0F, 16.0F));
         headControl.addOrReplaceChild(
             "Neck",
             CubeListBuilder.create().texOffs(0, 0)
                 .addBox(-8.0F, -30.0F, 3.0F, 16.0F, 23.0F, 13.0F, new CubeDeformation(0.0F)),
-            PartPose.offset(0.0F, 0.0F, 0.0F)
+            PartPose.offset(0.0F, 19.0F, -16.0F)
         );
         PartDefinition head = headControl.addOrReplaceChild(
             "Head",
@@ -43,7 +43,7 @@ public final class ShieldedHeadModel extends ChimeraHeadModel {
                 .addBox(-8.0F, -14.0F, -7.0F, 3.0F, 2.0F, 4.0F, new CubeDeformation(0.0F)).mirror(false)
                 .texOffs(66, 60).mirror()
                 .addBox(-8.0F, -14.0F, -3.0F, 3.0F, 8.0F, 4.0F, new CubeDeformation(0.05F)).mirror(false),
-            PartPose.offset(0.0F, -7.0F, 2.0F)
+            PartPose.offset(0.0F, 12.0F, -14.0F)
         );
         head.addOrReplaceChild(
             "Jaw",

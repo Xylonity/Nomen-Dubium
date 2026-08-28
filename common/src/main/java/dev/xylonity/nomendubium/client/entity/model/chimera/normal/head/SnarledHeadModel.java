@@ -23,8 +23,8 @@ public final class SnarledHeadModel extends ChimeraHeadModel {
             CubeListBuilder.create(),
             ChimeraModelConnections.alignToConnection(0.0F, -4.0F, 8.0F)
         );
-        PartDefinition headControl = entireHead.addOrReplaceChild("head_control", CubeListBuilder.create(), PartPose.ZERO);
-        PartDefinition head = headControl.addOrReplaceChild("Head", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
+        PartDefinition headControl = entireHead.addOrReplaceChild("head_control", CubeListBuilder.create(), PartPose.offset(0.0F, -4.0F, 8.0F));
+        PartDefinition head = headControl.addOrReplaceChild("Head", CubeListBuilder.create(), PartPose.offset(0.0F, 4.0F, -8.0F));
         head.addOrReplaceChild(
             "Cranium",
             CubeListBuilder.create().texOffs(0, 26)
@@ -47,7 +47,7 @@ public final class SnarledHeadModel extends ChimeraHeadModel {
             CubeListBuilder.create().texOffs(74, 49)
                 .addBox(-4.0F, -8.0F, 0.0F, 8.0F, 8.0F, 8.0F, new CubeDeformation(0.0F))
                 .texOffs(74, 0).addBox(-4.0F, -42.0F, -7.0F, 8.0F, 42.0F, 7.0F, new CubeDeformation(0.0F)),
-            PartPose.offset(0.0F, 0.0F, 0.0F)
+            PartPose.offset(0.0F, 4.0F, -8.0F)
         );
 
         entireHead.addOrReplaceChild("body_connection", CubeListBuilder.create(), PartPose.offset(0.0F, -4.0F, 8.0F));
