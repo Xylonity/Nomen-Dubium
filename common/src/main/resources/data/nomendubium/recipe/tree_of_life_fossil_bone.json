@@ -2,9 +2,11 @@
   "type": "nomendubium:tree_of_life",
   "ingredient": "nomendubium:fossil_bone",
   "root_of_life_count": 1,
-  "processing_time": 200,
-  "result": {
-    "id": "nomendubium:regenerating_chop",
-    "count": 1
-  }
+  "processing_time": 300,
+  "results": [
+    {
+      "id": "nomendubium:regenerating_chop",
+      "count": 1
+    }
+  ]
 }

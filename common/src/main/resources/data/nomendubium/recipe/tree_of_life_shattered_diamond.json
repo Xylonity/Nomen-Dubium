@@ -3,8 +3,10 @@
   "ingredient": "nomendubium:shattered_diamond",
   "root_of_life_count": 1,
   "processing_time": 200,
-  "result": {
-    "id": "minecraft:diamond",
-    "count": 1
-  }
+  "results": [
+    {
+      "id": "minecraft:diamond",
+      "count": 1
+    }
+  ]
 }

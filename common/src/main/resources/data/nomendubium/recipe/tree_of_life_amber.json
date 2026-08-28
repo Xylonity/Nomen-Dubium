@@ -1,10 +1,12 @@
 {
   "type": "nomendubium:tree_of_life",
   "ingredient": "nomendubium:amber",
-  "root_of_life_count": 1,
-  "processing_time": 200,
-  "result": {
-    "id": "nomendubium:sap_of_life",
-    "count": 1
-  }
+  "root_of_life_count": 2,
+  "processing_time": 250,
+  "results": [
+    {
+      "id": "nomendubium:sap_of_life",
+      "count": 1
+    }
+  ]
 }

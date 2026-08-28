@@ -3,8 +3,18 @@
   "ingredient": "nomendubium:fossilised_apple",
   "root_of_life_count": 1,
   "processing_time": 200,
-  "result": {
-    "id": "minecraft:apple",
-    "count": 1
-  }
+  "results": [
+    {
+      "id": "minecraft:apple",
+      "count": 1
+    },
+    {
+      "id": "minecraft:golden_apple",
+      "count": 1
+    },
+    {
+      "id": "minecraft:enchanted_golden_apple",
+      "count": 1
+    }
+  ]
 }

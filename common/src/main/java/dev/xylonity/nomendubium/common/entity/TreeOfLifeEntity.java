@@ -71,6 +71,7 @@ public final class TreeOfLifeEntity extends LivingEntity implements MenuProvider
     private int restorationProgress;
     private int restorationTime;
     private @Nullable ResourceKey<Recipe<?>> activeRecipe;
+    private ItemStack pendingResult = ItemStack.EMPTY;
 
     public TreeOfLifeEntity(EntityType<? extends TreeOfLifeEntity> type, Level level) {
         super(type, level);
@@ -106,18 +107,24 @@ public final class TreeOfLifeEntity extends LivingEntity implements MenuProvider
 
         final RecipeHolder<TreeOfLifeRecipe> holder = recipeHolder.get();
         final TreeOfLifeRecipe recipe = holder.value();
-        final ItemStack result = recipe.assemble(input);
-        if (result.isEmpty() || !this.canAcceptItemStack(result)) {
+
+        if (!holder.id().equals(this.activeRecipe) || this.pendingResult.isEmpty()) {
+            this.activeRecipe = holder.id();
+            this.restorationProgress = 0;
+            this.pendingResult = recipe.random(this.random);
+        }
+
+        if (this.pendingResult.isEmpty()) {
             this.resetRestoration();
             return;
         }
 
-        if (!holder.id().equals(this.activeRecipe)) {
-            this.activeRecipe = holder.id();
+        this.restorationTime = recipe.processingTime();
+        if (!this.canAcceptItemStack(this.pendingResult)) {
             this.restorationProgress = 0;
+            return;
         }
 
-        this.restorationTime = recipe.processingTime();
         this.restorationProgress++;
         if (this.restorationProgress < this.restorationTime) {
             return;
@@ -128,6 +135,7 @@ public final class TreeOfLifeEntity extends LivingEntity implements MenuProvider
         this.inventory.removeItem(TreeOfLifeMenu.INGREDIENT_SLOT, 1);
         this.inventory.removeItem(TreeOfLifeMenu.ROOT_OF_LIFE_SLOT, recipe.rootOfLifeCount());
 
+        final ItemStack result = this.pendingResult.copy();
         final ItemStack currentResult = this.inventory.getItem(TreeOfLifeMenu.RESULT_SLOT);
         if (currentResult.isEmpty()) {
             this.inventory.setItem(TreeOfLifeMenu.RESULT_SLOT, result);
@@ -140,6 +148,7 @@ public final class TreeOfLifeEntity extends LivingEntity implements MenuProvider
         this.restorationProgress = 0;
         this.restorationTime = 0;
         this.activeRecipe = null;
+        this.pendingResult = ItemStack.EMPTY;
     }
 
     private boolean canAcceptItemStack(ItemStack itemStack) {
@@ -155,6 +164,7 @@ public final class TreeOfLifeEntity extends LivingEntity implements MenuProvider
         this.restorationProgress = 0;
         this.restorationTime = 0;
         this.activeRecipe = null;
+        this.pendingResult = ItemStack.EMPTY;
     }
 
     public boolean canUseAsIngredient(ItemStack stack) {
@@ -195,6 +205,7 @@ public final class TreeOfLifeEntity extends LivingEntity implements MenuProvider
         this.restorationProgress = Math.max(0, input.getIntOr("restoration_progress", 0));
         this.restorationTime = Math.max(0, input.getIntOr("restoration_time", 0));
         this.activeRecipe = input.read("active_restoration_recipe", Recipe.KEY_CODEC).orElse(null);
+        this.pendingResult = input.read("pending_restoration_result", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
     }
 
     @Override
@@ -204,6 +215,7 @@ public final class TreeOfLifeEntity extends LivingEntity implements MenuProvider
         output.putInt("restoration_progress", this.restorationProgress);
         output.putInt("restoration_time", this.restorationTime);
         output.storeNullable("active_restoration_recipe", Recipe.KEY_CODEC, this.activeRecipe);
+        output.store("pending_restoration_result", ItemStack.OPTIONAL_CODEC, this.pendingResult);
     }
 
     @Override
