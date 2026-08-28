@@ -14,15 +14,28 @@ public final class NomenDubiumCreativeTabs {
         ;;
     }
 
-    public static final Supplier<CreativeModeTab> MAIN_CREATIVE_TAB = NomenDubium.PLATFORM.registerCreativeTab(
-        "nomendubiumtab",
+    public static final Supplier<CreativeModeTab> CREATIVE_TAB_1 = NomenDubium.PLATFORM.registerCreativeTab(
+        "nomendubiumtab1",
         Component.translatable("creativetab.nomendubium.title"),
         () -> new ItemStack(NomenDubiumItems.ENCASED_FOSSIL.get()),
         List.of(
             () -> new ItemStack(NomenDubiumItems.PALEONTOLOGY_TABLE.get()),
             () -> new ItemStack(NomenDubiumItems.ROOT_OF_LIFE.get()),
+            () -> new ItemStack(NomenDubiumBlocks.ROOT_OF_LIFE.get().asItem()),
             () -> new ItemStack(NomenDubiumItems.FOSSIL_BLOCK.get()),
             () -> new ItemStack(NomenDubiumItems.SEDIMENT.get()),
+            () -> new ItemStack(NomenDubiumItems.ENCASED_FOSSIL.get()),
+            () -> new ItemStack(NomenDubiumItems.AMBER.get()),
+            () -> new ItemStack(NomenDubiumItems.FOSSIL_BONE.get()),
+            () -> new ItemStack(NomenDubiumItems.FOSSILISED_APPLE.get()),
+            () -> new ItemStack(NomenDubiumItems.FOSSILISED_SHELL.get()),
+            () -> new ItemStack(NomenDubiumItems.SHATTERED_DIAMOND.get()),
+            () -> new ItemStack(NomenDubiumItems.PRIMITIVE_ARROW.get()),
+            () -> new ItemStack(NomenDubiumItems.FOSSILISED_MAW.get()),
+            () -> new ItemStack(NomenDubiumItems.HUNTERS_ARROW.get()),
+            () -> new ItemStack(NomenDubiumItems.PREHISTORIC_MAW.get()),
+            () -> new ItemStack(NomenDubiumItems.REGENERATING_CHOP.get()),
+            () -> new ItemStack(NomenDubiumItems.SAP_OF_LIFE.get()),
             () -> new ItemStack(NomenDubiumItems.COALDEN_LOG.get()),
             () -> new ItemStack(NomenDubiumItems.COALDEN_WOOD.get()),
             () -> new ItemStack(NomenDubiumItems.COALDEN_STRIPPED_LOG.get()),
@@ -36,26 +49,14 @@ public final class NomenDubiumCreativeTabs {
             () -> new ItemStack(NomenDubiumItems.COALDEN_TRAPDOOR.get()),
             () -> new ItemStack(NomenDubiumItems.COALDEN_PRESSURE_PLATE.get()),
             () -> new ItemStack(NomenDubiumItems.COALDEN_BUTTON.get()),
-            () -> new ItemStack(NomenDubiumItems.COALDEN_SIGN.get()),
-            () -> new ItemStack(NomenDubiumItems.ENCASED_FOSSIL.get()),
-            () -> new ItemStack(NomenDubiumItems.AMBER.get()),
-            () -> new ItemStack(NomenDubiumItems.FOSSIL_BONE.get()),
-            () -> new ItemStack(NomenDubiumItems.SAP_OF_LIFE.get()),
-            () -> new ItemStack(NomenDubiumItems.FOSSILISED_APPLE.get()),
-            () -> new ItemStack(NomenDubiumItems.FOSSILISED_SHELL.get()),
-            () -> new ItemStack(NomenDubiumItems.SHATTERED_DIAMOND.get()),
-            () -> new ItemStack(NomenDubiumItems.HUNTERS_ARROW.get()),
-            () -> new ItemStack(NomenDubiumItems.PRIMITIVE_ARROW.get()),
-            () -> new ItemStack(NomenDubiumItems.PREHISTORIC_MAW.get()),
-            () -> new ItemStack(NomenDubiumItems.FOSSILISED_MAW.get()),
-            () -> new ItemStack(NomenDubiumItems.REGENERATING_CHOP.get())
+            () -> new ItemStack(NomenDubiumItems.COALDEN_SIGN.get())
         )
 
     );
 
-    public static final Supplier<CreativeModeTab> CHIMERA_CREATIVE_TAB = NomenDubium.PLATFORM.registerCreativeTab(
-            "nomendubiumchimeratab",
-            Component.translatable("creativetab.nomendubium.chimera.title"),
+    public static final Supplier<CreativeModeTab> CREATIVE_TAB_2 = NomenDubium.PLATFORM.registerCreativeTab(
+            "nomendubiumtab2",
+            Component.translatable("creativetab.nomendubium.title2"),
             () -> NomenDubiumItems.FOSSIL.get().createStack("shielded_head"),
             List.of(
                     () -> NomenDubiumItems.FOSSIL.get().createStack("hulking_body"),
