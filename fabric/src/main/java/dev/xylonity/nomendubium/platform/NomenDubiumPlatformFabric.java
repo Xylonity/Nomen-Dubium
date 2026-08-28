@@ -23,6 +23,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructureType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -95,6 +100,24 @@ public class NomenDubiumPlatformFabric implements NomenDubiumPlatform {
     @Override
     public <T extends Recipe<?>> Supplier<RecipeSerializer<T>> registerRecipeSerializer(String name, Supplier<RecipeSerializer<T>> factory) {
         final RecipeSerializer<T> value = Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, NomenDubium.of(name), factory.get());
+        return () -> value;
+    }
+
+    @Override
+    public <C extends FeatureConfiguration> Supplier<Feature<C>> registerFeature(String name, Supplier<Feature<C>> factory) {
+        final Feature<C> value = Registry.register(BuiltInRegistries.FEATURE, NomenDubium.of(name), factory.get());
+        return () -> value;
+    }
+
+    @Override
+    public <S extends Structure> Supplier<StructureType<S>> registerStructureType(String name, Supplier<StructureType<S>> factory) {
+        final StructureType<S> value = Registry.register(BuiltInRegistries.STRUCTURE_TYPE, NomenDubium.of(name), factory.get());
+        return () -> value;
+    }
+
+    @Override
+    public Supplier<StructurePieceType> registerStructurePiece(String name, StructurePieceType factory) {
+        final StructurePieceType value = Registry.register(BuiltInRegistries.STRUCTURE_PIECE, NomenDubium.of(name), factory);
         return () -> value;
     }
 

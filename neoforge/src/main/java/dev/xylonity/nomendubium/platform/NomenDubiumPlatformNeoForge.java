@@ -19,6 +19,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructureType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -40,6 +45,9 @@ public class NomenDubiumPlatformNeoForge implements NomenDubiumPlatform {
     private static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(Registries.MENU, NomenDubium.MOD_ID);
     private static final DeferredRegister<RecipeType<?>> RECIPE_TYPES = DeferredRegister.create(Registries.RECIPE_TYPE, NomenDubium.MOD_ID);
     private static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(Registries.RECIPE_SERIALIZER, NomenDubium.MOD_ID);
+    private static final DeferredRegister<Feature<?>> FEATURES = DeferredRegister.create(Registries.FEATURE, NomenDubium.MOD_ID);
+    private static final DeferredRegister<StructureType<?>> STRUCTURE_TYPES = DeferredRegister.create(Registries.STRUCTURE_TYPE, NomenDubium.MOD_ID);
+    private static final DeferredRegister<StructurePieceType> STRUCTURE_PIECES = DeferredRegister.create(Registries.STRUCTURE_PIECE, NomenDubium.MOD_ID);
     private static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, NomenDubium.MOD_ID);
 
     private static boolean registered;
@@ -57,6 +65,9 @@ public class NomenDubiumPlatformNeoForge implements NomenDubiumPlatform {
         MENU_TYPES.register(eventBus);
         RECIPE_TYPES.register(eventBus);
         RECIPE_SERIALIZERS.register(eventBus);
+        FEATURES.register(eventBus);
+        STRUCTURE_TYPES.register(eventBus);
+        STRUCTURE_PIECES.register(eventBus);
         CREATIVE_TABS.register(eventBus);
 
         registered = true;
@@ -115,6 +126,23 @@ public class NomenDubiumPlatformNeoForge implements NomenDubiumPlatform {
     public <T extends Recipe<?>> Supplier<RecipeSerializer<T>> registerRecipeSerializer(String name, Supplier<RecipeSerializer<T>> factory) {
         final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<T>> holder = RECIPE_SERIALIZERS.register(name, factory);
         return holder;
+    }
+
+    @Override
+    public <C extends FeatureConfiguration> Supplier<Feature<C>> registerFeature(String name, Supplier<Feature<C>> factory) {
+        final DeferredHolder<Feature<?>, Feature<C>> holder = FEATURES.register(name, factory);
+        return holder;
+    }
+
+    @Override
+    public <S extends Structure> Supplier<StructureType<S>> registerStructureType(String name, Supplier<StructureType<S>> factory) {
+        final DeferredHolder<StructureType<?>, StructureType<S>> holder = STRUCTURE_TYPES.register(name, factory);
+        return holder;
+    }
+
+    @Override
+    public Supplier<StructurePieceType> registerStructurePiece(String name, StructurePieceType factory) {
+        return STRUCTURE_PIECES.register(name, () -> factory);
     }
 
     @Override

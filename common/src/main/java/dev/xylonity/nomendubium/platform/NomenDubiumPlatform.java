@@ -19,6 +19,11 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructureType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -43,6 +48,9 @@ public interface NomenDubiumPlatform {
     <T extends AbstractContainerMenu> Supplier<MenuType<T>> registerMenu(String name, MenuFactory<T> factory);
     <T extends Recipe<?>> Supplier<RecipeType<T>> registerRecipeType(String name);
     <T extends Recipe<?>> Supplier<RecipeSerializer<T>> registerRecipeSerializer(String name, Supplier<RecipeSerializer<T>> factory);
+    <C extends FeatureConfiguration> Supplier<Feature<C>> registerFeature(String name, Supplier<Feature<C>> factory);
+    <S extends Structure> Supplier<StructureType<S>> registerStructureType(String name, Supplier<StructureType<S>> factory);
+    Supplier<StructurePieceType> registerStructurePiece(String name, StructurePieceType factory);
 
     Supplier<CreativeModeTab> registerCreativeTab(String name, Component title, Supplier<ItemStack> icon, List<Supplier<ItemStack>> entries);
 
