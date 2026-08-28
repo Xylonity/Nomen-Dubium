@@ -10,6 +10,7 @@ import dev.xylonity.nomendubium.registry.NomenDubiumBlocks;
 import dev.xylonity.nomendubium.registry.NomenDubiumItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -68,6 +69,12 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     private static final EntityDataAccessor<Integer> BACK = SynchedEntityData.defineId(ChimeraEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> PALETTE = SynchedEntityData.defineId(ChimeraEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> HOSTILE = SynchedEntityData.defineId(ChimeraEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Integer> MAIN_ACTION = SynchedEntityData.defineId(ChimeraEntity.class, EntityDataSerializers.INT);
+
+    public static final int ACTION_SIT = 0;
+    public static final int ACTION_FOLLOW = 1;
+    public static final int ACTION_WANDER = 2;
+    private static final int MAIN_ACTION_COUNT = 3;
 
     private static final int HOSTILE_ROOT_RADIUS = 8;
 
@@ -103,10 +110,43 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new FloatGoal(this));
-        this.goalSelector.addGoal(1, new SitWhenOrderedToGoal(this));
+        this.goalSelector.addGoal(1, new SitWhenOrderedToGoal(this) {
+            @Override
+            public boolean canUse() {
+                return !ChimeraEntity.this.isVehicle() && ChimeraEntity.this.getMainAction() == ACTION_SIT && super.canUse();
+            }
+
+            @Override
+            public boolean canContinueToUse() {
+                return !ChimeraEntity.this.isVehicle() && ChimeraEntity.this.getMainAction() == ACTION_SIT && super.canContinueToUse();
+            }
+
+        });
         this.goalSelector.addGoal(2, new ChimeraMeleeAttackGoal(this));
-        this.goalSelector.addGoal(3, new FollowOwnerGoal(this, 1.1, 8.0F, 3.0F));
-        this.goalSelector.addGoal(6, new RandomStrollGoal(this, 0.85));
+        this.goalSelector.addGoal(3, new FollowOwnerGoal(this, 1.1, 8.0F, 3.0F) {
+            @Override
+            public boolean canUse() {
+                return ChimeraEntity.this.getMainAction() == ACTION_FOLLOW && super.canUse();
+            }
+
+            @Override
+            public boolean canContinueToUse() {
+                return ChimeraEntity.this.getMainAction() == ACTION_FOLLOW && super.canContinueToUse();
+            }
+
+        });
+        this.goalSelector.addGoal(6, new RandomStrollGoal(this, 0.85) {
+            @Override
+            public boolean canUse() {
+                return ChimeraEntity.this.canWander() && super.canUse();
+            }
+
+            @Override
+            public boolean canContinueToUse() {
+                return ChimeraEntity.this.canWander() && super.canContinueToUse();
+            }
+
+        });
         this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 12.0F));
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
 
@@ -125,6 +165,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         entityData.define(BACK, ChimeraBackVariant.NONE.index());
         entityData.define(PALETTE, ChimeraPaletteVariant.NORMAL.index());
         entityData.define(HOSTILE, false);
+        entityData.define(MAIN_ACTION, ACTION_FOLLOW);
     }
 
     @Override
@@ -283,9 +324,9 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
 
                 this.usePlayerItem(player, hand, heldItem);
                 this.tame(player);
-                this.navigation.stop();
                 this.setTarget(null);
                 this.level().broadcastEntityEvent(this, (byte) 7);
+                this.setMainAction(ACTION_SIT, player);
                 return InteractionResult.SUCCESS_SERVER;
             }
 
@@ -303,13 +344,11 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
 
 
         if (this.isTame() && this.isOwnedBy(player) && hand == InteractionHand.MAIN_HAND) {
-            // Cycles the sit status
+            // Cycles through wander, sit and follow, like Companions!
+            // https://github.com/Xylonity/Companions/blob/v1.20.1/common/src/main/java/dev/xylonity/companions/common/entity/CompanionEntity.java
             if (player.isSecondaryUseActive()) {
                 if (!this.level().isClientSide()) {
-                    this.setOrderedToSit(!this.isOrderedToSit());
-                    this.setInSittingPose(this.isOrderedToSit());
-                    this.navigation.stop();
-                    this.ejectPassengers();
+                    this.setMainAction(this.getMainAction() + 1, player);
                 }
 
                 return this.level().isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
@@ -318,7 +357,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
             // Rides the chimera on normal interaction
             if (!this.isVehicle()) {
                 if (!this.level().isClientSide()) {
-                    this.setOrderedToSit(false);
+                    this.navigation.stop();
                     this.setInSittingPose(false);
                     player.startRiding(this);
                 }
@@ -329,6 +368,41 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         }
 
         return super.mobInteract(player, hand);
+    }
+
+    public int getMainAction() {
+        return this.entityData.get(MAIN_ACTION);
+    }
+
+    /// Derived from my own implementation
+    /// https://github.com/Xylonity/Companions/blob/v1.20.1/common/src/main/java/dev/xylonity/companions/common/entity/CompanionEntity.java
+    public void setMainAction(int action, @Nullable Player player) {
+        final int newAction = Math.floorMod(action, MAIN_ACTION_COUNT);
+        final boolean sitting = newAction == ACTION_SIT;
+
+        this.entityData.set(MAIN_ACTION, newAction);
+        this.navigation.stop();
+        this.ejectPassengers();
+        this.setOrderedToSit(sitting);
+        this.setInSittingPose(sitting);
+        if (sitting) {
+            this.setTarget(null);
+        }
+
+        if (player != null) {
+            final String messageKey = switch (newAction) {
+                case ACTION_SIT -> "main_action.nomendubium.client_message.is_sitting";
+                case ACTION_WANDER -> "main_action.nomendubium.client_message.is_wandering";
+                default -> "main_action.nomendubium.client_message.is_following";
+            };
+
+            player.sendOverlayMessage(Component.translatable(messageKey, this.getName()));
+        }
+
+    }
+
+    private boolean canWander() {
+        return !this.isTame() || this.getMainAction() == ACTION_WANDER;
     }
 
     @Override
@@ -547,6 +621,8 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         this.setBackVariant(ChimeraBackVariant.index(input.getIntOr("backvariant", ChimeraBackVariant.NONE.index())));
         final int legacyPalette = input.getBooleanOr("junglepalette", false) ? ChimeraPaletteVariant.JUNGLE.index() : ChimeraPaletteVariant.NORMAL.index();
         this.setPaletteVariant(ChimeraPaletteVariant.index(input.getIntOr("palettevariant", legacyPalette)));
+        final int legacyMainAction = this.isOrderedToSit() ? ACTION_SIT : ACTION_FOLLOW;
+        this.setMainAction(input.getIntOr("mainaction", legacyMainAction), null);
         this.setHostile(input.getBooleanOr("hostile", false));
     }
 
@@ -558,6 +634,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         output.putInt("tailvariant", this.getTailVariant().index());
         output.putInt("backvariant", this.getBackVariant().index());
         output.putInt("palettevariant", this.getPaletteVariant().index());
+        output.putInt("mainaction", this.getMainAction());
         output.putBoolean("hostile", this.isHostile());
     }
 
