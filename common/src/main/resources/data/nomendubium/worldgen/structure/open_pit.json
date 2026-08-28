@@ -1,0 +1,6 @@
+{
+  "type": "nomendubium:open_pit",
+  "biomes": "#nomendubium:has_structure/open_pit",
+  "spawn_overrides": {},
+  "step": "surface_structures"
+}

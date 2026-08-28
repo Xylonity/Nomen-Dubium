@@ -1,0 +1,6 @@
+{
+  "type": "nomendubium:life_hollow",
+  "biomes": "#nomendubium:has_structure/life_hollow",
+  "spawn_overrides": {},
+  "step": "underground_structures"
+}
