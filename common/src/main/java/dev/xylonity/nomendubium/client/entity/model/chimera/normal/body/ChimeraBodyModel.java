@@ -7,6 +7,7 @@ import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import org.joml.Matrix4fc;
+import org.joml.Quaternionf;
 
 /// A chunk of the implementation is based off citadel's helpers for procedural animation handling (specially for wings motion)
 public abstract class ChimeraBodyModel extends EntityModel<ChimeraRenderState> {
@@ -86,6 +87,38 @@ public abstract class ChimeraBodyModel extends EntityModel<ChimeraRenderState> {
 
     public void moveToBack(PoseStack poseStack) {
         this.moveTo(this.backConnection, poseStack);
+    }
+
+    public void moveToRider(PoseStack poseStack) {
+        final PoseStack riderPose = new PoseStack();
+        this.body.translateAndRotate(riderPose);
+        this.torso.translateAndRotate(riderPose);
+        riderPose.translate(
+            (this.backConnection.x - this.torso.x) / 16f,
+            (this.backConnection.y - this.torso.y) / 16f,
+            (this.backConnection.z - this.torso.z) / 16f
+        );
+
+        final Matrix4fc transform = riderPose.last().pose();
+        poseStack.translate(transform.m30(), transform.m31(), transform.m32());
+
+        // Inherits the animated rotation without carrying authored base rotations into the player model
+        final Quaternionf bodyRotation = new Quaternionf().rotationZYX(this.body.zRot, this.body.yRot, this.body.xRot);
+        final Quaternionf initialBodyRotation = new Quaternionf().rotationZYX(
+            this.body.getInitialPose().zRot(),
+            this.body.getInitialPose().yRot(),
+            this.body.getInitialPose().xRot()
+        );
+        final Quaternionf initialTorsoRotation = new Quaternionf().rotationZYX(
+            this.torso.getInitialPose().zRot(),
+            this.torso.getInitialPose().yRot(),
+            this.torso.getInitialPose().xRot()
+        );
+
+        final Quaternionf torsoAnimation = new Quaternionf().rotationZYX(this.torso.zRot, this.torso.yRot, this.torso.xRot)
+            .mul(initialTorsoRotation.conjugate());
+
+        poseStack.mulPose(new Quaternionf(bodyRotation).mul(torsoAnimation).mul(initialBodyRotation.conjugate()));
     }
 
     private void moveTo(ModelPart connection, PoseStack poseStack) {

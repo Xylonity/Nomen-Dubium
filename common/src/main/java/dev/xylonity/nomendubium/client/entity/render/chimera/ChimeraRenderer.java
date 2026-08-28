@@ -34,10 +34,12 @@ import dev.xylonity.nomendubium.common.entity.variant.ChimeraTailVariant;
 import java.util.EnumMap;
 import java.util.Map;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.sprite.SpriteGetter;
@@ -98,6 +100,7 @@ public final class ChimeraRenderer extends EntityRenderer<ChimeraEntity, Chimera
         submitAttachedPart(heads.get(state.head), body.model(), Attachment.HEAD, state, poseStack, submitNodeCollector);
         submitAttachedPart(tails.get(state.tail), body.model(), Attachment.TAIL, state, poseStack, submitNodeCollector);
         submitAttachedPart(backs.get(state.back), body.model(), Attachment.BACK, state, poseStack, submitNodeCollector);
+        submitRider(state.rider, body.model(), poseStack, submitNodeCollector, camera);
 
         poseStack.popPose();
 
@@ -123,6 +126,14 @@ public final class ChimeraRenderer extends EntityRenderer<ChimeraEntity, Chimera
         state.tail = entity.getTailVariant();
         state.back = entity.getBackVariant();
         state.palette = entity.getPaletteVariant();
+        state.rider = null;
+        if (entity.getFirstPassenger() instanceof AbstractClientPlayer player) {
+            state.rider = this.entityRenderDispatcher.getPlayerRenderer(player).createRenderState(player, partialTicks);
+            state.rider.bodyRot = 180.0F;
+            state.rider.walkAnimationSpeed = 0.0F;
+            ((ChimeraRiderRenderState) state.rider).nomendubium$setAnchoredToChimera(true);
+        }
+
     }
 
     private static RenderedPart part(EntityModel<ChimeraRenderState> model, String texture) {
@@ -152,33 +163,12 @@ public final class ChimeraRenderer extends EntityRenderer<ChimeraEntity, Chimera
         }
 
         if (state.palette == ChimeraPaletteVariant.NORMAL) {
-            submitNodeCollector.submitModel(
-                    part.model(),
-                    state,
-                    poseStack,
-                    part.baseTexture(),
-                    state.lightCoords,
-                    OverlayTexture.NO_OVERLAY,
-                    state.outlineColor,
-                    null
-            );
+            submitNodeCollector.submitModel(part.model(), state, poseStack, part.baseTexture(), state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor, null);
 
             return;
         }
 
-        submitNodeCollector.submitModel(
-            part.model(),
-            state,
-            poseStack,
-            state.lightCoords,
-            OverlayTexture.NO_OVERLAY,
-            -1,
-            part.paletteSprites().get(state.palette),
-            sprites,
-            state.outlineColor,
-            null
-        );
-
+        submitNodeCollector.submitModel(part.model(), state, poseStack, state.lightCoords, OverlayTexture.NO_OVERLAY, -1, part.paletteSprites().get(state.palette), sprites, state.outlineColor, null);
     }
 
     private void submitAttachedPart(RenderedPart part, ChimeraBodyModel body, Attachment attachment, ChimeraRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector) {
@@ -197,6 +187,30 @@ public final class ChimeraRenderer extends EntityRenderer<ChimeraEntity, Chimera
         submitPart(part, state, poseStack, submitNodeCollector);
 
         poseStack.popPose();
+    }
+
+    private void submitRider(AvatarRenderState rider, ChimeraBodyModel body, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
+        if (rider == null || this.isFirstPersonCameraRider(rider)) {
+            return;
+        }
+
+        final EntityRenderer<?, ? super AvatarRenderState> renderer = this.entityRenderDispatcher.getRenderer(rider);
+        if (renderer == null) {
+            return;
+        }
+
+        poseStack.pushPose();
+
+        body.moveToRider(poseStack);
+        poseStack.scale(-1.0F, -1.0F, 1.0F);
+        poseStack.translate(0, -0.57, 0);
+        renderer.submit(rider, poseStack, submitNodeCollector, camera);
+
+        poseStack.popPose();
+    }
+
+    private boolean isFirstPersonCameraRider(AvatarRenderState rider) {
+        return this.entityRenderDispatcher.camera != null && this.entityRenderDispatcher.camera.entity() != null && this.entityRenderDispatcher.camera.entity().getId() == rider.id && this.entityRenderDispatcher.options.getCameraType().isFirstPerson();
     }
 
     private enum Attachment {

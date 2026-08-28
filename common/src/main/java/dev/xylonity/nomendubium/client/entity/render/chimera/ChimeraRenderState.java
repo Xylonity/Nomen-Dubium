@@ -6,6 +6,7 @@ import dev.xylonity.nomendubium.common.entity.variant.ChimeraHeadVariant;
 import dev.xylonity.nomendubium.common.entity.variant.ChimeraPaletteVariant;
 import dev.xylonity.nomendubium.common.entity.variant.ChimeraTailVariant;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 
 
 public final class ChimeraRenderState extends EntityRenderState {
@@ -19,4 +20,5 @@ public final class ChimeraRenderState extends EntityRenderState {
     public ChimeraTailVariant tail = ChimeraTailVariant.SPIKED;
     public ChimeraBackVariant back = ChimeraBackVariant.NONE;
     public ChimeraPaletteVariant palette = ChimeraPaletteVariant.NORMAL;
+    public AvatarRenderState rider;
 }
