@@ -47,6 +47,7 @@ public final class NomenDubiumBlocks {
             BlockBehaviour.Properties.ofFullCopy(Blocks.SNOW)
                 .strength(1.5F, 6.0F)
                 .sound(SoundType.GRAVEL)
+                .speedFactor(0.55F)
                 .requiresCorrectToolForDrops()
                 .setId(key)
         )
