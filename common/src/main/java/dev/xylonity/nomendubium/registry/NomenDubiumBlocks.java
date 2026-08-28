@@ -49,6 +49,7 @@ public final class NomenDubiumBlocks {
                 .sound(SoundType.GRAVEL)
                 .speedFactor(0.55F)
                 .requiresCorrectToolForDrops()
+                .noLootTable()
                 .setId(key)
         )
     );
