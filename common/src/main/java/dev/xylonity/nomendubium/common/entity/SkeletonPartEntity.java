@@ -1,10 +1,18 @@
 package dev.xylonity.nomendubium.common.entity;
 
 import dev.xylonity.nomendubium.common.entity.skeleton.SkeletonPartType;
+import dev.xylonity.nomendubium.common.entity.variant.ChimeraBackVariant;
+import dev.xylonity.nomendubium.common.entity.variant.ChimeraBodyVariant;
+import dev.xylonity.nomendubium.common.entity.variant.ChimeraHeadVariant;
+import dev.xylonity.nomendubium.common.entity.variant.ChimeraPaletteVariant;
 import dev.xylonity.nomendubium.common.entity.variant.ChimeraPartCategory;
+import dev.xylonity.nomendubium.common.entity.variant.ChimeraTailVariant;
+import dev.xylonity.nomendubium.common.item.FruitOfLifeItem;
 import dev.xylonity.nomendubium.common.item.fossil.FossilItem;
 import dev.xylonity.nomendubium.registry.NomenDubiumEntities;
 import dev.xylonity.nomendubium.registry.NomenDubiumItems;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -34,11 +42,16 @@ public final class SkeletonPartEntity extends Entity {
 
     private static final EntityDataAccessor<Integer> PART_TYPE = SynchedEntityData.defineId(SkeletonPartEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> PARENT_ID = SynchedEntityData.defineId(SkeletonPartEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> REVIVAL_TICKS = SynchedEntityData.defineId(SkeletonPartEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> REVIVAL_PALETTE = SynchedEntityData.defineId(SkeletonPartEntity.class, EntityDataSerializers.INT);
+
+    public static final int REVIVAL_DURATION = 60;
 
     private final Map<ChimeraPartCategory, UUID> attachments = new EnumMap<>(ChimeraPartCategory.class);
 
     private UUID parentUuid;
     private boolean dismantling;
+    private int clientRevivalTicks;
 
     public SkeletonPartEntity(EntityType<? extends SkeletonPartEntity> type, Level level) {
         super(type, level);
@@ -50,19 +63,31 @@ public final class SkeletonPartEntity extends Entity {
     protected void defineSynchedData(SynchedEntityData.@NonNull Builder entityData) {
         entityData.define(PART_TYPE, SkeletonPartType.HULKING_BODY.index());
         entityData.define(PARENT_ID, -1);
+        entityData.define(REVIVAL_TICKS, 0);
+        entityData.define(REVIVAL_PALETTE, ChimeraPaletteVariant.NORMAL.index());
     }
 
     @Override
     public void tick() {
         super.tick();
-        if (!level().isClientSide()) {
-            setDeltaMovement(Vec3.ZERO);
+        if (level().isClientSide()) {
+            if (getPartType().isBody()) {
+                tickClientRevival();
+            }
+            return;
         }
 
-        if (!level().isClientSide() && !getPartType().isBody()) {
-            final SkeletonPartEntity parent = getParentBody();
-            if (parent != null) {
-                moveTo(parent);
+        if (level() instanceof ServerLevel serverLevel) {
+            setDeltaMovement(Vec3.ZERO);
+            if (getPartType().isBody()) {
+                tickRevival(serverLevel);
+            }
+            else {
+                final SkeletonPartEntity parent = getParentBody();
+                if (parent != null) {
+                    moveTo(parent);
+                }
+
             }
 
         }
@@ -85,6 +110,16 @@ public final class SkeletonPartEntity extends Entity {
         if (PART_TYPE.equals(dataAccessor)) {
             refreshBoundingBox();
         }
+        else if (REVIVAL_TICKS.equals(dataAccessor) && level().isClientSide()) {
+            final int syncedTicks = entityData.get(REVIVAL_TICKS);
+            if (syncedTicks <= 0) {
+                clientRevivalTicks = 0;
+            }
+            else if (clientRevivalTicks <= 0) {
+                clientRevivalTicks = syncedTicks;
+            }
+
+        }
 
     }
 
@@ -102,11 +137,27 @@ public final class SkeletonPartEntity extends Entity {
     @Override
     public @NonNull InteractionResult interact(Player player, @NonNull InteractionHand hand, @NonNull Vec3 location) {
         final ItemStack heldItem = player.getItemInHand(hand);
+        final SkeletonPartEntity body = getPartType().isBody() ? this : getParentBody();
+
+        if (heldItem.is(NomenDubiumItems.FRUIT_OF_LIFE.get())) {
+            if (body == null) {
+                return InteractionResult.FAIL;
+            }
+            if (level().isClientSide()) {
+                return InteractionResult.SUCCESS;
+            }
+
+            return body.beginRevival(player, heldItem);
+        }
+
+        if (body != null && body.isReviving()) {
+            return level().isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+        }
+
         final SkeletonPartType heldPart = heldItem.is(NomenDubiumItems.FOSSIL.get()) ? SkeletonPartType.byFossilPart(FossilItem.getPart(heldItem)) : null;
 
         // Interacting with a part that's not a body
         if (heldPart != null && !heldPart.isBody()) {
-            final SkeletonPartEntity body = getPartType().isBody() ? this : getParentBody();
             if (body != null) {
                 if (level().isClientSide()) {
                     return InteractionResult.SUCCESS;
@@ -129,6 +180,10 @@ public final class SkeletonPartEntity extends Entity {
 
     @Override
     public boolean skipAttackInteraction(@NonNull Entity attacker) {
+        if (isRevivingAssembly()) {
+            return true;
+        }
+
         // Normal attack dismantles the part
         if (attacker instanceof Player player) {
             if (!level().isClientSide()) {
@@ -143,6 +198,10 @@ public final class SkeletonPartEntity extends Entity {
 
     @Override
     public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
+        if (isRevivingAssembly()) {
+            return false;
+        }
+
         // Normal attack dismantles the part
         if (source.getEntity() instanceof Player player) {
             dismantle(player);
@@ -162,6 +221,8 @@ public final class SkeletonPartEntity extends Entity {
         setPartType(SkeletonPartType.byFossilPart(input.getStringOr("part", SkeletonPartType.HULKING_BODY.fossilPart())));
         parentUuid = getUuidPer(input, "parent");
         entityData.set(PARENT_ID, -1);
+        entityData.set(REVIVAL_TICKS, input.getIntOr("revival_ticks", 0));
+        entityData.set(REVIVAL_PALETTE, input.getIntOr("revival_palette", ChimeraPaletteVariant.NORMAL.index()));
 
         attachments.clear();
 
@@ -175,6 +236,11 @@ public final class SkeletonPartEntity extends Entity {
         output.putString("part", getPartType().fossilPart());
         if (parentUuid != null) {
             output.putString("parent", parentUuid.toString());
+        }
+
+        if (isReviving()) {
+            output.putInt("revival_ticks", entityData.get(REVIVAL_TICKS));
+            output.putInt("revival_palette", entityData.get(REVIVAL_PALETTE));
         }
 
         for (final Map.Entry<ChimeraPartCategory, UUID> attachment : attachments.entrySet()) {
@@ -218,12 +284,157 @@ public final class SkeletonPartEntity extends Entity {
         moveTo(parent);
     }
 
+    public int getRevivalTicks() {
+        final SkeletonPartEntity body = getPartType().isBody() ? this : getParentBody();
+        if (body == null) {
+            return 0;
+        }
+
+        return body.level().isClientSide() ? body.clientRevivalTicks : body.entityData.get(REVIVAL_TICKS);
+    }
+
+    public Vec3 getRevivalPivotOffset() {
+        if (getPartType().isBody()) {
+            return Vec3.ZERO;
+        }
+
+        final SkeletonPartEntity body = getParentBody();
+        return body == null ? Vec3.ZERO : body.position().subtract(position());
+    }
+
+    private boolean isReviving() {
+        return getPartType().isBody() && entityData.get(REVIVAL_TICKS) > 0;
+    }
+
+    private boolean isRevivingAssembly() {
+        final SkeletonPartEntity body = getPartType().isBody() ? this : getParentBody();
+        return body != null && body.isReviving();
+    }
+
+    private void tickClientRevival() {
+        final int syncedTicks = entityData.get(REVIVAL_TICKS);
+        if (syncedTicks <= 0) {
+            clientRevivalTicks = 0;
+        }
+        else if (clientRevivalTicks <= 0) {
+            clientRevivalTicks = syncedTicks;
+        }
+        else if (clientRevivalTicks < REVIVAL_DURATION) {
+            clientRevivalTicks++;
+        }
+
+    }
+
+    private InteractionResult beginRevival(Player player, ItemStack fruit) {
+        if (!getPartType().isBody() || isReviving()) {
+            return InteractionResult.FAIL;
+        }
+
+        if (getAttachedPart(ChimeraPartCategory.HEAD) == null || getAttachedPart(ChimeraPartCategory.TAIL) == null) {
+            player.sendOverlayMessage(Component.translatable("message.nomendubium.fruit_of_life.incomplete"));
+            return InteractionResult.FAIL;
+        }
+
+        ChimeraPaletteVariant palette = FruitOfLifeItem.getPalette(fruit);
+        if (palette == null) {
+            palette = ChimeraPaletteVariant.random(random);
+        }
+
+        entityData.set(REVIVAL_PALETTE, palette.index());
+        entityData.set(REVIVAL_TICKS, 1);
+        if (!player.hasInfiniteMaterials()) {
+            fruit.shrink(1);
+        }
+
+        if (level() instanceof ServerLevel serverLevel) {
+            final double centerY = getY() + getBoundingBox().getYsize() * 0.5D;
+            serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER, getX(), centerY, getZ(), 24, 0.8D, 1.0D, 0.8D, 0.08D);
+            serverLevel.sendParticles(ParticleTypes.END_ROD, getX(), centerY, getZ(), 12, 0.5D, 0.8D, 0.5D, 0.04D);
+            serverLevel.playSound(null, blockPosition(), SoundEvents.BEACON_ACTIVATE, SoundSource.NEUTRAL, 1.0F, 1.25F);
+        }
+
+        return InteractionResult.SUCCESS_SERVER;
+    }
+
+    private void tickRevival(ServerLevel level) {
+        final int ticks = entityData.get(REVIVAL_TICKS);
+        if (ticks <= 0) {
+            return;
+        }
+
+        final double centerY = getY() + getBoundingBox().getYsize() * 0.5D;
+        if (ticks % 4 == 0) {
+            final double radius = 0.6D + ticks / (double) REVIVAL_DURATION;
+            final double angle = ticks * 0.55D;
+            level.sendParticles(ParticleTypes.END_ROD, getX() + Math.cos(angle) * radius, centerY + Math.sin(angle * 0.5D) * 0.5D, getZ() + Math.sin(angle) * radius, 2, 0.08D, 0.08D, 0.08D, 0.01D);
+        }
+
+        if (ticks == 20 || ticks == 40) {
+            level.playSound(null, blockPosition(), SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.NEUTRAL, 1.1F, ticks == 20 ? 0.9F : 1.25F);
+        }
+
+        if (ticks >= REVIVAL_DURATION) {
+            transformIntoChimera(level);
+        }
+        else {
+            entityData.set(REVIVAL_TICKS, ticks + 1);
+        }
+
+    }
+
+    private void transformIntoChimera(ServerLevel level) {
+        final SkeletonPartEntity head = getAttachedPart(ChimeraPartCategory.HEAD);
+        final SkeletonPartEntity tail = getAttachedPart(ChimeraPartCategory.TAIL);
+        final SkeletonPartEntity back = getAttachedPart(ChimeraPartCategory.BACK);
+        if (head == null || tail == null) {
+            entityData.set(REVIVAL_TICKS, 0);
+            return;
+        }
+
+        final ChimeraEntity chimera = new ChimeraEntity(NomenDubiumEntities.CHIMERA.get(), level);
+        chimera.setBodyVariant((ChimeraBodyVariant) getPartType().variant());
+        chimera.setHeadVariant((ChimeraHeadVariant) head.getPartType().variant());
+        chimera.setTailVariant((ChimeraTailVariant) tail.getPartType().variant());
+        chimera.setBackVariant(back == null ? ChimeraBackVariant.NONE : (ChimeraBackVariant) back.getPartType().variant());
+        chimera.setPaletteVariant(ChimeraPaletteVariant.index(entityData.get(REVIVAL_PALETTE)));
+        chimera.snapTo(getX(), getY(), getZ(), getYRot(), 0.0F);
+        chimera.setHealth(chimera.getMaxHealth());
+
+        if (!level.addFreshEntity(chimera)) {
+            entityData.set(REVIVAL_TICKS, 0);
+            return;
+        }
+
+        final double centerY = getY() + getBoundingBox().getYsize() * 0.5D;
+        level.sendParticles(ParticleTypes.POOF, getX(), centerY, getZ(), 80, 1.2D, 1.4D, 1.2D, 0.12D);
+        level.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, getX(), centerY, getZ(), 50, 1.0D, 1.2D, 1.0D, 0.15D);
+        level.playSound(null, blockPosition(), SoundEvents.TOTEM_USE, SoundSource.NEUTRAL, 1.3F, 0.9F);
+
+        discardAssembly();
+    }
+
+    private void discardAssembly() {
+        dismantling = true;
+        for (final ChimeraPartCategory category : new ChimeraPartCategory[] { ChimeraPartCategory.HEAD, ChimeraPartCategory.TAIL, ChimeraPartCategory.BACK }) {
+            final SkeletonPartEntity attachment = getAttachedPart(category);
+            if (attachment != null) {
+                attachment.dismantling = true;
+                attachment.discard();
+            }
+
+        }
+
+        attachments.clear();
+
+        discard();
+    }
+
     private void refreshBoundingBox() {
         setBoundingBox(makeBoundingBox(position()));
     }
 
     private boolean attachOrReplace(Player player, ItemStack heldItem, SkeletonPartType newPart) {
-        if (!getPartType().isBody() || newPart.isBody()) {
+        if (!getPartType().isBody() || newPart.isBody() || isReviving()) {
             return false;
         }
 
@@ -259,7 +470,7 @@ public final class SkeletonPartEntity extends Entity {
     }
 
     private void dismantle(Player player) {
-        if (isRemoved()) {
+        if (isRemoved() || isRevivingAssembly()) {
             return;
         }
 

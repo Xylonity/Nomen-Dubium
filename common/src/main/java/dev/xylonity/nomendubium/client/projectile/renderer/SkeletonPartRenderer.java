@@ -33,6 +33,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
 import org.jspecify.annotations.NonNull;
 
 import java.util.EnumMap;
@@ -79,6 +80,7 @@ public final class SkeletonPartRenderer extends EntityRenderer<SkeletonPartEntit
         }
 
         poseStack.pushPose();
+        applyRevivalAnimation(state, poseStack);
         poseStack.mulPose(Axis.YP.rotationDegrees(180F - state.yRot));
         poseStack.scale(-1F, -1F, 1F);
         if (state.partType.isBody()) {
@@ -111,6 +113,28 @@ public final class SkeletonPartRenderer extends EntityRenderer<SkeletonPartEntit
         super.extractRenderState(entity, state, partialTicks);
         state.partType = entity.getPartType();
         state.yRot = entity.getYRot(partialTicks);
+        final int revivalTicks = entity.getRevivalTicks();
+        state.revivalTicks = revivalTicks > 0 ? revivalTicks + partialTicks : 0F;
+        state.pivot = entity.getRevivalPivotOffset();
+    }
+
+    private static void applyRevivalAnimation(SkeletonPartRenderState state, PoseStack poseStack) {
+        if (state.revivalTicks <= 0F) {
+            return;
+        }
+
+        final float progress = Mth.clamp(state.revivalTicks / SkeletonPartEntity.REVIVAL_DURATION, 0F, 1F);
+        final float intensity = Mth.sin(progress * Mth.PI);
+        final float lift = intensity * 0.7F;
+        final float spin = progress * 720F + Mth.sin(state.revivalTicks * 0.45F) * intensity * 12F;
+        final float tilt = Mth.sin(state.revivalTicks * 0.32F) * intensity * 7F;
+        final float pulse = 1F + Mth.sin(state.revivalTicks * 0.7F) * intensity * 0.06f;
+
+        poseStack.translate(state.pivot.x, state.pivot.y + lift, state.pivot.z);
+        poseStack.mulPose(Axis.YP.rotationDegrees(spin));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(tilt));
+        poseStack.scale(pulse, pulse, pulse);
+        poseStack.translate(-state.pivot.x, -state.pivot.y, -state.pivot.z);
     }
 
     private void put(SkeletonPartType type, EntityModel<SkeletonPartRenderState> model) {
