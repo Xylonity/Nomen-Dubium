@@ -1,8 +1,6 @@
 package dev.xylonity.nomendubium.client.entity.model.chimera.normal.head;
 
 import dev.xylonity.nomendubium.client.entity.model.chimera.ChimeraModelConnections;
-import dev.xylonity.nomendubium.client.entity.render.chimera.ChimeraRenderState;
-import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
@@ -11,10 +9,10 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 
-public final class SnarledHeadModel extends EntityModel<ChimeraRenderState> {
+public final class SnarledHeadModel extends ChimeraHeadModel {
 
     public SnarledHeadModel(ModelPart root) {
-        super(root);
+        super(root, "Head", 0.85F);
     }
 
     public static LayerDefinition createLayer() {

@@ -10,6 +10,10 @@ import net.minecraft.client.renderer.entity.state.EntityRenderState;
 
 public final class ChimeraRenderState extends EntityRenderState {
     public float yRot;
+    public float headYaw;
+    public float headPitch;
+    public float walkAnimationPos;
+    public float walkAnimationSpeed;
     public ChimeraBodyVariant body = ChimeraBodyVariant.HULKING;
     public ChimeraHeadVariant head = ChimeraHeadVariant.CRUNCHING;
     public ChimeraTailVariant tail = ChimeraTailVariant.SPIKED;

@@ -11,7 +11,7 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 public final class ShelledBodyModel extends ChimeraBodyModel {
 
 	public ShelledBodyModel(ModelPart root) {
-		super(root);
+		super(root, Gait.SHELLED, leg("R_front_leg", 0.0F), leg("L_back_leg", 0.0F), leg("L_front_leg", (float) Math.PI), leg("R_back_leg", (float) Math.PI));
 	}
 
 	public static LayerDefinition createLayer() {

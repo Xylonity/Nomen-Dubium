@@ -1,8 +1,6 @@
 package dev.xylonity.nomendubium.client.entity.model.chimera.normal.tail;
 
 import dev.xylonity.nomendubium.client.entity.model.chimera.ChimeraModelConnections;
-import dev.xylonity.nomendubium.client.entity.render.chimera.ChimeraRenderState;
-import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
@@ -11,10 +9,10 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 
-public final class StubbyTailModel extends EntityModel<ChimeraRenderState> {
+public final class StubbyTailModel extends ChimeraTailModel {
 
     public StubbyTailModel(ModelPart root) {
-        super(root);
+        super(root, "tail_tip", 1.4F);
     }
 
     public static LayerDefinition createLayer() {

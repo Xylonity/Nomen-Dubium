@@ -43,6 +43,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.sprite.SpriteGetter;
 import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
 
 public final class ChimeraRenderer extends EntityRenderer<ChimeraEntity, ChimeraRenderState> {
 
@@ -89,6 +90,10 @@ public final class ChimeraRenderer extends EntityRenderer<ChimeraEntity, Chimera
         poseStack.translate(0.0F, -1.501F, 0.0F);
 
         final RenderedBody body = bodies.get(state.body);
+
+        // Procedural animation call
+        body.model().setupAnim(state);
+
         submitPart(body.part(), state, poseStack, submitNodeCollector);
         submitAttachedPart(heads.get(state.head), body.model(), Attachment.HEAD, state, poseStack, submitNodeCollector);
         submitAttachedPart(tails.get(state.tail), body.model(), Attachment.TAIL, state, poseStack, submitNodeCollector);
@@ -107,7 +112,12 @@ public final class ChimeraRenderer extends EntityRenderer<ChimeraEntity, Chimera
     @Override
     public void extractRenderState(ChimeraEntity entity, ChimeraRenderState state, float partialTicks) {
         super.extractRenderState(entity, state, partialTicks);
-        state.yRot = entity.getYRot(partialTicks);
+        state.yRot = entity.getPreciseBodyRotation(partialTicks);
+        final float headRot = Mth.rotLerp(partialTicks, entity.yHeadRotO, entity.yHeadRot);
+        state.headYaw = Mth.wrapDegrees(headRot - state.yRot);
+        state.headPitch = entity.getXRot(partialTicks);
+        state.walkAnimationPos = entity.walkAnimation.position(partialTicks);
+        state.walkAnimationSpeed = entity.walkAnimation.speed(partialTicks);
         state.body = entity.getBodyVariant();
         state.head = entity.getHeadVariant();
         state.tail = entity.getTailVariant();

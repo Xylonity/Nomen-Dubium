@@ -11,7 +11,7 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 public final class LankyBodyModel extends ChimeraBodyModel {
 
 	public LankyBodyModel(ModelPart root) {
-		super(root);
+		super(root, Gait.LANKY, leg("R_Front_leg", 0.0F), leg("L_back_leg", 0.0F), leg("L_Front_leg", (float) Math.PI), leg("R_back_leg", (float) Math.PI));
 	}
 
 	public static LayerDefinition createLayer() {

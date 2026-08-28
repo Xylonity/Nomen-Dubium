@@ -11,7 +11,7 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 public final class AvianBodyModel extends ChimeraBodyModel {
 
 	public AvianBodyModel(ModelPart root) {
-		super(root);
+		super(root, Gait.AVIAN, leg("R_arm", 0.0F), leg("L_leg", "L_calf", "L_foot", 0.0F), leg("L_arm", (float) Math.PI), leg("R_leg", "R_calf", "R_foot", (float) Math.PI));
 	}
 
 	public static LayerDefinition createLayer() {
