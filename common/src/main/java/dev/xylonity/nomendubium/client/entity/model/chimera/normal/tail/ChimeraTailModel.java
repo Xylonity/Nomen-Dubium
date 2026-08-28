@@ -25,7 +25,8 @@ public abstract class ChimeraTailModel extends EntityModel<ChimeraRenderState> {
     public void setupAnim(ChimeraRenderState state) {
         super.setupAnim(state);
 
-        final float movement = Mth.clamp(state.walkAnimationSpeed, 0.0F, 1.0F);
+        final float sit = smoothstep(Mth.clamp(state.sitProgress, 0.0F, 1.0F));
+        final float movement = Mth.clamp(state.walkAnimationSpeed, 0.0F, 1.0F) * (1.0F - sit);
         final float idleWeight = 1.0F - movement;
         final float idlePhase = state.ageInTicks * 0.08F;
         final float walkPhase = state.walkAnimationPos * 0.72F;
@@ -37,6 +38,14 @@ public abstract class ChimeraTailModel extends EntityModel<ChimeraRenderState> {
         this.tip.yRot += Mth.sin(idlePhase - 0.65F) * 0.14F * idleWeight / this.weight;
         this.tip.yRot += Mth.sin(walkPhase - 0.80F) * 0.28F * movement / this.weight;
         this.tip.xRot += Mth.sin(idlePhase * 0.73F - 0.45F) * 0.035F / this.weight;
+
+        this.tail.xRot += 0.18F * sit;
+        this.tail.yRot += Mth.sin(state.ageInTicks * 0.045F) * 0.08F * sit / this.weight;
+        this.tip.xRot += 0.22F * sit;
+    }
+
+    private static float smoothstep(float value) {
+        return value * value * (3.0F - 2.0F * value);
     }
 
 }

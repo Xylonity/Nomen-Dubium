@@ -93,9 +93,6 @@ public final class ChimeraRenderer extends EntityRenderer<ChimeraEntity, Chimera
 
         final RenderedBody body = bodies.get(state.body);
 
-        // Procedural animation call
-        body.model().setupAnim(state);
-
         submitPart(body.part(), state, poseStack, submitNodeCollector);
         submitAttachedPart(heads.get(state.head), body.model(), Attachment.HEAD, state, poseStack, submitNodeCollector);
         submitAttachedPart(tails.get(state.tail), body.model(), Attachment.TAIL, state, poseStack, submitNodeCollector);
@@ -121,6 +118,10 @@ public final class ChimeraRenderer extends EntityRenderer<ChimeraEntity, Chimera
         state.headPitch = entity.getXRot(partialTicks);
         state.walkAnimationPos = entity.walkAnimation.position(partialTicks);
         state.walkAnimationSpeed = entity.walkAnimation.speed(partialTicks);
+        state.sitProgress = entity.getSitAnimation(partialTicks);
+        state.jumpProgress = entity.getJumpAnimation(partialTicks);
+        state.verticalSpeed = (float) entity.getDeltaMovement().y;
+        state.onGround = entity.onGround();
         state.body = entity.getBodyVariant();
         state.head = entity.getHeadVariant();
         state.tail = entity.getTailVariant();
@@ -161,6 +162,9 @@ public final class ChimeraRenderer extends EntityRenderer<ChimeraEntity, Chimera
         if (part == null) {
             return;
         }
+
+        // Procedural animation call
+        part.model().setupAnim(state);
 
         if (state.palette == ChimeraPaletteVariant.NORMAL) {
             submitNodeCollector.submitModel(part.model(), state, poseStack, part.baseTexture(), state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor, null);

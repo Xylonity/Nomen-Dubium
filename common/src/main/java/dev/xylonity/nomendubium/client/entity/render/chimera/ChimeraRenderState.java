@@ -15,6 +15,10 @@ public final class ChimeraRenderState extends EntityRenderState {
     public float headPitch;
     public float walkAnimationPos;
     public float walkAnimationSpeed;
+    public float sitProgress;
+    public float jumpProgress;
+    public float verticalSpeed;
+    public boolean onGround;
     public ChimeraBodyVariant body = ChimeraBodyVariant.HULKING;
     public ChimeraHeadVariant head = ChimeraHeadVariant.CRUNCHING;
     public ChimeraTailVariant tail = ChimeraTailVariant.SPIKED;

@@ -23,7 +23,8 @@ public abstract class ChimeraHeadModel extends EntityModel<ChimeraRenderState> {
     public void setupAnim(ChimeraRenderState state) {
         super.setupAnim(state);
 
-        final float movement = Mth.clamp(state.walkAnimationSpeed, 0.0F, 1.0F);
+        final float sit = smoothstep(Mth.clamp(state.sitProgress, 0.0F, 1.0F));
+        final float movement = Mth.clamp(state.walkAnimationSpeed, 0.0F, 1.0F) * (1.0F - sit);
         final float yaw = Mth.clamp(state.headYaw, -50.0F, 50.0F) * Mth.DEG_TO_RAD;
         final float pitch = Mth.clamp(state.headPitch, -35.0F, 35.0F) * Mth.DEG_TO_RAD;
 
@@ -32,6 +33,12 @@ public abstract class ChimeraHeadModel extends EntityModel<ChimeraRenderState> {
         this.head.xRot += Mth.sin(state.ageInTicks * 0.075F) * 0.018F;
         this.head.zRot += Mth.sin(state.ageInTicks * 0.055F) * 0.012F;
         this.head.xRot += Mth.cos(state.walkAnimationPos * 1.2F) * 0.035F * movement;
+        this.head.xRot += 0.10F * sit;
+        this.head.yRot += Mth.sin(state.ageInTicks * 0.035F) * 0.025F * sit;
+    }
+
+    public static float smoothstep(float value) {
+        return value * value * (3.0F - 2.0F * value);
     }
 
 }

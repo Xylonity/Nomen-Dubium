@@ -76,6 +76,10 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     private int snortingCooldown = 200;
     private int roarCooldown;
     private float playerJumpPendingScale;
+    private float sitAnimation;
+    private float sitAnimationO;
+    private float jumpAnimation;
+    private float jumpAnimationO;
 
     public ChimeraEntity(EntityType<? extends ChimeraEntity> type, Level level) {
         super(type, level);
@@ -135,6 +139,10 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     @Override
     public void tick() {
         super.tick();
+
+        this.tickSitAnimation();
+        this.tickJumpAnimation();
+
         if (!(this.level() instanceof ServerLevel serverLevel) || !this.isAlive()) {
             return;
         }
@@ -146,6 +154,28 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         this.tickPuffyGrowth(serverLevel);
         this.tickHostileRoots(serverLevel);
         this.tickSnorting(serverLevel);
+    }
+
+    private void tickSitAnimation() {
+        this.sitAnimationO = this.sitAnimation;
+        final float target = this.isInSittingPose() ? 1.0F : 0.0F;
+        this.sitAnimation += Mth.clamp(target - this.sitAnimation, -0.1F, 0.1F);
+    }
+
+    public float getSitAnimation(float partialTick) {
+        return Mth.lerp(partialTick, this.sitAnimationO, this.sitAnimation);
+    }
+
+    private void tickJumpAnimation() {
+        this.jumpAnimationO = this.jumpAnimation;
+        final boolean lankyAirborne = this.getBodyVariant() == ChimeraBodyVariant.LANKY && !this.onGround();
+        final float target = lankyAirborne ? Mth.clamp(0.45F + (float) Math.abs(this.getDeltaMovement().y) * 0.65F, 0.0F, 1.0F) : 0.0F;
+        final float step = target > this.jumpAnimation ? 0.18F : 0.22F;
+        this.jumpAnimation += Mth.clamp(target - this.jumpAnimation, -step, step);
+    }
+
+    public float getJumpAnimation(float partialTick) {
+        return Mth.lerp(partialTick, this.jumpAnimationO, this.jumpAnimation);
     }
 
     private void tickPuffyGrowth(ServerLevel level) {
