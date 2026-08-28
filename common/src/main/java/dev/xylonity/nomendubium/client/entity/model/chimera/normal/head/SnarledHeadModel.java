@@ -12,7 +12,7 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 public final class SnarledHeadModel extends ChimeraHeadModel {
 
     public SnarledHeadModel(ModelPart root) {
-        super(root, "Head", 0.85F);
+        super(root, "head_control", 0.85F);
     }
 
     public static LayerDefinition createLayer() {
@@ -23,7 +23,8 @@ public final class SnarledHeadModel extends ChimeraHeadModel {
             CubeListBuilder.create(),
             ChimeraModelConnections.alignToConnection(0.0F, -4.0F, 8.0F)
         );
-        PartDefinition head = entireHead.addOrReplaceChild("Head", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
+        PartDefinition headControl = entireHead.addOrReplaceChild("head_control", CubeListBuilder.create(), PartPose.ZERO);
+        PartDefinition head = headControl.addOrReplaceChild("Head", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
         head.addOrReplaceChild(
             "Cranium",
             CubeListBuilder.create().texOffs(0, 26)
@@ -41,7 +42,7 @@ public final class SnarledHeadModel extends ChimeraHeadModel {
                 .texOffs(0, 74).addBox(-9.0F, 2.0F, -20.0F, 17.0F, 2.0F, 20.0F, new CubeDeformation(0.0F)),
             PartPose.offset(0.5F, -46.0F, 2.0F)
         );
-        entireHead.addOrReplaceChild(
+        headControl.addOrReplaceChild(
             "Neck",
             CubeListBuilder.create().texOffs(74, 49)
                 .addBox(-4.0F, -8.0F, 0.0F, 8.0F, 8.0F, 8.0F, new CubeDeformation(0.0F))

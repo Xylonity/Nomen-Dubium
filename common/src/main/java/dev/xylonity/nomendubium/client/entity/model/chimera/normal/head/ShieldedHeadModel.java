@@ -12,7 +12,7 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 public final class ShieldedHeadModel extends ChimeraHeadModel {
 
     public ShieldedHeadModel(ModelPart root) {
-        super(root, "Head", 0.65F);
+        super(root, "head_control", 0.65F);
     }
 
     public static LayerDefinition createLayer() {
@@ -23,13 +23,14 @@ public final class ShieldedHeadModel extends ChimeraHeadModel {
             CubeListBuilder.create(),
             ChimeraModelConnections.alignToConnection(0.0F, -19.0F, 16.0F)
         );
-        entireHead.addOrReplaceChild(
+        PartDefinition headControl = entireHead.addOrReplaceChild("head_control", CubeListBuilder.create(), PartPose.ZERO);
+        headControl.addOrReplaceChild(
             "Neck",
             CubeListBuilder.create().texOffs(0, 0)
                 .addBox(-8.0F, -30.0F, 3.0F, 16.0F, 23.0F, 13.0F, new CubeDeformation(0.0F)),
             PartPose.offset(0.0F, 0.0F, 0.0F)
         );
-        PartDefinition head = entireHead.addOrReplaceChild(
+        PartDefinition head = headControl.addOrReplaceChild(
             "Head",
             CubeListBuilder.create().texOffs(0, 36)
                 .addBox(-8.0F, -23.0F, -13.0F, 16.0F, 9.0F, 14.0F, new CubeDeformation(0.0F))
