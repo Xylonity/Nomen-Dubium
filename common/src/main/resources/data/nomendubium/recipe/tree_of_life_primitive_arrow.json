@@ -1,0 +1,12 @@
+{
+  "type": "nomendubium:tree_of_life",
+  "ingredient": "nomendubium:primitive_arrow",
+  "root_of_life_count": 1,
+  "processing_time": 100,
+  "results": [
+    {
+      "id": "nomendubium:hunters_arrow",
+      "count": 1
+    }
+  ]
+}
