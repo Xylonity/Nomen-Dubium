@@ -1,0 +1,32 @@
+{
+  "sources": [
+    {
+      "type": "minecraft:paletted_permutations",
+      "textures": [
+        "nomendubium:item/fruit_of_life"
+      ],
+      "palette_key": "nomendubium:entity/chimera/palettes/normal",
+      "permutations": {
+        "jungle": "nomendubium:entity/chimera/palettes/jungle",
+        "grassland": "nomendubium:entity/chimera/palettes/grassland",
+        "desert": "nomendubium:entity/chimera/palettes/desert",
+        "oceanic": "nomendubium:entity/chimera/palettes/oceanic",
+        "sniffish": "nomendubium:entity/chimera/palettes/sniffish",
+        "tundra": "nomendubium:entity/chimera/palettes/tundra",
+        "tropical": "nomendubium:entity/chimera/palettes/tropical",
+        "drylands": "nomendubium:entity/chimera/palettes/drylands",
+        "permafrost": "nomendubium:entity/chimera/palettes/permafrost",
+        "volcanic": "nomendubium:entity/chimera/palettes/volcanic",
+        "sunset": "nomendubium:entity/chimera/palettes/sunset",
+        "abyssal": "nomendubium:entity/chimera/palettes/abyssal",
+        "amber": "nomendubium:entity/chimera/palettes/amber",
+        "copal": "nomendubium:entity/chimera/palettes/copal",
+        "jasper": "nomendubium:entity/chimera/palettes/jasper",
+        "quartz": "nomendubium:entity/chimera/palettes/quartz",
+        "agate": "nomendubium:entity/chimera/palettes/agate",
+        "opaline": "nomendubium:entity/chimera/palettes/opaline",
+        "obsidian": "nomendubium:entity/chimera/palettes/obsidian"
+      }
+    }
+  ]
+}

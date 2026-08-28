@@ -1,0 +1,10 @@
+{
+  "type": "nomendubium:tree_of_life",
+  "ingredient": "minecraft:apple",
+  "root_of_life_count": 4,
+  "processing_time": 400,
+  "result": {
+    "id": "nomendubium:fruit_of_life",
+    "count": 1
+  }
+}

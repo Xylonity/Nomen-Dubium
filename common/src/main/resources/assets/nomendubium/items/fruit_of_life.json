@@ -1,0 +1,153 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "property": "minecraft:component",
+    "component": "nomendubium:chimera_palette",
+    "cases": [
+      {
+        "when": "normal",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/fruit_of_life"
+        }
+      },
+      {
+        "when": "jungle",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/fruit_of_life_jungle"
+        }
+      },
+      {
+        "when": "grassland",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/fruit_of_life_grassland"
+        }
+      },
+      {
+        "when": "desert",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/fruit_of_life_desert"
+        }
+      },
+      {
+        "when": "oceanic",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/fruit_of_life_oceanic"
+        }
+      },
+      {
+        "when": "sniffish",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/fruit_of_life_sniffish"
+        }
+      },
+      {
+        "when": "tundra",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/fruit_of_life_tundra"
+        }
+      },
+      {
+        "when": "tropical",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/fruit_of_life_tropical"
+        }
+      },
+      {
+        "when": "drylands",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/fruit_of_life_drylands"
+        }
+      },
+      {
+        "when": "permafrost",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/fruit_of_life_permafrost"
+        }
+      },
+      {
+        "when": "volcanic",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/fruit_of_life_volcanic"
+        }
+      },
+      {
+        "when": "sunset",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/fruit_of_life_sunset"
+        }
+      },
+      {
+        "when": "abyssal",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/fruit_of_life_abyssal"
+        }
+      },
+      {
+        "when": "amber",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/fruit_of_life_amber"
+        }
+      },
+      {
+        "when": "copal",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/fruit_of_life_copal"
+        }
+      },
+      {
+        "when": "jasper",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/fruit_of_life_jasper"
+        }
+      },
+      {
+        "when": "quartz",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/fruit_of_life_quartz"
+        }
+      },
+      {
+        "when": "agate",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/fruit_of_life_agate"
+        }
+      },
+      {
+        "when": "opaline",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/fruit_of_life_opaline"
+        }
+      },
+      {
+        "when": "obsidian",
+        "model": {
+          "type": "minecraft:model",
+          "model": "nomendubium:item/fruit_of_life_obsidian"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "nomendubium:item/random_fruit_of_life"
+    }
+  }
+}

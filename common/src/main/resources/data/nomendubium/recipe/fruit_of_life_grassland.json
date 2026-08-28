@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "nomendubium:fruit_of_life",
+    "minecraft:lime_dye"
+  ],
+  "result": {
+    "id": "nomendubium:fruit_of_life",
+    "count": 1,
+    "components": {
+      "nomendubium:chimera_palette": "grassland"
+    }
+  }
+}
