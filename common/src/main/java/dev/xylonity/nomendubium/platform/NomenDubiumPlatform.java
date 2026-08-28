@@ -3,6 +3,7 @@ package dev.xylonity.nomendubium.platform;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Inventory;
@@ -39,6 +40,7 @@ public interface NomenDubiumPlatform {
 
     <T extends Block> Supplier<T> registerBlock(String name, Function<ResourceKey<Block>, T> factory);
     <T extends Item> Supplier<T> registerItem(String name, Function<ResourceKey<Item>, T> factory);
+    Supplier<SoundEvent> registerSound(String name);
     <T> Supplier<DataComponentType<T>> registerDataComponent(String name, Supplier<DataComponentType<T>> factory);
 
     <T extends Entity> Supplier<EntityType<T>> registerEntity(String name, Function<ResourceKey<EntityType<?>>, EntityType<T>> factory);

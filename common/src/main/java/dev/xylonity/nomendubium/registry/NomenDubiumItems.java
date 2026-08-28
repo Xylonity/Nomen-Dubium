@@ -39,7 +39,7 @@ public final class NomenDubiumItems {
     public static final Supplier<SignItem> COALDEN_SIGN = NomenDubium.PLATFORM.registerItem("coalden_sign", NomenDubiumItems::createCoaldenSignItem);
     public static final Supplier<Item> ENCASED_FOSSIL = NomenDubium.PLATFORM.registerItem("encased_fossil", key -> new EncasedFossilItem(new Item.Properties().setId(key)));
     public static final Supplier<FossilItem> FOSSIL = NomenDubium.PLATFORM.registerItem("fossil", key -> new FossilItem(new Item.Properties().stacksTo(1).setId(key)));
-    public static final Supplier<Item> AMBER = NomenDubium.PLATFORM.registerItem("amber", key -> new AmberItem(new Item.Properties().setId(key)));
+    public static final Supplier<Item> AMBER = NomenDubium.PLATFORM.registerItem("amber", key -> new AmberItem(new Item.Properties().food(new FoodProperties.Builder().nutrition(1).saturationModifier(0.1F).alwaysEdible().build()).setId(key)));
     public static final Supplier<Item> FOSSIL_BONE = NomenDubium.PLATFORM.registerItem("fossil_bone", key -> new FossilBone(new Item.Properties().setId(key)));
     public static final Supplier<Item> SAP_OF_LIFE = NomenDubium.PLATFORM.registerItem("sap_of_life", key -> new SapOfLifeItem(new Item.Properties().setId(key)));
     public static final Supplier<FruitOfLifeItem> FRUIT_OF_LIFE = NomenDubium.PLATFORM.registerItem("fruit_of_life", key -> new FruitOfLifeItem(new Item.Properties().stacksTo(16).setId(key)));

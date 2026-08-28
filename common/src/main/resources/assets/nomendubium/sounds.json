@@ -1,0 +1,10 @@
+{
+  "whispers": {
+    "sounds": [
+      {
+        "name": "nomendubium:whispers",
+        "stream": true
+      }
+    ]
+  }
+}

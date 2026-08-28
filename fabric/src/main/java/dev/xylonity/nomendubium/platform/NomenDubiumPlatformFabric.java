@@ -8,6 +8,7 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.flag.FeatureFlags;
@@ -100,6 +101,12 @@ public class NomenDubiumPlatformFabric implements NomenDubiumPlatform {
     @Override
     public <T extends Recipe<?>> Supplier<RecipeSerializer<T>> registerRecipeSerializer(String name, Supplier<RecipeSerializer<T>> factory) {
         final RecipeSerializer<T> value = Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, NomenDubium.of(name), factory.get());
+        return () -> value;
+    }
+
+    @Override
+    public Supplier<SoundEvent> registerSound(String name) {
+        final SoundEvent value = Registry.register(BuiltInRegistries.SOUND_EVENT, NomenDubium.of(name), SoundEvent.createVariableRangeEvent(NomenDubium.of(name)));
         return () -> value;
     }
 

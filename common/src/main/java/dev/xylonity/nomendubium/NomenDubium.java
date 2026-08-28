@@ -9,6 +9,7 @@ import dev.xylonity.nomendubium.registry.NomenDubiumEntities;
 import dev.xylonity.nomendubium.registry.NomenDubiumItems;
 import dev.xylonity.nomendubium.registry.NomenDubiumMenus;
 import dev.xylonity.nomendubium.registry.NomenDubiumRecipes;
+import dev.xylonity.nomendubium.registry.NomenDubiumSounds;
 import dev.xylonity.nomendubium.registry.NomenDubiumWorldgen;
 import net.minecraft.resources.Identifier;
 import org.slf4j.Logger;
@@ -25,6 +26,7 @@ public class NomenDubium {
 
     public static void init() {
         NomenDubiumDataComponents.init();
+        NomenDubiumSounds.init();
         NomenDubiumBlocks.init();
         NomenDubiumItems.init();
         NomenDubiumRecipes.init();
