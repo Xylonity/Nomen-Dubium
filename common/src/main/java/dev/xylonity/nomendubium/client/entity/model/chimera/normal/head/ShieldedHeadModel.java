@@ -12,7 +12,7 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 public final class ShieldedHeadModel extends ChimeraHeadModel {
 
     public ShieldedHeadModel(ModelPart root) {
-        super(root, "head_control", 0.65F);
+        super(root, "head_control", 0.65F, "Head", "Jaw");
     }
 
     public static LayerDefinition createLayer() {

@@ -12,7 +12,7 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 public final class CrunchingHeadModel extends ChimeraHeadModel {
 
     public CrunchingHeadModel(ModelPart root) {
-        super(root, "head", 1.0F);
+        super(root, "head", 1.0F, "Jaw");
     }
 
     public static LayerDefinition createLayer() {

@@ -12,7 +12,7 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 public final class SnarledHeadModel extends ChimeraHeadModel {
 
     public SnarledHeadModel(ModelPart root) {
-        super(root, "head_control", 0.85F);
+        super(root, "head_control", 0.85F, "Head", "Jaw");
     }
 
     public static LayerDefinition createLayer() {

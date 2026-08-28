@@ -12,7 +12,7 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 public final class BeakedHeadModel extends ChimeraHeadModel {
 
     public BeakedHeadModel(ModelPart root) {
-        super(root, "head", 1.0F);
+        super(root, "head", 1.0F, "jaw");
     }
 
     public static LayerDefinition createLayer() {

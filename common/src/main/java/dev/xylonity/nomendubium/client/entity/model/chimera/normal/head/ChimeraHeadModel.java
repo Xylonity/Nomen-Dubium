@@ -11,12 +11,20 @@ import net.minecraft.util.Mth;
 public abstract class ChimeraHeadModel extends EntityModel<ChimeraRenderState> {
 
     private final ModelPart head;
+    private final ModelPart jaw;
     private final float lookWeight;
 
-    protected ChimeraHeadModel(ModelPart root, String headBone, float lookWeight) {
+    protected ChimeraHeadModel(ModelPart root, String headBone, float lookWeight, String... jawPath) {
         super(root);
         this.head = root.getChild("entire_head").getChild(headBone);
         this.lookWeight = lookWeight;
+
+        ModelPart jawBone = this.head;
+        for (final String child : jawPath) {
+            jawBone = jawBone.getChild(child);
+        }
+
+        this.jaw = jawBone;
     }
 
     @Override
@@ -35,6 +43,13 @@ public abstract class ChimeraHeadModel extends EntityModel<ChimeraRenderState> {
         this.head.xRot += Mth.cos(state.walkAnimationPos * 1.2F) * 0.035F * movement;
         this.head.xRot += 0.10F * sit;
         this.head.yRot += Mth.sin(state.ageInTicks * 0.035F) * 0.025F * sit;
+
+        final float jawCycle = 0.5F + 0.5F * Mth.sin(
+            state.ageInTicks * 0.095F + Mth.sin(state.ageInTicks * 0.031F) * 0.65F
+        );
+
+        final float jawOpening = jawCycle * (0.040F + sit * 0.012F);
+        this.jaw.xRot += jawOpening;
     }
 
     public static float smoothstep(float value) {
