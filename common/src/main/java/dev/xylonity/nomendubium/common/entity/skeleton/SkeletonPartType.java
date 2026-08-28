@@ -6,6 +6,7 @@ import dev.xylonity.nomendubium.common.entity.variant.ChimeraHeadVariant;
 import dev.xylonity.nomendubium.common.entity.variant.ChimeraPartCategory;
 import dev.xylonity.nomendubium.common.entity.variant.ChimeraPartVariant;
 import dev.xylonity.nomendubium.common.entity.variant.ChimeraTailVariant;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -102,6 +103,10 @@ public enum SkeletonPartType {
         return bounds.at(position, yaw, isBody());
     }
 
+    public EntityDimensions entityDimensions() {
+        return bounds.dimensions(isBody());
+    }
+
     private static Map<String, SkeletonPartType> createPartLookup() {
         final Map<String, SkeletonPartType> lookup = new HashMap<>();
         for (final SkeletonPartType type : VALUES) {
@@ -189,6 +194,13 @@ public enum SkeletonPartType {
                 position.x + rotatedMaxX, position.y + maxY + PADDING, position.z + rotatedMaxZ
             );
 
+        }
+
+        private EntityDimensions dimensions(boolean body) {
+            final double width = Math.max(maxX - minX, maxZ - minZ) + PADDING * 2.0D;
+            final double bottom = body ? Math.max(0.0D, minY - PADDING) : minY - PADDING;
+            final double height = maxY + PADDING - bottom;
+            return EntityDimensions.fixed((float) width, (float) height);
         }
 
     }
