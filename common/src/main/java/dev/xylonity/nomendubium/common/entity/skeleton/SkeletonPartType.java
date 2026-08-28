@@ -67,6 +67,10 @@ public enum SkeletonPartType {
         return variant.fossilPart();
     }
 
+    public ChimeraPartVariant variant() {
+        return variant;
+    }
+
     public ChimeraPartCategory category() {
         return variant.category();
     }

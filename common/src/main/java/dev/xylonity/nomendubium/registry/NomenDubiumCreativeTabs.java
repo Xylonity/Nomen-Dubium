@@ -36,6 +36,7 @@ public final class NomenDubiumCreativeTabs {
             () -> new ItemStack(NomenDubiumItems.PREHISTORIC_MAW.get()),
             () -> new ItemStack(NomenDubiumItems.REGENERATING_CHOP.get()),
             () -> new ItemStack(NomenDubiumItems.SAP_OF_LIFE.get()),
+            () -> new ItemStack(NomenDubiumItems.FRUIT_OF_LIFE.get()),
             () -> new ItemStack(NomenDubiumItems.COALDEN_LOG.get()),
             () -> new ItemStack(NomenDubiumItems.COALDEN_WOOD.get()),
             () -> new ItemStack(NomenDubiumItems.COALDEN_STRIPPED_LOG.get()),

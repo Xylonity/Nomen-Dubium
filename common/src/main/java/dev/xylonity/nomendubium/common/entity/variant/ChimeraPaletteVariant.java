@@ -1,6 +1,8 @@
 package dev.xylonity.nomendubium.common.entity.variant;
 
 import java.util.Locale;
+import net.minecraft.util.RandomSource;
+import org.jspecify.annotations.Nullable;
 
 public enum ChimeraPaletteVariant {
     NORMAL,
@@ -28,6 +30,25 @@ public enum ChimeraPaletteVariant {
 
     public static ChimeraPaletteVariant index(int index) {
         return VALUES[Math.floorMod(index, VALUES.length)];
+    }
+
+    public static @Nullable ChimeraPaletteVariant byName(@Nullable String name) {
+        if (name == null) {
+            return null;
+        }
+
+        for (final ChimeraPaletteVariant variant : VALUES) {
+            if (variant.parsedName().equals(name)) {
+                return variant;
+            }
+
+        }
+
+        return null;
+    }
+
+    public static ChimeraPaletteVariant random(RandomSource random) {
+        return VALUES[random.nextInt(VALUES.length)];
     }
 
     public ChimeraPaletteVariant next() {

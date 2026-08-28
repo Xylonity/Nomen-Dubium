@@ -18,6 +18,8 @@ public final class NomenDubiumDataComponents {
     // Decided by the fossil (only meant for chimera parts)
     public static final Supplier<DataComponentType<String>> FOSSIL_PART = registerString("fossil_part");
 
+    public static final Supplier<DataComponentType<String>> CHIMERA_PALETTE = registerString("chimera_palette");
+
     private static Supplier<DataComponentType<String>> registerString(String name) {
         return NomenDubium.PLATFORM.registerDataComponent(name, () -> DataComponentType.<String>builder()
             .persistent(Codec.STRING)

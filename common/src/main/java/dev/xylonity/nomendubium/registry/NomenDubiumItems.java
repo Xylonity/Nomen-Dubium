@@ -2,7 +2,7 @@ package dev.xylonity.nomendubium.registry;
 
 import dev.xylonity.nomendubium.NomenDubium;
 import dev.xylonity.nomendubium.common.item.*;
-import dev.xylonity.nomendubium.common.item.fossil.EncasedFossilIem;
+import dev.xylonity.nomendubium.common.item.fossil.EncasedFossilItem;
 import dev.xylonity.nomendubium.common.item.fossil.FossilItem;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.food.FoodProperties;
@@ -37,11 +37,12 @@ public final class NomenDubiumItems {
     public static final Supplier<BlockItem> COALDEN_PRESSURE_PLATE = NomenDubium.PLATFORM.registerItem("coalden_pressure_plate", key -> createBlockItem(key, NomenDubiumBlocks.COALDEN_PRESSURE_PLATE.get()));
     public static final Supplier<BlockItem> COALDEN_BUTTON = NomenDubium.PLATFORM.registerItem("coalden_button", key -> createBlockItem(key, NomenDubiumBlocks.COALDEN_BUTTON.get()));
     public static final Supplier<SignItem> COALDEN_SIGN = NomenDubium.PLATFORM.registerItem("coalden_sign", NomenDubiumItems::createCoaldenSignItem);
-    public static final Supplier<Item> ENCASED_FOSSIL = NomenDubium.PLATFORM.registerItem("encased_fossil", key -> new EncasedFossilIem(new Item.Properties().setId(key)));
+    public static final Supplier<Item> ENCASED_FOSSIL = NomenDubium.PLATFORM.registerItem("encased_fossil", key -> new EncasedFossilItem(new Item.Properties().setId(key)));
     public static final Supplier<FossilItem> FOSSIL = NomenDubium.PLATFORM.registerItem("fossil", key -> new FossilItem(new Item.Properties().stacksTo(1).setId(key)));
     public static final Supplier<Item> AMBER = NomenDubium.PLATFORM.registerItem("amber", key -> new AmberItem(new Item.Properties().setId(key)));
     public static final Supplier<Item> FOSSIL_BONE = NomenDubium.PLATFORM.registerItem("fossil_bone", key -> new FossilBone(new Item.Properties().setId(key)));
     public static final Supplier<Item> SAP_OF_LIFE = NomenDubium.PLATFORM.registerItem("sap_of_life", key -> new SapOfLifeItem(new Item.Properties().setId(key)));
+    public static final Supplier<FruitOfLifeItem> FRUIT_OF_LIFE = NomenDubium.PLATFORM.registerItem("fruit_of_life", key -> new FruitOfLifeItem(new Item.Properties().stacksTo(16).setId(key)));
     public static final Supplier<FossilisedAppleItem> FOSSILISED_APPLE = NomenDubium.PLATFORM.registerItem("fossilised_apple", key -> new FossilisedAppleItem(new Item.Properties().setId(key)));
     public static final Supplier<FossilisedShellItem> FOSSILISED_SHELL = NomenDubium.PLATFORM.registerItem("fossilised_shell", key -> new FossilisedShellItem(new Item.Properties().setId(key)));
     public static final Supplier<ShatteredDiamondItem> SHATTERED_DIAMOND = NomenDubium.PLATFORM.registerItem("shattered_diamond", key -> new ShatteredDiamondItem(new Item.Properties().setId(key)));
