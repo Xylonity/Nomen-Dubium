@@ -9,7 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-/// Mostly a copy of {@link EncasedFossilItem}
+/// Mostly a copy of {@link dev.xylonity.nomendubium.common.item.fossil.FossilItem}
 public final class FruitOfLifeItem extends Item {
 
     public FruitOfLifeItem(Properties properties) {

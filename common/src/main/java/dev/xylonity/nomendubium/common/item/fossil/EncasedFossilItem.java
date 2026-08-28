@@ -5,9 +5,9 @@ import net.minecraft.world.item.Item;
 /**
  * Generic descriptor whose derived fossil is computed once it's placed in the paleontology table
  */
-public class EncasedFossilIem extends Item {
+public class EncasedFossilItem extends Item {
 
-    public EncasedFossilIem(Properties properties) {
+    public EncasedFossilItem(Properties properties) {
         super(properties);
     }
 
