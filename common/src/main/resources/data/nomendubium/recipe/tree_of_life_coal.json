@@ -1,0 +1,12 @@
+{
+  "type": "nomendubium:tree_of_life",
+  "ingredient": "minecraft:coal",
+  "root_of_life_count": 1,
+  "processing_time": 250,
+  "results": [
+    {
+      "id": "nomendubium:coalden_wood",
+      "count": 6
+    }
+  ]
+}
