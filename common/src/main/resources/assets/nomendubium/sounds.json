@@ -6,5 +6,21 @@
         "stream": true
       }
     ]
+  },
+  "chimera_idle": {
+    "sounds": [
+      "nomendubium:chimera_idle_1",
+      "nomendubium:chimera_idle_2"
+    ]
+  },
+  "chimera_death": {
+    "sounds": [
+      "nomendubium:chimera_death"
+    ]
+  },
+  "chimera_roar": {
+    "sounds": [
+      "nomendubium:chimera_roar"
+    ]
   }
 }
