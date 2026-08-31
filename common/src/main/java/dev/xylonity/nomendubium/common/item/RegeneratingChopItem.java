@@ -7,13 +7,12 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.NonNull;
 
 /// Consumable item that regenerates over time
-public final class RegeneratingChopItem extends Item {
+public final class RegeneratingChopItem extends DescribedItem {
 
     public static final int DURABILITY_PER_USE = 33;
 
@@ -56,6 +55,11 @@ public final class RegeneratingChopItem extends Item {
 
     private static int remainingDurability(ItemStack stack) {
         return stack.getMaxDamage() - stack.getDamageValue();
+    }
+
+    @Override
+    protected int descriptionLineCount() {
+        return 2;
     }
 
 }

@@ -1,8 +1,6 @@
 package dev.xylonity.nomendubium.common.item;
 
-import net.minecraft.world.item.Item;
-
-public class FossilBone extends Item {
+public class FossilBone extends DescribedItem {
 
     public FossilBone(Properties properties) {
         super(properties);

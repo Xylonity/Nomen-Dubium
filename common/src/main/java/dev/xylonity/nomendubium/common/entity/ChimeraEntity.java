@@ -6,7 +6,6 @@ import dev.xylonity.nomendubium.common.entity.ai.chimera.ChimeraMeleeAttackGoal;
 import dev.xylonity.nomendubium.common.entity.ai.chimera.ChimeraPuffyGrowthGoal;
 import dev.xylonity.nomendubium.common.entity.ai.chimera.ChimeraRoarGoal;
 import dev.xylonity.nomendubium.common.entity.ai.chimera.ChimeraSitGoal;
-import dev.xylonity.nomendubium.common.entity.ai.chimera.ChimeraSnortingGoal;
 import dev.xylonity.nomendubium.common.entity.ai.chimera.ChimeraWanderGoal;
 import dev.xylonity.nomendubium.common.entity.variant.ChimeraBackVariant;
 import dev.xylonity.nomendubium.common.entity.variant.ChimeraBodyVariant;
@@ -111,7 +110,6 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         this.goalSelector.addGoal(4, new ChimeraFollowOwnerGoal(this));
         this.goalSelector.addGoal(5, new ChimeraPuffyGrowthGoal(this));
         this.goalSelector.addGoal(5, new ChimeraHostileRootsGoal(this));
-        this.goalSelector.addGoal(5, new ChimeraSnortingGoal(this));
         this.goalSelector.addGoal(6, new ChimeraWanderGoal(this));
         this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 12.0F));
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));

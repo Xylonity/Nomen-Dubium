@@ -2,6 +2,7 @@ package dev.xylonity.nomendubium.common.item.fossil;
 
 import dev.xylonity.nomendubium.common.entity.SkeletonPartEntity;
 import dev.xylonity.nomendubium.common.entity.skeleton.SkeletonPartType;
+import dev.xylonity.nomendubium.common.item.DescribedItem;
 import dev.xylonity.nomendubium.registry.NomenDubiumDataComponents;
 import dev.xylonity.nomendubium.registry.NomenDubiumEntities;
 import net.minecraft.network.chat.Component;
@@ -10,7 +11,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
@@ -18,7 +18,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.NonNull;
 
-public final class FossilItem extends Item {
+public final class FossilItem extends DescribedItem {
 
     public FossilItem(Properties properties) {
         super(properties);
@@ -81,6 +81,11 @@ public final class FossilItem extends Item {
     public @NonNull Component getName(@NonNull ItemStack stack) {
         final String part = getPart(stack);
         return part == null ? super.getName(stack) : Component.translatableWithFallback(this.getDescriptionId() + "." + part, super.getName(stack).getString());
+    }
+
+    @Override
+    protected int descriptionLineCount() {
+        return 2;
     }
 
 }

@@ -6,11 +6,10 @@ import net.minecraft.core.Position;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
-import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-public class PrimitiveArrowItem extends ArrowItem {
+public class PrimitiveArrowItem extends DescribedArrowItem {
 
     private final double baseDamage;
 

@@ -14,13 +14,12 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.NonNull;
 
-public final class PrehistoricMawItem extends Item {
+public final class PrehistoricMawItem extends DescribedItem {
 
     public static final float BASE_ATTACK_DAMAGE = 9;
     public static final float MAX_ATTACK_DAMAGE = 14;
@@ -127,6 +126,11 @@ public final class PrehistoricMawItem extends Item {
 
         setAttackDamage(stack, getAttackDamage(stack) - elapsedIntervals * 0.5f);
         stack.set(NomenDubiumDataComponents.PREHISTORIC_MAW_LAST_DECAY_TICK.get(), lastDecayTick + elapsedIntervals * DECAY);
+    }
+
+    @Override
+    protected int descriptionLineCount() {
+        return 2;
     }
 
 }

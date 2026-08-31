@@ -20,7 +20,7 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.NonNull;
 
-public final class FossilisedMawItem extends Item {
+public final class FossilisedMawItem extends DescribedItem {
 
     public static final float ATTACK_DAMAGE = 6;
 
@@ -90,6 +90,11 @@ public final class FossilisedMawItem extends Item {
                 )
                 .build();
 
+    }
+
+    @Override
+    protected int descriptionLineCount() {
+        return 2;
     }
 
 }
