@@ -1,22 +1,28 @@
 package dev.xylonity.nomendubium.common.entity;
 
+import dev.xylonity.nomendubium.common.entity.ai.chimera.ChimeraFollowOwnerGoal;
+import dev.xylonity.nomendubium.common.entity.ai.chimera.ChimeraHostileRootsGoal;
+import dev.xylonity.nomendubium.common.entity.ai.chimera.ChimeraMeleeAttackGoal;
+import dev.xylonity.nomendubium.common.entity.ai.chimera.ChimeraPuffyGrowthGoal;
+import dev.xylonity.nomendubium.common.entity.ai.chimera.ChimeraRoarGoal;
+import dev.xylonity.nomendubium.common.entity.ai.chimera.ChimeraSitGoal;
+import dev.xylonity.nomendubium.common.entity.ai.chimera.ChimeraSnortingGoal;
+import dev.xylonity.nomendubium.common.entity.ai.chimera.ChimeraWanderGoal;
 import dev.xylonity.nomendubium.common.entity.variant.ChimeraBackVariant;
 import dev.xylonity.nomendubium.common.entity.variant.ChimeraBodyVariant;
 import dev.xylonity.nomendubium.common.entity.variant.ChimeraHeadVariant;
 import dev.xylonity.nomendubium.common.entity.variant.ChimeraPaletteVariant;
 import dev.xylonity.nomendubium.common.entity.variant.ChimeraTailVariant;
 import dev.xylonity.nomendubium.common.entity.skeleton.SkeletonPartType;
-import dev.xylonity.nomendubium.registry.NomenDubiumBlocks;
 import dev.xylonity.nomendubium.registry.NomenDubiumItems;
-import net.minecraft.core.BlockPos;
+import dev.xylonity.nomendubium.registry.NomenDubiumSounds;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.tags.BlockTags;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -35,23 +41,15 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
-import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
-import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
-import net.minecraft.world.entity.ai.goal.SitWhenOrderedToGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.OwnerHurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.OwnerHurtTargetGoal;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BoneMealItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
@@ -70,23 +68,20 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     private static final EntityDataAccessor<Integer> PALETTE = SynchedEntityData.defineId(ChimeraEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> HOSTILE = SynchedEntityData.defineId(ChimeraEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> MAIN_ACTION = SynchedEntityData.defineId(ChimeraEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Boolean> ROARING = SynchedEntityData.defineId(ChimeraEntity.class, EntityDataSerializers.BOOLEAN);
 
     public static final int ACTION_SIT = 0;
     public static final int ACTION_FOLLOW = 1;
     public static final int ACTION_WANDER = 2;
     private static final int MAIN_ACTION_COUNT = 3;
 
-    private static final int HOSTILE_ROOT_RADIUS = 8;
-
-    private int hostileRootCooldown = 200;
-    private int puffyGrowthCooldown;
-    private int snortingCooldown = 200;
-    private int roarCooldown;
     private float playerJumpPendingScale;
     private float sitAnimation;
     private float sitAnimationO;
     private float jumpAnimation;
     private float jumpAnimationO;
+    private float roarAnimation;
+    private float roarAnimationO;
 
     public ChimeraEntity(EntityType<? extends ChimeraEntity> type, Level level) {
         super(type, level);
@@ -110,50 +105,23 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new FloatGoal(this));
-        this.goalSelector.addGoal(1, new SitWhenOrderedToGoal(this) {
-            @Override
-            public boolean canUse() {
-                return !ChimeraEntity.this.isVehicle() && ChimeraEntity.this.getMainAction() == ACTION_SIT && super.canUse();
-            }
-
-            @Override
-            public boolean canContinueToUse() {
-                return !ChimeraEntity.this.isVehicle() && ChimeraEntity.this.getMainAction() == ACTION_SIT && super.canContinueToUse();
-            }
-
-        });
-        this.goalSelector.addGoal(2, new ChimeraMeleeAttackGoal(this));
-        this.goalSelector.addGoal(3, new FollowOwnerGoal(this, 1.1, 8.0F, 3.0F) {
-            @Override
-            public boolean canUse() {
-                return ChimeraEntity.this.getMainAction() == ACTION_FOLLOW && super.canUse();
-            }
-
-            @Override
-            public boolean canContinueToUse() {
-                return ChimeraEntity.this.getMainAction() == ACTION_FOLLOW && super.canContinueToUse();
-            }
-
-        });
-        this.goalSelector.addGoal(6, new RandomStrollGoal(this, 0.85) {
-            @Override
-            public boolean canUse() {
-                return ChimeraEntity.this.canWander() && super.canUse();
-            }
-
-            @Override
-            public boolean canContinueToUse() {
-                return ChimeraEntity.this.canWander() && super.canContinueToUse();
-            }
-
-        });
+        this.goalSelector.addGoal(1, new ChimeraSitGoal(this));
+        this.goalSelector.addGoal(2, new ChimeraRoarGoal(this));
+        this.goalSelector.addGoal(3, new ChimeraMeleeAttackGoal(this));
+        this.goalSelector.addGoal(4, new ChimeraFollowOwnerGoal(this));
+        this.goalSelector.addGoal(5, new ChimeraPuffyGrowthGoal(this));
+        this.goalSelector.addGoal(5, new ChimeraHostileRootsGoal(this));
+        this.goalSelector.addGoal(5, new ChimeraSnortingGoal(this));
+        this.goalSelector.addGoal(6, new ChimeraWanderGoal(this));
         this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 12.0F));
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
 
         this.targetSelector.addGoal(1, new OwnerHurtByTargetGoal(this));
         this.targetSelector.addGoal(2, new OwnerHurtTargetGoal(this));
         this.targetSelector.addGoal(3, new HurtByTargetGoal(this));
-        this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 5, true, false, (target, _) -> this.isValidHostileTarget(target)));
+        this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 5, true, false,
+            (target, _) -> this.isValidHostileTarget(target)
+        ));
     }
 
     @Override
@@ -166,6 +134,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         entityData.define(PALETTE, ChimeraPaletteVariant.NORMAL.index());
         entityData.define(HOSTILE, false);
         entityData.define(MAIN_ACTION, ACTION_FOLLOW);
+        entityData.define(ROARING, false);
     }
 
     @Override
@@ -183,18 +152,8 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
 
         this.tickSitAnimation();
         this.tickJumpAnimation();
+        this.tickRoarAnimation();
 
-        if (!(this.level() instanceof ServerLevel serverLevel) || !this.isAlive()) {
-            return;
-        }
-
-        if (this.roarCooldown > 0) {
-            this.roarCooldown--;
-        }
-
-        this.tickPuffyGrowth(serverLevel);
-        this.tickHostileRoots(serverLevel);
-        this.tickSnorting(serverLevel);
     }
 
     private void tickSitAnimation() {
@@ -219,93 +178,27 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         return Mth.lerp(partialTick, this.jumpAnimationO, this.jumpAnimation);
     }
 
-    private void tickPuffyGrowth(ServerLevel level) {
-        if (this.getBodyVariant() != ChimeraBodyVariant.PUFFY || this.getDeltaMovement().horizontalDistanceSqr() < 0.0025) {
+    private void tickRoarAnimation() {
+        if (!this.isRoaring()) {
+            this.roarAnimation = 0;
+            this.roarAnimationO = 0;
             return;
         }
 
-        if (this.puffyGrowthCooldown-- > 0) {
-            return;
-        }
-
-        this.puffyGrowthCooldown = 200;
-        final BlockPos center = this.blockPosition().below();
-        // Bonemeals the block below
-        for (int attempt = 0; attempt < 3; attempt++) {
-            final BlockPos pos = center.offset(this.random.nextInt(3) - 1, 0, this.random.nextInt(3) - 1);
-            final ItemStack boneMeal = new ItemStack(Items.BONE_MEAL);
-            final boolean should = BoneMealItem.growCrop(boneMeal, level, pos);
-            final BlockPos growthPos = should ? pos : pos.above();
-            if (!should && !BoneMealItem.growCrop(new ItemStack(Items.BONE_MEAL), level, growthPos)) {
-                continue;
-            }
-
-            BoneMealItem.addGrowthParticles(level, growthPos, 8);
-        }
-
+        this.roarAnimationO = this.roarAnimation;
+        this.roarAnimation = Math.min(this.roarAnimation + 1.0F, ChimeraRoarGoal.DURATION_TICKS);
     }
 
-    private void tickHostileRoots(ServerLevel level) {
-        if (!this.isHostile()) {
-            return;
-        }
-
-        if (this.hostileRootCooldown-- > 0) {
-            return;
-        }
-
-        this.hostileRootCooldown = 400 + this.random.nextInt(201);
-        final BlockPos center = this.blockPosition();
-        int nearbyRoots = 0;
-        for (final BlockPos pos : BlockPos.betweenClosed(center.offset(-HOSTILE_ROOT_RADIUS, -2, -HOSTILE_ROOT_RADIUS), center.offset(HOSTILE_ROOT_RADIUS, 2, HOSTILE_ROOT_RADIUS))) {
-            if (level.getBlockState(pos).is(NomenDubiumBlocks.ROOT_OF_LIFE.get()) && ++nearbyRoots >= 6) {
-                return;
-            }
-        }
-
-        // Spawns root of life blocks in the surroundings
-        final BlockState root = NomenDubiumBlocks.ROOT_OF_LIFE.get().defaultBlockState();
-        for (int attempt = 0; attempt < 12; attempt++) {
-            final BlockPos target = center.offset(
-                this.random.nextInt(HOSTILE_ROOT_RADIUS * 2 + 1) - HOSTILE_ROOT_RADIUS,
-                this.random.nextInt(4) - 2,
-                this.random.nextInt(HOSTILE_ROOT_RADIUS * 2 + 1) - HOSTILE_ROOT_RADIUS
-            );
-
-            if (level.isEmptyBlock(target) && root.canSurvive(level, target)) {
-                level.setBlockAndUpdate(target, root);
-                return;
-            }
-
-        }
-
+    public float getRoarAnimation(float partialTick) {
+        return Mth.lerp(partialTick, this.roarAnimationO, this.roarAnimation);
     }
 
-    // TODO: change to manual variant
-    private void tickSnorting(ServerLevel level) {
-        if (this.getHeadVariant() != ChimeraHeadVariant.SNORTING || this.getTarget() != null || !this.onGround()) {
-            return;
-        }
+    public boolean isRoaring() {
+        return this.entityData.get(ROARING);
+    }
 
-        if (this.snortingCooldown-- > 0) {
-            return;
-        }
-
-        final BlockState ground = level.getBlockState(this.blockPosition().below());
-        if (!ground.is(BlockTags.DIRT) && !ground.is(BlockTags.BASE_STONE_OVERWORLD)) {
-            this.snortingCooldown = 100;
-            return;
-        }
-
-        this.snortingCooldown = 500 + this.random.nextInt(301);
-        final int rand = this.random.nextInt(100);
-        final Item resource = rand < 50 ? Items.FLINT
-            : rand < 75 ? Items.COAL
-            : rand < 90 ? Items.RAW_COPPER
-            : rand < 98 ? Items.RAW_IRON
-            : Items.RAW_GOLD;
-        this.spawnAtLocation(level, resource);
-        this.playSound(SoundEvents.SNIFFER_DIGGING, 1.0F, 0.85F + this.random.nextFloat() * 0.2F);
+    public void setRoaring(boolean roaring) {
+        this.entityData.set(ROARING, roaring);
     }
 
     @Override
@@ -399,10 +292,6 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
             player.sendOverlayMessage(Component.translatable(messageKey, this.getName()));
         }
 
-    }
-
-    private boolean canWander() {
-        return !this.isTame() || this.getMainAction() == ACTION_WANDER;
     }
 
     @Override
@@ -541,6 +430,10 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
 
     @Override
     public boolean doHurtTarget(ServerLevel level, Entity target) {
+        if (this.getHeadVariant() == ChimeraHeadVariant.SNARLED) {
+            return false;
+        }
+
         final boolean hurt;
         if (this.getTailVariant() == ChimeraTailVariant.SPEARED && target instanceof LivingEntity living) {
             hurt = living.hurtServer(level, level.damageSources().indirectMagic(this, this), (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE));
@@ -565,9 +458,8 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
 
     private void applyHeadAttack(ServerLevel level, LivingEntity target) {
         switch (this.getHeadVariant()) {
-            case CRUNCHING, SNORTING -> { ;; }
+            case CRUNCHING, SNARLED, SNORTING -> { ;; }
             case SHIELDED -> target.knockback(1.6, this.getX() - target.getX(), this.getZ() - target.getZ());
-            case SNARLED -> this.roar(level);
             case BEAKED -> target.addEffect(new MobEffectInstance(MobEffects.POISON, 100, 0), this);
         }
 
@@ -588,28 +480,27 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
 
     }
 
-    private void roar(ServerLevel level) {
-        if (this.roarCooldown > 0) {
-            return;
-        }
-
-        this.roarCooldown = 200;
-        this.playSound(SoundEvents.RAVAGER_ROAR, 1.2F, 0.85F + this.random.nextFloat() * 0.15F);
-        for (final LivingEntity ally : level.getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(10.0), entity ->
-            entity == this || this.considersEntityAsAlly(entity) || this.isHostile() && entity instanceof ChimeraEntity chimera && chimera.isHostile()
-        )) {
-            ally.addEffect(new MobEffectInstance(MobEffects.STRENGTH, 200, 0), this);
-        }
-
+    public boolean isValidHostileTarget(LivingEntity target) {
+        return this.isHostile() && target != this && target.isAlive() && !this.hasPassenger(target) && !(target instanceof ChimeraEntity chimera && chimera.isHostile());
     }
 
-    private boolean isValidHostileTarget(LivingEntity target) {
-        return this.isHostile() && target != this && target.isAlive() && !this.hasPassenger(target) && !(target instanceof ChimeraEntity chimera && chimera.isHostile());
+    public boolean isChimeraAlly(Entity entity) {
+        return entity == this || this.considersEntityAsAlly(entity) || this.isHostile() && entity instanceof ChimeraEntity chimera && chimera.isHostile();
     }
 
     @Override
     public boolean canAttack(LivingEntity target) {
         return this.isHostile() ? this.isValidHostileTarget(target) && super.canAttack(target) : super.canAttack(target);
+    }
+
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return NomenDubiumSounds.CHIMERA_IDLE.get();
+    }
+
+    @Override
+    protected SoundEvent getDeathSound() {
+        return NomenDubiumSounds.CHIMERA_DEATH.get();
     }
 
     @Override
@@ -752,11 +643,11 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     }
 
     private void applyCombatAttributes() {
-        double attackDamage = 6.0;
+        double attackDamage = 6;
         attackDamage += switch (this.getHeadVariant()) {
-            case CRUNCHING -> 2.0;
-            case SHIELDED -> 1.0;
-            case SNARLED, BEAKED -> 0.0;
+            case CRUNCHING -> 2;
+            case SHIELDED -> 1;
+            case SNARLED, BEAKED -> 0;
             case SNORTING -> -1.0;
         };
         attackDamage += switch (this.getTailVariant()) {
@@ -788,22 +679,6 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     private SkeletonPartType getBodySkeletonType() {
         final SkeletonPartType type = SkeletonPartType.byFossilPart(this.getBodyVariant().fossilPart());
         return type == null ? SkeletonPartType.HULKING_BODY : type;
-    }
-
-    private static final class ChimeraMeleeAttackGoal extends MeleeAttackGoal {
-
-        private final ChimeraEntity chimera;
-
-        private ChimeraMeleeAttackGoal(ChimeraEntity chimera) {
-            super(chimera, 1.15, true);
-            this.chimera = chimera;
-        }
-
-        @Override
-        protected int getAttackInterval() {
-            return this.chimera.getTailVariant() == ChimeraTailVariant.STUBBY ? 14 : 20;
-        }
-
     }
 
 }
