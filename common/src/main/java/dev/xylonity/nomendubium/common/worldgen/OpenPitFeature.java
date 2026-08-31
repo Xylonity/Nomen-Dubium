@@ -271,7 +271,7 @@ public final class OpenPitFeature extends Feature<NoneFeatureConfiguration> {
     private static void placeFloorDeposits(WorldGenLevel level, RandomSource random, int centerX, int centerZ, PitShape shape) {
         int suspiciousSand = 0;
         final DepositPatch[] patches = createDepositPatches(random, shape);
-        final List<BlockPos> floorCand = new ArrayList<>();
+        final List<FloorDeposit> floorDeposits = new ArrayList<>();
         final double sedimentPhase = random.nextDouble() * Math.PI * 2.0;
         final BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
 
@@ -308,11 +308,14 @@ public final class OpenPitFeature extends Feature<NoneFeatureConfiguration> {
 
                 level.setBlock(mutableBlockPos, Blocks.SAND.defaultBlockState(), 2);
 
-                floorCand.add(new BlockPos(x, y, z));
+                final int layers = Mth.clamp(Mth.floor(depositHeight + 1.0D), 1, 8);
+                final BlockState sediment = NomenDubiumBlocks.SEDIMENT.get().defaultBlockState().setValue(SnowLayerBlock.LAYERS, layers);
+                floorDeposits.add(new FloorDeposit(new BlockPos(x, y, z), sediment));
 
                 final double suspiciousChance = 0.085D + Mth.clamp(depositHeight / 8.0D, 0.0D, 1.0D) * 0.160D;
                 if (suspiciousSand < 40 && random.nextDouble() < suspiciousChance) {
                     placeSuspiciousSand(level, mutableBlockPos, random.nextLong());
+                    level.setBlock(mutableBlockPos.above(), sediment, 2);
                     suspiciousSand++;
                     continue;
                 }
@@ -321,25 +324,19 @@ public final class OpenPitFeature extends Feature<NoneFeatureConfiguration> {
                     continue;
                 }
 
-                final int layers = Mth.clamp(Mth.floor(depositHeight + 1.0D), 1, 8);
-                final BlockState sediment = NomenDubiumBlocks.SEDIMENT.get().defaultBlockState().setValue(SnowLayerBlock.LAYERS, layers);
                 level.setBlock(mutableBlockPos.above(), sediment, 2);
             }
 
         }
 
-        while (suspiciousSand < 28 && !floorCand.isEmpty()) {
-            final BlockPos candidate = floorCand.remove(random.nextInt(floorCand.size()));
-            if (level.getBlockState(candidate).is(Blocks.SUSPICIOUS_SAND)) {
+        while (suspiciousSand < 28 && !floorDeposits.isEmpty()) {
+            final FloorDeposit floorDeposit = floorDeposits.remove(random.nextInt(floorDeposits.size()));
+            if (level.getBlockState(floorDeposit.pos()).is(Blocks.SUSPICIOUS_SAND)) {
                 continue;
             }
 
-            final BlockPos above = candidate.above();
-            if (level.getBlockState(above).is(NomenDubiumBlocks.SEDIMENT.get())) {
-                level.setBlock(above, Blocks.AIR.defaultBlockState(), 2);
-            }
-
-            placeSuspiciousSand(level, candidate, random.nextLong());
+            placeSuspiciousSand(level, floorDeposit.pos(), random.nextLong());
+            level.setBlock(floorDeposit.pos().above(), floorDeposit.sediment(), 2);
             suspiciousSand++;
         }
 
@@ -617,6 +614,13 @@ public final class OpenPitFeature extends Feature<NoneFeatureConfiguration> {
             return smoothstep(progress) * this.peakLayers;
         }
 
+    }
+
+    private record FloorDeposit(
+            BlockPos pos,
+            BlockState sediment)
+    {
+        ;;
     }
 
     private record PitShape(
