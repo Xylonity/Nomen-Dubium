@@ -362,6 +362,13 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     }
 
     @Override
+    protected void updateWalkAnimation(float movementDistance) {
+        final float speed = (float) this.getAttributeValue(Attributes.MOVEMENT_SPEED);
+        final float animationSpeed = speed > 0 ? Mth.clamp(movementDistance / speed, 0, 1) : 0;
+        this.walkAnimation.update(animationSpeed, 0.4F, 0.85f);
+    }
+
+    @Override
     public void onPlayerJump(int jumpPower) {
         if (jumpPower >= 0) {
             this.playerJumpPendingScale = this.getPlayerJumpPendingScale(Mth.clamp(jumpPower, 0, 90));
