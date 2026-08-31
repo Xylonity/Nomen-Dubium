@@ -7,19 +7,25 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.NonNull;
 
 public final class FossilisedMawItem extends Item {
 
+    public static final float ATTACK_DAMAGE = 6;
+
     public FossilisedMawItem(Properties properties) {
-        super(properties);
+        super(properties.attributes(createAttributes(ATTACK_DAMAGE)));
     }
 
     @Override
@@ -68,6 +74,22 @@ public final class FossilisedMawItem extends Item {
         player.awardStat(Stats.ITEM_USED.get(this));
 
         return true;
+    }
+
+    public static ItemAttributeModifiers createAttributes(float totalAttackDamage) {
+        return ItemAttributeModifiers.builder()
+                .add(
+                        Attributes.ATTACK_DAMAGE,
+                        new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, totalAttackDamage - 1.0F, AttributeModifier.Operation.ADD_VALUE),
+                        EquipmentSlotGroup.MAINHAND
+                )
+                .add(
+                        Attributes.ATTACK_SPEED,
+                        new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, -3.2F, AttributeModifier.Operation.ADD_VALUE),
+                        EquipmentSlotGroup.MAINHAND
+                )
+                .build();
+
     }
 
 }

@@ -2,6 +2,7 @@ package dev.xylonity.nomendubium.common.entity;
 
 import java.util.HashSet;
 import java.util.Set;
+import dev.xylonity.nomendubium.common.item.PrehistoricMawItem;
 import dev.xylonity.nomendubium.registry.NomenDubiumEntities;
 import dev.xylonity.nomendubium.registry.NomenDubiumItems;
 import net.minecraft.core.Direction;
@@ -38,6 +39,7 @@ public final class PrehistoricMawProjectileEntity extends ThrowableProjectile im
 
     private boolean returnsToInventory = true;
     private ItemStack thrownItem = ItemStack.EMPTY;
+    private float launchDamage = PrehistoricMawItem.BASE_ATTACK_DAMAGE;
 
     private final Set<Integer> hitEntityIds = new HashSet<>();
 
@@ -48,12 +50,13 @@ public final class PrehistoricMawProjectileEntity extends ThrowableProjectile im
         super(type, level);
     }
 
-    public PrehistoricMawProjectileEntity(ServerLevel level, LivingEntity owner, ItemStack thrownItem, boolean returnsToInventory) {
+    public PrehistoricMawProjectileEntity(ServerLevel level, LivingEntity owner, ItemStack thrownItem, boolean returnsToInventory, float launchDamage) {
         this(NomenDubiumEntities.PREHISTORIC_MAW.get(), level);
         setOwner(owner);
         setPos(owner.getX(), owner.getEyePosition().y - 0.1D, owner.getZ());
         this.thrownItem = thrownItem.copyWithCount(1);
         this.returnsToInventory = returnsToInventory;
+        this.launchDamage = Math.clamp(launchDamage, PrehistoricMawItem.BASE_ATTACK_DAMAGE, PrehistoricMawItem.MAX_ATTACK_DAMAGE);
     }
 
     @Override
@@ -181,7 +184,11 @@ public final class PrehistoricMawProjectileEntity extends ThrowableProjectile im
 
         final Entity owner = getOwner();
         if (level() instanceof ServerLevel serverLevel) {
-            hitEntity.hurtServer(serverLevel, damageSources().thrown(this, owner), 7);
+            final boolean hurt = hitEntity.hurtServer(serverLevel, damageSources().thrown(this, owner), launchDamage);
+            if (hurt && hitEntity instanceof LivingEntity livingEntity && livingEntity.isDeadOrDying()) {
+                PrehistoricMawItem.recordKill(thrownItem);
+            }
+
         }
 
     }
@@ -266,6 +273,10 @@ public final class PrehistoricMawProjectileEntity extends ThrowableProjectile im
         entityData.set(RETURNING, input.getBooleanOr("returning", false));
         returnsToInventory = input.getBooleanOr("returns_to_inventory", true);
         thrownItem = input.read("item", ItemStack.CODEC).orElse(ItemStack.EMPTY);
+        launchDamage = Math.clamp(input.getFloatOr("launch_damage", PrehistoricMawItem.getAttackDamage(thrownItem)),
+            PrehistoricMawItem.BASE_ATTACK_DAMAGE, PrehistoricMawItem.MAX_ATTACK_DAMAGE
+        );
+
     }
 
     @Override
@@ -276,6 +287,8 @@ public final class PrehistoricMawProjectileEntity extends ThrowableProjectile im
         if (!thrownItem.isEmpty()) {
             output.store("item", ItemStack.CODEC, thrownItem);
         }
+
+        output.putFloat("launch_damage", launchDamage);
 
     }
 

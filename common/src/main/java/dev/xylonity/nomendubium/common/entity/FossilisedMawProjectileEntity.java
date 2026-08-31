@@ -2,6 +2,7 @@ package dev.xylonity.nomendubium.common.entity;
 
 import java.util.HashSet;
 import java.util.Set;
+import dev.xylonity.nomendubium.common.item.FossilisedMawItem;
 import dev.xylonity.nomendubium.registry.NomenDubiumEntities;
 import dev.xylonity.nomendubium.registry.NomenDubiumItems;
 import net.minecraft.core.Direction;
@@ -83,7 +84,7 @@ public final class FossilisedMawProjectileEntity extends AbstractArrow implement
 
         // Hurts and ignores entities on hit
         if (level() instanceof ServerLevel serverLevel) {
-            hitEntity.hurtServer(serverLevel, damageSources().thrown(this, getOwner()), 7f);
+            hitEntity.hurtServer(serverLevel, damageSources().thrown(this, getOwner()), FossilisedMawItem.ATTACK_DAMAGE);
         }
 
     }
