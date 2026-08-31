@@ -1,6 +1,8 @@
 package dev.xylonity.nomendubium.client.entity.model.chimera.normal.head;
 
 import dev.xylonity.nomendubium.client.entity.model.chimera.ChimeraModelConnections;
+import dev.xylonity.nomendubium.client.entity.render.chimera.ChimeraRenderState;
+import dev.xylonity.nomendubium.common.entity.ai.chimera.ChimeraRoarGoal;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
@@ -8,11 +10,30 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.util.Mth;
 
 public final class SnarledHeadModel extends ChimeraHeadModel {
 
     public SnarledHeadModel(ModelPart root) {
         super(root, "head_control", 0.85F, "Head", "Jaw");
+    }
+
+    @Override
+    public void setupAnim(ChimeraRenderState state) {
+        super.setupAnim(state);
+        if (state.roarAnimation <= 0.0F) {
+            return;
+        }
+
+        final float ticks = Mth.clamp(state.roarAnimation, 0.0F, ChimeraRoarGoal.DURATION_TICKS);
+        final float in = smoothstep(Mth.clamp(ticks / 6.0F, 0.0F, 1.0F));
+        final float out = smoothstep(Mth.clamp((ChimeraRoarGoal.DURATION_TICKS - ticks) / 8.0F, 0.0F, 1.0F));
+        final float roar = Math.min(in, out);
+
+        this.jaw.xRot += 0.62F * roar;
+        this.head.xRot -= 0.10F * roar;
+        this.head.yRot += Mth.sin(ticks * 0.75F) * 0.28F * roar;
+        this.head.zRot += Mth.sin(ticks * 0.48F + 0.8F) * 0.09F * roar;
     }
 
     public static LayerDefinition createLayer() {

@@ -10,8 +10,9 @@ import net.minecraft.util.Mth;
  */
 public abstract class ChimeraHeadModel extends EntityModel<ChimeraRenderState> {
 
-    private final ModelPart head;
-    private final ModelPart jaw;
+    protected final ModelPart head;
+    protected final ModelPart jaw;
+
     private final float lookWeight;
 
     protected ChimeraHeadModel(ModelPart root, String headBone, float lookWeight, String... jawPath) {
