@@ -15,8 +15,11 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.state.gui.GuiElementRenderState;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import org.joml.Matrix3x2f;
@@ -60,11 +63,12 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
     private static final int TOOL_WIDTH = 32;
     private static final int TOOL_HEIGHT = 34;
     private static final int[] TOOL_Y = { 10, 36, 62 };
-    private static final float TOOL_SWING_MAX_ANGLE = 0.45F;
-    private static final float TOOL_SWING_SPEED_FACTOR = 0.085F;
-    private static final float TOOL_SWING_STIFFNESS = 0.28F;
-    private static final float TOOL_SWING_DAMPING = 0.68F;
+    private static final float TOOL_SWING_MAX_ANGLE = 0.55F;
+    private static final float TOOL_SWING_SPEED_FACTOR = 0.24F;
+    private static final float TOOL_SWING_STIFFNESS = 0.22F;
+    private static final float TOOL_SWING_DAMPING = 0.72F;
     private static final int TOOL_DROP_WIDTH = (GUI_WIDTH + 2) / 3;
+
     private static final int HELD_TOOL_WIDTH = 32;
     private static final int HELD_TOOL_HEIGHT = 34;
 
@@ -99,6 +103,8 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
     private int seenFossilStage = -1;
     private int seenGameState = PaleontologyTableMenu.STATE_IDLE;
     private int seenRound = -1;
+    private int seenCountdownSecond = -1;
+    private int seenGlobalSecond = -1;
 
     private boolean draggingBrush;
     private boolean tracingChisel;
@@ -137,6 +143,8 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
         super.init();
         this.seenRound = -1;
         this.seenFossilStage = -1;
+        this.seenCountdownSecond = -1;
+        this.seenGlobalSecond = -1;
         this.fossilPopAge = FOSSIL_POP_DURATION;
         this.seenGameState = this.menu.getGameState();
         this.lastFossilTexture = FOSSIL_TEXTURES[0];
@@ -157,8 +165,13 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
         // On game lose
         if (gameState == PaleontologyTableMenu.STATE_LOST && this.seenGameState != PaleontologyTableMenu.STATE_LOST) {
             this.spawnFossilBreakParticles(this.lastFossilTexture);
+            this.playUiSound(SoundEvents.ITEM_BREAK.value(), 0.72F, 0.85F);
+        }
+        else if (gameState == PaleontologyTableMenu.STATE_WON && this.seenGameState != PaleontologyTableMenu.STATE_WON) {
+            this.playUiSound(SoundEvents.PLAYER_LEVELUP, 1.15F, 0.65F);
         }
 
+        this.tickTimerSounds(gameState);
         this.seenGameState = gameState;
 
         if (this.menu.getGameState() == PaleontologyTableMenu.STATE_PLAYING && this.menu.getRoundIndex() != this.seenRound) {
@@ -166,6 +179,7 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
             this.chiselPathIndex = 0;
             this.resetBrushCircle();
             this.moveChiselPath();
+            this.playToolChangeSound();
         }
         if (this.isCorrectToolSelected() && this.selectedTool == PaleontologyTableMenu.TOOL_CHISEL && !this.tracingChisel && ++this.chiselGuideAge >= CHISEL_GUIDE_DURATION) {
             this.moveChiselPath();
@@ -239,7 +253,7 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
         // If a tool is selected, tool rendering
         if (this.selectedTool >= 0) {
             final Identifier texture = toolTexture(this.selectedTool);
-            this.updateToolSwing();
+            this.updateToolSwing(mouseX, mouseY);
             graphics.nextStratum();
 
             graphics.pose().pushMatrix();
@@ -258,6 +272,16 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
         ;;
+    }
+
+    @Override
+    public void onClose() {
+        if (this.isGameLocked()) {
+            this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 0.55F));
+            return;
+        }
+
+        super.onClose();
     }
 
     @Override
@@ -515,6 +539,75 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
         final boolean brushDust = tool == PaleontologyTableMenu.TOOL_BRUSH;
         final int particleCount = brushDust ? 7 : tool == PaleontologyTableMenu.TOOL_HAMMER ? 6 : 4;
         this.spawnToolParticles(x, y, brushDust, particleCount);
+        this.playToolSound(tool);
+    }
+
+    private void playToolSound(int tool) {
+        final SoundEvent sound;
+        final float pitch;
+        final float volume;
+        switch (tool) {
+            case PaleontologyTableMenu.TOOL_CHISEL -> {
+                sound = SoundEvents.COPPER_HIT;
+                pitch = 1.20F + this.random.nextFloat() * 0.18F;
+                volume = 0.48F;
+            }
+            case PaleontologyTableMenu.TOOL_HAMMER -> {
+                sound = SoundEvents.STONE_HIT;
+                pitch = 0.72F + this.random.nextFloat() * 0.12F;
+                volume = 0.82F;
+            }
+            default -> {
+                sound = SoundEvents.BRUSH_SAND;
+                pitch = 0.92F + this.random.nextFloat() * 0.16F;
+                volume = 0.55F;
+            }
+
+        }
+
+        this.playUiSound(sound, pitch, volume);
+    }
+
+    private void playToolChangeSound() {
+        final float pitch = 0.82F + this.menu.getTool() * 0.16F;
+        this.playUiSound(SoundEvents.UI_STONECUTTER_SELECT_RECIPE, pitch, 0.72F);
+    }
+
+    private void tickTimerSounds(int gameState) {
+        if (gameState == PaleontologyTableMenu.STATE_COUNTDOWN) {
+            this.seenGlobalSecond = -1;
+            final int seconds = Math.max(0, (this.menu.getCountdownTicksRemaining() + 19) / 20);
+            if (seconds > 0 && seconds != this.seenCountdownSecond) {
+                this.seenCountdownSecond = seconds;
+                final int countdownSeconds = (PaleontologyTableMenu.COUNTDOWN_DURATION + 19) / 20;
+                final float pitch = 0.82F + (countdownSeconds - seconds) * 0.18F;
+                this.playUiSound(SoundEvents.WOODEN_BUTTON_CLICK_ON, pitch, 0.58F);
+            }
+            return;
+        }
+
+        this.seenCountdownSecond = -1;
+        if (gameState != PaleontologyTableMenu.STATE_PLAYING) {
+            this.seenGlobalSecond = -1;
+            return;
+        }
+
+        final int seconds = Math.max(0, (this.menu.getGlobalTicksRemaining() + 19) / 20);
+        if (this.seenGlobalSecond < 0) {
+            this.seenGlobalSecond = seconds;
+            return;
+        }
+        if (seconds == this.seenGlobalSecond) {
+            return;
+        }
+
+        this.seenGlobalSecond = seconds;
+        final float urgency = Mth.clamp((10.0F - seconds) / 10.0F, 0.0F, 1.0F);
+        this.playUiSound(SoundEvents.WOODEN_BUTTON_CLICK_ON, 0.72F + urgency * 0.58F, 0.20F + urgency * 0.34F);
+    }
+
+    private void playUiSound(SoundEvent sound, float pitch, float volume) {
+        this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(sound, pitch, volume));
     }
 
     private boolean isValidBrushRadius(float x, float y) {
@@ -660,6 +753,7 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
             this.seenFossilStage = stage;
             this.fossilPopAge = 0;
             this.spawnFossilStageDust();
+            this.playUiSound(SoundEvents.EXPERIENCE_ORB_PICKUP, 0.88F + stage * 0.18F, 0.68F);
         }
         else if (this.fossilPopAge < FOSSIL_POP_DURATION) {
             this.fossilPopAge++;
@@ -671,9 +765,7 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
         return this.isPlaying() && this.selectedTool == this.menu.getTool();
     }
 
-    private void updateToolSwing() {
-        final double mouseX = this.minecraft.mouseHandler.getScaledXPos(this.minecraft.getWindow());
-        final double mouseY = this.minecraft.mouseHandler.getScaledYPos(this.minecraft.getWindow());
+    private void updateToolSwing(double mouseX, double mouseY) {
         if (!this.cursorTracking) {
             this.lastCursorX = mouseX;
             this.lastCursorY = mouseY;
@@ -687,11 +779,10 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
         this.lastCursorY = mouseY;
 
         final double speed = Math.sqrt(dx * dx + dy * dy);
-        final float targetAngle = speed < 0.001 ? 0.0F : (float)(-dx / speed * Math.min(TOOL_SWING_MAX_ANGLE, speed * TOOL_SWING_SPEED_FACTOR));
-
-        this.toolAngularVelocity += (targetAngle - this.toolAngle) * TOOL_SWING_STIFFNESS;
+        final float angle = speed < 0.01D ? 0.0F : (float)(-dx / speed * Math.min(TOOL_SWING_MAX_ANGLE, speed * TOOL_SWING_SPEED_FACTOR));
+        this.toolAngularVelocity += (angle - this.toolAngle) * TOOL_SWING_STIFFNESS;
         this.toolAngularVelocity *= TOOL_SWING_DAMPING;
-        this.toolAngle = Mth.clamp(this.toolAngle + this.toolAngularVelocity, -TOOL_SWING_MAX_ANGLE, TOOL_SWING_MAX_ANGLE);
+        this.toolAngle += this.toolAngularVelocity;
     }
 
     private void spawnFossilBreakParticles(Identifier fossilTexture) {
@@ -809,6 +900,11 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
     /// Whether the game is active or not
     private boolean isPlaying() {
         return this.menu.getGameState() == PaleontologyTableMenu.STATE_PLAYING;
+    }
+
+    private boolean isGameLocked() {
+        final int state = this.menu.getGameState();
+        return state == PaleontologyTableMenu.STATE_COUNTDOWN || state == PaleontologyTableMenu.STATE_PLAYING;
     }
 
     private float getFossilPopScale(float partialTick) {
