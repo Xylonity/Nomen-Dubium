@@ -21,7 +21,7 @@ public final class NomenDubiumNeoForgeEvents {
 
     @SubscribeEvent
     public static void afterLivingDamage(LivingDamageEvent.Post event) {
-        SapOfLifeItem.stopRegenerationAfterDamage(event.getEntity(), event.getNewDamage());
+        SapOfLifeItem.stopRegenerationAfterDamage(event.getEntity(), event.getHealthDamage());
     }
 
 }
