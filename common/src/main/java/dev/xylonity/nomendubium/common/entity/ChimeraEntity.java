@@ -1,7 +1,6 @@
 package dev.xylonity.nomendubium.common.entity;
 
 import dev.xylonity.nomendubium.common.entity.ai.chimera.ChimeraFollowOwnerGoal;
-import dev.xylonity.nomendubium.common.entity.ai.chimera.ChimeraHostileRootsGoal;
 import dev.xylonity.nomendubium.common.entity.ai.chimera.ChimeraMeleeAttackGoal;
 import dev.xylonity.nomendubium.common.entity.ai.chimera.ChimeraRoarGoal;
 import dev.xylonity.nomendubium.common.entity.ai.chimera.ChimeraSitGoal;
@@ -12,6 +11,7 @@ import dev.xylonity.nomendubium.common.entity.variant.ChimeraHeadVariant;
 import dev.xylonity.nomendubium.common.entity.variant.ChimeraPaletteVariant;
 import dev.xylonity.nomendubium.common.entity.variant.ChimeraTailVariant;
 import dev.xylonity.nomendubium.common.entity.skeleton.SkeletonPartType;
+import dev.xylonity.nomendubium.registry.NomenDubiumBlocks;
 import dev.xylonity.nomendubium.registry.NomenDubiumItems;
 import dev.xylonity.nomendubium.registry.NomenDubiumSounds;
 import java.util.HashSet;
@@ -95,6 +95,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     private static final int BEAKED_PECK_DURATION = 10;
     private static final int SNORTING_EXTRACTION_DURATION = 48;
     private static final int SNORTING_ITEM_TICK = 38;
+    private static final int ROOT_GROWTH_RADIUS = 8;
     private static final List<Item> SNORTING_ITEMS = List.of(
             Items.COAL, Items.RAW_COPPER, Items.RAW_IRON,
             Items.RAW_GOLD, Items.REDSTONE, Items.LAPIS_LAZULI,
@@ -149,13 +150,17 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     private int nextBeakedPeckTick;
     private boolean beakedPeckDamageApplied;
     private boolean mountedHeadAbilityArmed;
+
     private int puffyMovementTicks;
     private double puffyLastX;
     private double puffyLastZ;
     private boolean puffyPositionTracked;
 
+    private int rootGrowthCooldown;
+
     public ChimeraEntity(EntityType<? extends ChimeraEntity> type, Level level) {
         super(type, level);
+        this.resetRootGrowthCooldown();
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -180,10 +185,9 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         this.goalSelector.addGoal(2, new ChimeraRoarGoal(this));
         this.goalSelector.addGoal(3, new ChimeraMeleeAttackGoal(this));
         this.goalSelector.addGoal(4, new ChimeraFollowOwnerGoal(this));
-        this.goalSelector.addGoal(5, new ChimeraHostileRootsGoal(this));
-        this.goalSelector.addGoal(6, new ChimeraWanderGoal(this));
-        this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 12.0F));
-        this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
+        this.goalSelector.addGoal(5, new ChimeraWanderGoal(this));
+        this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 12.0F));
+        this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
 
         this.targetSelector.addGoal(1, new OwnerHurtByTargetGoal(this));
         this.targetSelector.addGoal(2, new OwnerHurtTargetGoal(this));
@@ -238,9 +242,49 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
             this.tickCrunchingBite();
             this.tickSnortingExtraction();
             this.tickBeakedPeck();
+            this.tickRootGrowth();
             this.tickPuffyGrowth();
         }
 
+    }
+
+    private void tickRootGrowth() {
+        if (--this.rootGrowthCooldown > 0) {
+            return;
+        }
+
+        this.resetRootGrowthCooldown();
+        final ServerLevel level = (ServerLevel) this.level();
+        final BlockPos center = this.blockPosition();
+        int nearbyRoots = 0;
+        for (final BlockPos pos : BlockPos.betweenClosed(
+            center.offset(-ROOT_GROWTH_RADIUS, -2, -ROOT_GROWTH_RADIUS),
+            center.offset(ROOT_GROWTH_RADIUS, 2, ROOT_GROWTH_RADIUS)
+        )) {
+            if (level.getBlockState(pos).is(NomenDubiumBlocks.ROOT_OF_LIFE.get()) && ++nearbyRoots >= 3) {
+                return;
+            }
+
+        }
+
+        final BlockState root = NomenDubiumBlocks.ROOT_OF_LIFE.get().defaultBlockState();
+        for (int attempt = 0; attempt < 12; attempt++) {
+            final BlockPos target = center.offset(
+                this.getRandom().nextInt(ROOT_GROWTH_RADIUS * 2 + 1) - ROOT_GROWTH_RADIUS,
+                this.getRandom().nextInt(5) - 2,
+                this.getRandom().nextInt(ROOT_GROWTH_RADIUS * 2 + 1) - ROOT_GROWTH_RADIUS
+            );
+            if (level.isEmptyBlock(target) && root.canSurvive(level, target)) {
+                level.setBlockAndUpdate(target, root);
+                return;
+            }
+
+        }
+
+    }
+
+    private void resetRootGrowthCooldown() {
+        this.rootGrowthCooldown = (2 * 60 * 20) + this.getRandom().nextInt((60 * 20) + 1);
     }
 
     private void tickPuffyGrowth() {
@@ -1025,6 +1069,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         final int legacyMainAction = this.isOrderedToSit() ? ACTION_SIT : ACTION_FOLLOW;
         this.setMainAction(input.getIntOr("mainaction", legacyMainAction), null);
         this.setHostile(input.getBooleanOr("hostile", false));
+        this.rootGrowthCooldown = input.getIntOr("rootgrowthcooldown", this.rootGrowthCooldown);
     }
 
     @Override
@@ -1037,6 +1082,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         output.putInt("palettevariant", this.getPaletteVariant().index());
         output.putInt("mainaction", this.getMainAction());
         output.putBoolean("hostile", this.isHostile());
+        output.putInt("rootgrowthcooldown", this.rootGrowthCooldown);
     }
 
     public ChimeraBodyVariant getBodyVariant() {

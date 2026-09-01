@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "B": "minecraft:brush",
+    "C": "minecraft:crafting_table",
+    "M": "minecraft:map",
+    "P": "minecraft:iron_pickaxe",
+    "W": "#minecraft:planks"
+  },
+  "pattern": [
+    "MMM",
+    "BCP",
+    "WWW"
+  ],
+  "result": {
+    "count": 1,
+    "id": "nomendubium:paleontology_table"
+  }
+}
