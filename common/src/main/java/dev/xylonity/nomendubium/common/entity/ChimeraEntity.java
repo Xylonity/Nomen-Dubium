@@ -3,7 +3,6 @@ package dev.xylonity.nomendubium.common.entity;
 import dev.xylonity.nomendubium.common.entity.ai.chimera.ChimeraFollowOwnerGoal;
 import dev.xylonity.nomendubium.common.entity.ai.chimera.ChimeraHostileRootsGoal;
 import dev.xylonity.nomendubium.common.entity.ai.chimera.ChimeraMeleeAttackGoal;
-import dev.xylonity.nomendubium.common.entity.ai.chimera.ChimeraPuffyGrowthGoal;
 import dev.xylonity.nomendubium.common.entity.ai.chimera.ChimeraRoarGoal;
 import dev.xylonity.nomendubium.common.entity.ai.chimera.ChimeraSitGoal;
 import dev.xylonity.nomendubium.common.entity.ai.chimera.ChimeraWanderGoal;
@@ -18,6 +17,7 @@ import dev.xylonity.nomendubium.registry.NomenDubiumSounds;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -54,6 +54,7 @@ import net.minecraft.world.entity.ai.goal.target.OwnerHurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.OwnerHurtTargetGoal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BoneMealItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -148,6 +149,10 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     private int nextBeakedPeckTick;
     private boolean beakedPeckDamageApplied;
     private boolean mountedHeadAbilityArmed;
+    private int puffyMovementTicks;
+    private double puffyLastX;
+    private double puffyLastZ;
+    private boolean puffyPositionTracked;
 
     public ChimeraEntity(EntityType<? extends ChimeraEntity> type, Level level) {
         super(type, level);
@@ -175,7 +180,6 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         this.goalSelector.addGoal(2, new ChimeraRoarGoal(this));
         this.goalSelector.addGoal(3, new ChimeraMeleeAttackGoal(this));
         this.goalSelector.addGoal(4, new ChimeraFollowOwnerGoal(this));
-        this.goalSelector.addGoal(5, new ChimeraPuffyGrowthGoal(this));
         this.goalSelector.addGoal(5, new ChimeraHostileRootsGoal(this));
         this.goalSelector.addGoal(6, new ChimeraWanderGoal(this));
         this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 12.0F));
@@ -234,6 +238,40 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
             this.tickCrunchingBite();
             this.tickSnortingExtraction();
             this.tickBeakedPeck();
+            this.tickPuffyGrowth();
+        }
+
+    }
+
+    private void tickPuffyGrowth() {
+        if (this.getBodyVariant() != ChimeraBodyVariant.PUFFY) {
+            this.puffyMovementTicks = 0;
+            this.puffyPositionTracked = false;
+            return;
+        }
+
+        if (!this.puffyPositionTracked) {
+            this.puffyLastX = this.getX();
+            this.puffyLastZ = this.getZ();
+            this.puffyPositionTracked = true;
+            return;
+        }
+
+        final double x = this.getX() - this.puffyLastX;
+        final double z = this.getZ() - this.puffyLastZ;
+        this.puffyLastX = this.getX();
+        this.puffyLastZ = this.getZ();
+        final boolean moving = this.getDeltaMovement().horizontalDistanceSqr() >= 1.0E-4 || x * x + z * z >= 1.0E-4;
+        if (!moving || ++this.puffyMovementTicks < 70) {
+            return;
+        }
+
+        this.puffyMovementTicks = 0;
+
+        final ServerLevel level = (ServerLevel) this.level();
+        final BlockPos posBelow = this.blockPosition().below();
+        if (BoneMealItem.growCrop(new ItemStack(Items.BONE_MEAL), level, posBelow)) {
+            level.levelEvent(1505, posBelow, 15);
         }
 
     }
