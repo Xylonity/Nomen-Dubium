@@ -132,9 +132,8 @@ public final class LifeHollowFeature extends Feature<NoneFeatureConfiguration> {
         return lowest;
     }
 
-    /// Validates whether the entire volume can be safely carved (avoiding mainly liquid and such)
+    /// Validates whether the entire volume can be safely carved, preserving protected blocks and avoiding lava
     private static boolean canCarveChamber(WorldGenLevel level, int centerX, int centerZ, HollowShape shape) {
-        int waterBlocks = 0;
         final BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
         for (int dx = -shape.radiusX(); dx <= shape.radiusX(); dx++) {
             for (int dz = -shape.radiusZ(); dz <= shape.radiusZ(); dz++) {
@@ -151,9 +150,6 @@ public final class LifeHollowFeature extends Feature<NoneFeatureConfiguration> {
                         return false;
                     }
                     if (state.is(BlockTags.FEATURES_CANNOT_REPLACE)) {
-                        return false;
-                    }
-                    if (state.getFluidState().is(FluidTags.WATER) && ++waterBlocks > 24) {
                         return false;
                     }
 
@@ -240,6 +236,10 @@ public final class LifeHollowFeature extends Feature<NoneFeatureConfiguration> {
                     mutableBlockPos.set(centerX + dx, y, centerZ + dz);
 
                     final BlockState current = level.getBlockState(mutableBlockPos);
+                    if (current.getFluidState().is(FluidTags.WATER) && isExposed(level, mutableBlockPos)) {
+                        level.setBlock(mutableBlockPos, Blocks.MOSS_BLOCK.defaultBlockState(), 2);
+                        continue;
+                    }
                     if (!isNaturalStone(current) || !isExposed(level, mutableBlockPos)) {
                         continue;
                     }
@@ -477,11 +477,11 @@ public final class LifeHollowFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     private static boolean isGrassySurface(BlockState state) {
-        return state.is(BlockTags.GRASS_BLOCKS) || state.is(BlockTags.MOSS_BLOCKS);
+        return state.is(BlockTags.GRASS_BLOCKS) || state.is(BlockTags.DIRT) || state.is(BlockTags.MOSS_BLOCKS);
     }
 
     private static boolean isGrassyGround(BlockState state) {
-        return state.is(BlockTags.GRASS_BLOCKS) || state.is(BlockTags.MOSS_BLOCKS);
+        return state.is(BlockTags.GRASS_BLOCKS) || state.is(BlockTags.DIRT) || state.is(BlockTags.MOSS_BLOCKS);
     }
 
     private static boolean isNaturalStone(BlockState state) {
