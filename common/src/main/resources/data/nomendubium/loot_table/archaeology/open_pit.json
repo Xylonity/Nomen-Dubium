@@ -28,7 +28,23 @@
             }
           ],
           "name": "minecraft:bone",
-          "weight": 8
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "add": false,
+              "count": {
+                "type": "minecraft:uniform",
+                "max": 3.0,
+                "min": 1.0
+              },
+              "function": "minecraft:set_count"
+            }
+          ],
+          "name": "nomendubium:primitive_arrow",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
