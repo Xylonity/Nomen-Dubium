@@ -122,6 +122,7 @@ public final class ChimeraRenderer extends EntityRenderer<ChimeraEntity, Chimera
         state.jumpProgress = entity.getJumpAnimation(partialTicks);
         state.roarAnimation = entity.getRoarAnimation(partialTicks);
         state.shieldChargeProgress = entity.getShieldChargeAnimation(partialTicks);
+        state.crunchingBiteProgress = entity.getCrunchingBiteProgress(partialTicks);
         state.verticalSpeed = (float) entity.getDeltaMovement().y;
         state.onGround = entity.onGround();
         state.body = entity.getBodyVariant();

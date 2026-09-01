@@ -61,6 +61,7 @@ import org.jspecify.annotations.Nullable;
 
 /// WHY DOES HALF OF THE ENTITY LOGIC TICK ONLY ON THE CLIENT WHEN THERE IS A RIDER PRESENT OMG
 /// GOALS DO NOT WORK
+/// TODO: Optimization after modjam
 public final class ChimeraEntity extends TamableAnimal implements PlayerRideableJumping {
 
     // avian: more speed, shelled: slow but swims, lanky: slow but can jump high, hulking: normal but moves entities away, puffy: slow but applies bone meal
@@ -75,8 +76,10 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     private static final EntityDataAccessor<Boolean> ROARING = SynchedEntityData.defineId(ChimeraEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> SHIELD_CHARGING = SynchedEntityData.defineId(ChimeraEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Float> SHIELD_CHARGE_Y_ROT = SynchedEntityData.defineId(ChimeraEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Boolean> CRUNCHING_BITING = SynchedEntityData.defineId(ChimeraEntity.class, EntityDataSerializers.BOOLEAN);
 
-    private static final double SHIELDED_CHARGE_SPEED = 0.85D;
+    private static final double SHIELDED_CHARGE_SPEED = 0.85;
+    private static final int CRUNCHING_BITE_DURATION = 8;
 
     public static final int ACTION_SIT = 0;
     public static final int ACTION_FOLLOW = 1;
@@ -99,6 +102,13 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     private final Set<Integer> shieldChargeHitEntities = new HashSet<>();
     private int shieldChargeEndTick;
     private int nextShieldChargeTick;
+
+    private float crunchingBiteAnimation;
+    private float crunchingBiteAnimationO;
+    private int crunchingBiteStartTick;
+    private int crunchingBiteEndTick;
+    private int nextCrunchingBiteTick;
+    private boolean crunchingBiteDamageApplied;
 
     public ChimeraEntity(EntityType<? extends ChimeraEntity> type, Level level) {
         super(type, level);
@@ -138,6 +148,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 5, true, false,
             (target, _) -> this.isValidHostileTarget(target)
         ));
+
     }
 
     @Override
@@ -153,6 +164,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         entityData.define(ROARING, false);
         entityData.define(SHIELD_CHARGING, false);
         entityData.define(SHIELD_CHARGE_Y_ROT, 0.0F);
+        entityData.define(CRUNCHING_BITING, false);
     }
 
     @Override
@@ -172,8 +184,10 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         this.tickJumpAnimation();
         this.tickRoarAnimation();
         this.tickShieldChargeAnimation();
+        this.tickCrunchingBiteAnimation();
         if (!this.level().isClientSide()) {
             this.tickShieldCharge();
+            this.tickCrunchingBite();
         }
 
     }
@@ -224,6 +238,21 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
 
     public float getShieldChargeAnimation(float partialTick) {
         return Mth.lerp(partialTick, this.shieldChargeAnimationO, this.shieldChargeAnimation);
+    }
+
+    private void tickCrunchingBiteAnimation() {
+        if (!this.isCrunchingBiting()) {
+            this.crunchingBiteAnimation = 0;
+            this.crunchingBiteAnimationO = 0;
+            return;
+        }
+
+        this.crunchingBiteAnimationO = this.crunchingBiteAnimation;
+        this.crunchingBiteAnimation = Math.min(this.crunchingBiteAnimation + 1f, CRUNCHING_BITE_DURATION);
+    }
+
+    public float getCrunchingBiteProgress(float partialTick) {
+        return Mth.lerp(partialTick, this.crunchingBiteAnimationO, this.crunchingBiteAnimation) / CRUNCHING_BITE_DURATION;
     }
 
     public boolean isRoaring() {
@@ -366,10 +395,12 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         this.yBodyRot = this.getYRot();
         this.yHeadRot = this.getYRot();
 
+        // On interaction (for some reason SERVER GOALS DO NOT WORK WHILE RIDING) selection of a specific attack logic
         if (!this.level().isClientSide() && player.swinging && player.swingTime == -1) {
-            this.tryStartShieldCharge();
+            this.tryUseMountedHeadAbility();
         }
 
+        // Extra charge movement to the front
         if (this.isShieldCharging()) {
             final Vec3 movement = this.getDeltaMovement();
             final Vec3 direction = this.getShieldChargeDirection();
@@ -377,6 +408,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
             this.needsSync = true;
         }
 
+        // Jump
         if (this.isLocalInstanceAuthoritative() && this.playerJumpPendingScale > 0.0F && this.onGround()) {
             final double jumpPower = this.getJumpPower(this.playerJumpPendingScale);
             final Vec3 movement = this.getDeltaMovement();
@@ -409,6 +441,72 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     @Override
     protected float getRiddenSpeed(Player player) {
         return (float) this.getAttributeValue(Attributes.MOVEMENT_SPEED);
+    }
+
+    private void tryUseMountedHeadAbility() {
+        switch (this.getHeadVariant()) {
+            case SHIELDED -> this.tryStartShieldCharge();
+            case CRUNCHING -> this.tryStartCrunchingBite();
+            default -> {
+                ;;
+            }
+
+        }
+
+    }
+
+    private void tryStartCrunchingBite() {
+        if (this.tickCount < this.nextCrunchingBiteTick || this.isCrunchingBiting()) {
+            return;
+        }
+
+        this.entityData.set(CRUNCHING_BITING, true);
+        this.crunchingBiteStartTick = this.tickCount;
+        this.crunchingBiteEndTick = this.tickCount + CRUNCHING_BITE_DURATION;
+        this.nextCrunchingBiteTick = this.tickCount + 14;
+        this.crunchingBiteDamageApplied = false;
+    }
+
+    private void tickCrunchingBite() {
+        if (!this.isCrunchingBiting()) {
+            return;
+        }
+
+        if (!(this.getControllingPassenger() instanceof Player) || this.getHeadVariant() != ChimeraHeadVariant.CRUNCHING || this.tickCount >= this.crunchingBiteEndTick) {
+            this.stopCrunchingBite();
+            return;
+        }
+
+        if (!this.crunchingBiteDamageApplied && this.tickCount >= this.crunchingBiteStartTick + 6) {
+            this.crunchingBiteDamageApplied = true;
+            this.performCrunchingBite();
+        }
+
+    }
+
+    private void performCrunchingBite() {
+        final ServerLevel level = (ServerLevel) this.level();
+        final float rotation = this.getYRot() * Mth.DEG_TO_RAD;
+        final Vec3 direction = new Vec3(-Mth.sin(rotation), 0, Mth.cos(rotation));
+        final AABB hitbox = this.getBoundingBox().expandTowards(direction.scale(2.2)).inflate(0.4, 0.3, 0.4);
+
+        for (final LivingEntity target : level.getEntitiesOfClass(LivingEntity.class, hitbox, entity ->
+                !this.isChimeraAlly(entity) && !this.hasPassenger(entity)
+                        && direction.dot(entity.position().subtract(this.position()).multiply(1, 0, 1)) > 0
+        )) {
+            this.doHurtTarget(level, target);
+        }
+
+        this.playSound(SoundEvents.PHANTOM_BITE, 1.0F, 0.88F + this.getRandom().nextFloat() * 0.12F);
+    }
+
+    private void stopCrunchingBite() {
+        this.entityData.set(CRUNCHING_BITING, false);
+        this.crunchingBiteDamageApplied = false;
+    }
+
+    private boolean isCrunchingBiting() {
+        return this.entityData.get(CRUNCHING_BITING);
     }
 
     private void tryStartShieldCharge() {
