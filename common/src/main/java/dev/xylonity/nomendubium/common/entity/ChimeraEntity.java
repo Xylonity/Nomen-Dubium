@@ -1051,7 +1051,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     private void applyBodyAttributes() {
         switch (this.getBodyVariant()) {
             case HULKING -> {
-                this.setAttributeBase(Attributes.MOVEMENT_SPEED, 0.24);
+                this.setAttributeBase(Attributes.MOVEMENT_SPEED, 0.22);
                 this.setAttributeBase(Attributes.ARMOR, 4.0);
                 this.setAttributeBase(Attributes.KNOCKBACK_RESISTANCE, 0.75);
                 this.setAttributeBase(Attributes.JUMP_STRENGTH, 0.48);
@@ -1060,16 +1060,16 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
                 this.setAttributeBase(Attributes.WATER_MOVEMENT_EFFICIENCY, 0.1);
             }
             case SHELLED -> {
-                this.setAttributeBase(Attributes.MOVEMENT_SPEED, 0.20);
+                this.setAttributeBase(Attributes.MOVEMENT_SPEED, 0.145);
                 this.setAttributeBase(Attributes.ARMOR, 10.0);
                 this.setAttributeBase(Attributes.KNOCKBACK_RESISTANCE, 0.90);
                 this.setAttributeBase(Attributes.JUMP_STRENGTH, 0.42);
                 this.setAttributeBase(Attributes.STEP_HEIGHT, 1.0);
                 this.setAttributeBase(Attributes.SAFE_FALL_DISTANCE, 4.0);
-                this.setAttributeBase(Attributes.WATER_MOVEMENT_EFFICIENCY, 1.0);
+                this.setAttributeBase(Attributes.WATER_MOVEMENT_EFFICIENCY, 0.5);
             }
             case AVIAN -> {
-                this.setAttributeBase(Attributes.MOVEMENT_SPEED, 0.42);
+                this.setAttributeBase(Attributes.MOVEMENT_SPEED, 0.36);
                 this.setAttributeBase(Attributes.ARMOR, 2.0);
                 this.setAttributeBase(Attributes.KNOCKBACK_RESISTANCE, 0.20);
                 this.setAttributeBase(Attributes.JUMP_STRENGTH, 0.55);
@@ -1087,7 +1087,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
                 this.setAttributeBase(Attributes.WATER_MOVEMENT_EFFICIENCY, 0.1);
             }
             case PUFFY -> {
-                this.setAttributeBase(Attributes.MOVEMENT_SPEED, 0.24);
+                this.setAttributeBase(Attributes.MOVEMENT_SPEED, 0.22);
                 this.setAttributeBase(Attributes.ARMOR, 3.0);
                 this.setAttributeBase(Attributes.KNOCKBACK_RESISTANCE, 0.35);
                 this.setAttributeBase(Attributes.JUMP_STRENGTH, 0.45);
