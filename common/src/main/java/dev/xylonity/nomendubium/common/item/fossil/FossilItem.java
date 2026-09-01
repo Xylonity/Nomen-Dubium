@@ -5,6 +5,8 @@ import dev.xylonity.nomendubium.common.entity.skeleton.SkeletonPartType;
 import dev.xylonity.nomendubium.common.item.DescribedItem;
 import dev.xylonity.nomendubium.registry.NomenDubiumDataComponents;
 import dev.xylonity.nomendubium.registry.NomenDubiumEntities;
+import java.util.function.Consumer;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
@@ -81,6 +83,16 @@ public final class FossilItem extends DescribedItem {
     public @NonNull Component getName(@NonNull ItemStack stack) {
         final String part = getPart(stack);
         return part == null ? super.getName(stack) : Component.translatableWithFallback(this.getDescriptionId() + "." + part, super.getName(stack).getString());
+    }
+
+    @Override
+    protected void appendDescription(ItemStack stack, Consumer<Component> tooltip) {
+        final String part = getPart(stack);
+        if (SkeletonPartType.byFossilPart(part) != null) {
+            tooltip.accept(Component.translatable(this.getDescriptionId() + "." + part + ".tooltip").withStyle(ChatFormatting.GRAY));
+        }
+
+        super.appendDescription(stack, tooltip);
     }
 
     @Override
