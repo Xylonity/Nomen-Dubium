@@ -16,8 +16,11 @@ import dev.xylonity.nomendubium.common.entity.skeleton.SkeletonPartType;
 import dev.xylonity.nomendubium.registry.NomenDubiumItems;
 import dev.xylonity.nomendubium.registry.NomenDubiumSounds;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import net.minecraft.core.Holder;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -49,9 +52,14 @@ import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.OwnerHurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.OwnerHurtTargetGoal;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
@@ -77,9 +85,22 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     private static final EntityDataAccessor<Boolean> SHIELD_CHARGING = SynchedEntityData.defineId(ChimeraEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Float> SHIELD_CHARGE_Y_ROT = SynchedEntityData.defineId(ChimeraEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Boolean> CRUNCHING_BITING = SynchedEntityData.defineId(ChimeraEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> SNORTING_EXTRACTING = SynchedEntityData.defineId(ChimeraEntity.class, EntityDataSerializers.BOOLEAN);
 
     private static final double SHIELDED_CHARGE_SPEED = 0.85;
     private static final int CRUNCHING_BITE_DURATION = 8;
+    private static final int SNORTING_EXTRACTION_DURATION = 48;
+    private static final int SNORTING_ITEM_TICK = 38;
+    private static final List<Item> SNORTING_ITEMS = List.of(
+            Items.COAL, Items.RAW_COPPER, Items.RAW_IRON,
+            Items.RAW_GOLD, Items.REDSTONE, Items.LAPIS_LAZULI,
+            Items.QUARTZ, Items.AMETHYST_SHARD, Items.CARROT,
+            Items.ANDESITE, Items.APPLE, Items.STICK, Items.CHARCOAL
+    );
+    private static final List<BlockState> SNORTING_PARTICLE_STATES = List.of(
+            Blocks.STONE.defaultBlockState(), Blocks.DEEPSLATE.defaultBlockState(),
+            Blocks.TUFF.defaultBlockState(), Blocks.GRAVEL.defaultBlockState()
+    );
 
     public static final int ACTION_SIT = 0;
     public static final int ACTION_FOLLOW = 1;
@@ -109,6 +130,13 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     private int crunchingBiteEndTick;
     private int nextCrunchingBiteTick;
     private boolean crunchingBiteDamageApplied;
+
+    private float snortingExtractionAnimation;
+    private float snortingExtractionAnimationO;
+    private int snortingExtractionStartTick;
+    private int snortingExtractionEndTick;
+    private int nextSnortingExtractionTick;
+    private boolean snortingItemPopped;
 
     public ChimeraEntity(EntityType<? extends ChimeraEntity> type, Level level) {
         super(type, level);
@@ -165,6 +193,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         entityData.define(SHIELD_CHARGING, false);
         entityData.define(SHIELD_CHARGE_Y_ROT, 0.0F);
         entityData.define(CRUNCHING_BITING, false);
+        entityData.define(SNORTING_EXTRACTING, false);
     }
 
     @Override
@@ -185,9 +214,11 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         this.tickRoarAnimation();
         this.tickShieldChargeAnimation();
         this.tickCrunchingBiteAnimation();
+        this.tickSnortingExtractionAnimation();
         if (!this.level().isClientSide()) {
             this.tickShieldCharge();
             this.tickCrunchingBite();
+            this.tickSnortingExtraction();
         }
 
     }
@@ -255,6 +286,21 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         return Mth.lerp(partialTick, this.crunchingBiteAnimationO, this.crunchingBiteAnimation) / CRUNCHING_BITE_DURATION;
     }
 
+    private void tickSnortingExtractionAnimation() {
+        if (!this.isSnortingExtracting()) {
+            this.snortingExtractionAnimation = 0;
+            this.snortingExtractionAnimationO = 0;
+            return;
+        }
+
+        this.snortingExtractionAnimationO = this.snortingExtractionAnimation;
+        this.snortingExtractionAnimation = Math.min(this.snortingExtractionAnimation + 1, SNORTING_EXTRACTION_DURATION);
+    }
+
+    public float getSnortingExtractionProgress(float partialTick) {
+        return Mth.lerp(partialTick, this.snortingExtractionAnimationO, this.snortingExtractionAnimation) / SNORTING_EXTRACTION_DURATION;
+    }
+
     public boolean isRoaring() {
         return this.entityData.get(ROARING);
     }
@@ -314,6 +360,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
                 if (!this.level().isClientSide()) {
                     this.navigation.stop();
                     this.setInSittingPose(false);
+                    setMainAction(ACTION_FOLLOW, player);
                     player.startRiding(this);
                 }
 
@@ -426,7 +473,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
 
     @Override
     protected Vec3 getRiddenInput(Player player, Vec3 travelVector) {
-        if (this.isShieldCharging()) {
+        if (this.isShieldCharging() || this.isSnortingExtracting()) {
             return Vec3.ZERO;
         }
 
@@ -447,6 +494,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         switch (this.getHeadVariant()) {
             case SHIELDED -> this.tryStartShieldCharge();
             case CRUNCHING -> this.tryStartCrunchingBite();
+            case SNORTING -> this.tryStartSnortingExtraction();
             default -> {
                 ;;
             }
@@ -507,6 +555,83 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
 
     private boolean isCrunchingBiting() {
         return this.entityData.get(CRUNCHING_BITING);
+    }
+
+    private void tryStartSnortingExtraction() {
+        if (this.tickCount < this.nextSnortingExtractionTick || this.isSnortingExtracting()) {
+            return;
+        }
+
+        this.entityData.set(SNORTING_EXTRACTING, true);
+        this.snortingExtractionStartTick = this.tickCount;
+        this.snortingExtractionEndTick = this.tickCount + SNORTING_EXTRACTION_DURATION;
+        this.nextSnortingExtractionTick = this.tickCount + 200;
+        this.snortingItemPopped = false;
+        this.getNavigation().stop();
+    }
+
+    private void tickSnortingExtraction() {
+        if (!this.isSnortingExtracting()) {
+            return;
+        }
+
+        if (!(this.getControllingPassenger() instanceof Player) || this.getHeadVariant() != ChimeraHeadVariant.SNORTING || this.tickCount >= this.snortingExtractionEndTick) {
+            this.stopSnortingExtraction();
+            return;
+        }
+
+        final int elapsed = this.tickCount - this.snortingExtractionStartTick;
+        if (elapsed >= 3 && elapsed <= SNORTING_ITEM_TICK && elapsed % 3 == 0) {
+            this.snortingParticles();
+        }
+
+        if (!this.snortingItemPopped && elapsed >= SNORTING_ITEM_TICK) {
+            this.snortingItemPopped = true;
+            this.popSnortingItem();
+        }
+
+    }
+
+    private void snortingParticles() {
+        final ServerLevel level = (ServerLevel) this.level();
+        final double radius = this.getBbWidth() * 0.375;
+        final double y = this.getBoundingBox().minY + 0.05;
+
+        for (int i = 0; i < 10; i++) {
+            final double angle = this.getRandom().nextDouble() * Mth.TWO_PI;
+            final double distance = Math.sqrt(this.getRandom().nextDouble()) * radius;
+            final double x = Mth.cos((float) angle) * distance;
+            final double z = Mth.sin((float) angle) * distance;
+            final Vec3 pos = new Vec3(this.getX() + x, y, this.getZ() + z);
+            final BlockState particleState = SNORTING_PARTICLE_STATES.get(this.getRandom().nextInt(SNORTING_PARTICLE_STATES.size()));
+            final BlockParticleOption particle = new BlockParticleOption(ParticleTypes.BLOCK, particleState);
+
+            final Vec3 speed = new Vec3(x, 0, z).normalize().scale(0.25 + this.getRandom().nextDouble() * 0.25).add(0, 0.45 + this.getRandom().nextDouble() * 0.35, 0);
+            level.sendParticles(particle, pos.x, pos.y, pos.z, 0, speed.x, speed.y, speed.z, 0.18);
+        }
+
+    }
+
+    private void popSnortingItem() {
+        final ServerLevel level = (ServerLevel) this.level();
+        final float rotation = this.getYRot() * Mth.DEG_TO_RAD;
+        final Vec3 forward = new Vec3(-Mth.sin(rotation), 0, Mth.cos(rotation));
+        final Vec3 origin = new Vec3(this.getX(), this.getEyeY(), this.getZ()).add(forward.scale(this.getBbWidth() * 0.5 + 1));
+        final Item item = SNORTING_ITEMS.get(this.getRandom().nextInt(SNORTING_ITEMS.size()));
+        final ItemEntity drop = new ItemEntity(level, origin.x, origin.y, origin.z, new ItemStack(item));
+        drop.setDeltaMovement(forward.scale(0.35).add(0, 0.28, 0));
+        drop.setDefaultPickUpDelay();
+        level.addFreshEntity(drop);
+        this.playSound(SoundEvents.SNIFFER_DROP_SEED, 1, 1.05F + this.getRandom().nextFloat() * 0.1F);
+    }
+
+    private void stopSnortingExtraction() {
+        this.entityData.set(SNORTING_EXTRACTING, false);
+        this.snortingItemPopped = false;
+    }
+
+    private boolean isSnortingExtracting() {
+        return this.entityData.get(SNORTING_EXTRACTING);
     }
 
     private void tryStartShieldCharge() {

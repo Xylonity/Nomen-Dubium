@@ -1,6 +1,7 @@
 package dev.xylonity.nomendubium.client.entity.model.chimera.normal.head;
 
 import dev.xylonity.nomendubium.client.entity.model.chimera.ChimeraModelConnections;
+import dev.xylonity.nomendubium.client.entity.render.chimera.ChimeraRenderState;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
@@ -8,11 +9,23 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.util.Mth;
 
 public final class SnortingHeadModel extends ChimeraHeadModel {
 
 	public SnortingHeadModel(ModelPart root) {
 		super(root, "head_control", 1.0F);
+	}
+
+	@Override
+	public void setupAnim(ChimeraRenderState state) {
+		super.setupAnim(state);
+		final float progress = Mth.clamp(state.snortingExtractionProgress, 0.0F, 1.0F);
+		final float sin = Mth.sin(progress * Mth.PI);
+		final float phase = progress * Mth.PI * 15;
+		this.head.yRot += Mth.sin(phase) * 0.52F * sin;
+		this.head.zRot += Mth.cos(phase * 0.6F) * 0.14F * sin;
+		this.head.xRot += Mth.abs(Mth.sin(phase * 0.5F)) * 0.08F * sin;
 	}
 
 	public static LayerDefinition createLayer() {

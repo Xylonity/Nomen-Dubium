@@ -71,7 +71,25 @@ public abstract class ChimeraBodyModel extends EntityModel<ChimeraRenderState> {
         }
 
         this.animateLankyJump(state, sit);
+        this.animateSnortingExtraction(state);
 
+    }
+
+    private void animateSnortingExtraction(ChimeraRenderState state) {
+        final float progress = Mth.clamp(state.snortingExtractionProgress, 0.0F, 1.0F);
+        if (progress <= 0) {
+            return;
+        }
+
+        final float sin = Mth.sin(progress * Mth.PI);
+        final float phase = progress * Mth.PI * 12;
+        final float sway = Mth.sin(phase) * sin;
+        final float bounce = Mth.abs(Mth.sin(phase)) * sin;
+        this.body.x += sway * 1.1F;
+        this.body.y -= bounce * 1.8F;
+        this.body.zRot += sway * 0.18F;
+        this.torso.zRot -= sway * 0.07F;
+        this.torso.xRot += bounce * 0.045F;
     }
 
     private void animateLankyJump(ChimeraRenderState state, float sit) {

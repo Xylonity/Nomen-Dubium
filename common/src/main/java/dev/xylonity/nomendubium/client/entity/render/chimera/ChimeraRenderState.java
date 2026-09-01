@@ -20,6 +20,7 @@ public final class ChimeraRenderState extends EntityRenderState {
     public float roarAnimation;
     public float shieldChargeProgress;
     public float crunchingBiteProgress;
+    public float snortingExtractionProgress;
     public float verticalSpeed;
     public boolean onGround;
     public ChimeraBodyVariant body = ChimeraBodyVariant.HULKING;
