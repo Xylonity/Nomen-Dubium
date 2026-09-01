@@ -147,6 +147,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     private int beakedPeckEndTick;
     private int nextBeakedPeckTick;
     private boolean beakedPeckDamageApplied;
+    private boolean mountedHeadAbilityArmed;
 
     public ChimeraEntity(EntityType<? extends ChimeraEntity> type, Level level) {
         super(type, level);
@@ -463,6 +464,15 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     }
 
     @Override
+    protected void addPassenger(Entity passenger) {
+        super.addPassenger(passenger);
+        if (passenger instanceof Player) {
+            this.mountedHeadAbilityArmed = false;
+        }
+
+    }
+
+    @Override
     protected void tickRidden(@NonNull Player player, @NonNull Vec3 travelVector) {
         super.tickRidden(player, travelVector);
 
@@ -471,8 +481,11 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         this.yBodyRot = this.getYRot();
         this.yHeadRot = this.getYRot();
 
-        // On interaction (for some reason SERVER GOALS DO NOT WORK WHILE RIDING) selection of a specific attack logic
-        if (!this.level().isClientSide() && player.swinging && player.swingTime == -1) {
+        // Ignoring the hand swing produced by mounting
+        if (!this.mountedHeadAbilityArmed) {
+            this.mountedHeadAbilityArmed = !player.swinging;
+        }
+        else if (!this.level().isClientSide() && player.swinging && player.swingTime == -1) {
             this.tryUseMountedHeadAbility();
         }
 
