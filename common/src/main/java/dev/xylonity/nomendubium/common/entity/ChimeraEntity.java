@@ -86,9 +86,12 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     private static final EntityDataAccessor<Float> SHIELD_CHARGE_Y_ROT = SynchedEntityData.defineId(ChimeraEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Boolean> CRUNCHING_BITING = SynchedEntityData.defineId(ChimeraEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> SNORTING_EXTRACTING = SynchedEntityData.defineId(ChimeraEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> BEAKED_PECKING = SynchedEntityData.defineId(ChimeraEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Float> BEAKED_PECK_Y_ROT = SynchedEntityData.defineId(ChimeraEntity.class, EntityDataSerializers.FLOAT);
 
     private static final double SHIELDED_CHARGE_SPEED = 0.85;
     private static final int CRUNCHING_BITE_DURATION = 8;
+    private static final int BEAKED_PECK_DURATION = 10;
     private static final int SNORTING_EXTRACTION_DURATION = 48;
     private static final int SNORTING_ITEM_TICK = 38;
     private static final List<Item> SNORTING_ITEMS = List.of(
@@ -137,6 +140,13 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     private int snortingExtractionEndTick;
     private int nextSnortingExtractionTick;
     private boolean snortingItemPopped;
+
+    private float beakedPeckAnimation;
+    private float beakedPeckAnimationO;
+    private int beakedPeckStartTick;
+    private int beakedPeckEndTick;
+    private int nextBeakedPeckTick;
+    private boolean beakedPeckDamageApplied;
 
     public ChimeraEntity(EntityType<? extends ChimeraEntity> type, Level level) {
         super(type, level);
@@ -194,6 +204,8 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         entityData.define(SHIELD_CHARGE_Y_ROT, 0.0F);
         entityData.define(CRUNCHING_BITING, false);
         entityData.define(SNORTING_EXTRACTING, false);
+        entityData.define(BEAKED_PECKING, false);
+        entityData.define(BEAKED_PECK_Y_ROT, 0.0F);
     }
 
     @Override
@@ -215,10 +227,12 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         this.tickShieldChargeAnimation();
         this.tickCrunchingBiteAnimation();
         this.tickSnortingExtractionAnimation();
+        this.tickBeakedPeckAnimation();
         if (!this.level().isClientSide()) {
             this.tickShieldCharge();
             this.tickCrunchingBite();
             this.tickSnortingExtraction();
+            this.tickBeakedPeck();
         }
 
     }
@@ -299,6 +313,21 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
 
     public float getSnortingExtractionProgress(float partialTick) {
         return Mth.lerp(partialTick, this.snortingExtractionAnimationO, this.snortingExtractionAnimation) / SNORTING_EXTRACTION_DURATION;
+    }
+
+    private void tickBeakedPeckAnimation() {
+        if (!this.isBeakedPecking()) {
+            this.beakedPeckAnimation = 0;
+            this.beakedPeckAnimationO = 0;
+            return;
+        }
+
+        this.beakedPeckAnimationO = this.beakedPeckAnimation;
+        this.beakedPeckAnimation = Math.min(this.beakedPeckAnimation + 1, BEAKED_PECK_DURATION);
+    }
+
+    public float getBeakedPeckProgress(float partialTick) {
+        return Mth.lerp(partialTick, this.beakedPeckAnimationO, this.beakedPeckAnimation) / BEAKED_PECK_DURATION;
     }
 
     public boolean isRoaring() {
@@ -455,6 +484,16 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
             this.needsSync = true;
         }
 
+        // Short charge to the front
+        if (this.isBeakedPecking()) {
+            final float progress = Mth.clamp(this.beakedPeckAnimation / BEAKED_PECK_DURATION, 0.0F, 1.0F);
+            final double speed = 0.42 * Mth.sin(progress * Mth.PI);
+            final Vec3 movement = this.getDeltaMovement();
+            final Vec3 direction = this.getBeakedPeckDirection();
+            this.setDeltaMovement(direction.x * speed, movement.y, direction.z * speed);
+            this.needsSync = true;
+        }
+
         // Jump
         if (this.isLocalInstanceAuthoritative() && this.playerJumpPendingScale > 0.0F && this.onGround()) {
             final double jumpPower = this.getJumpPower(this.playerJumpPendingScale);
@@ -473,7 +512,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
 
     @Override
     protected Vec3 getRiddenInput(Player player, Vec3 travelVector) {
-        if (this.isShieldCharging() || this.isSnortingExtracting()) {
+        if (this.isShieldCharging() || this.isSnortingExtracting() || this.isBeakedPecking()) {
             return Vec3.ZERO;
         }
 
@@ -495,6 +534,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
             case SHIELDED -> this.tryStartShieldCharge();
             case CRUNCHING -> this.tryStartCrunchingBite();
             case SNORTING -> this.tryStartSnortingExtraction();
+            case BEAKED -> this.tryStartBeakedPeck();
             default -> {
                 ;;
             }
@@ -632,6 +672,67 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
 
     private boolean isSnortingExtracting() {
         return this.entityData.get(SNORTING_EXTRACTING);
+    }
+
+    private void tryStartBeakedPeck() {
+        if (this.tickCount < this.nextBeakedPeckTick || this.isBeakedPecking()) {
+            return;
+        }
+
+        this.entityData.set(BEAKED_PECK_Y_ROT, this.getYRot());
+        this.entityData.set(BEAKED_PECKING, true);
+        this.beakedPeckStartTick = this.tickCount;
+        this.beakedPeckEndTick = this.tickCount + BEAKED_PECK_DURATION;
+        this.nextBeakedPeckTick = this.tickCount + 16;
+        this.beakedPeckDamageApplied = false;
+        this.getNavigation().stop();
+    }
+
+    private void tickBeakedPeck() {
+        if (!this.isBeakedPecking()) {
+            return;
+        }
+
+        if (!(this.getControllingPassenger() instanceof Player) || this.getHeadVariant() != ChimeraHeadVariant.BEAKED || this.tickCount >= this.beakedPeckEndTick) {
+            this.stopBeakedPeck();
+            return;
+        }
+
+        if (!this.beakedPeckDamageApplied && this.tickCount >= this.beakedPeckStartTick + 5) {
+            this.beakedPeckDamageApplied = true;
+            this.performBeakedPeck();
+        }
+    }
+
+    /// TODO: refactor equivalent methods
+    private void performBeakedPeck() {
+        final ServerLevel level = (ServerLevel) this.level();
+        final Vec3 direction = this.getBeakedPeckDirection();
+        final AABB hitbox = this.getBoundingBox().expandTowards(direction.scale(2.8)).inflate(0.75, 0.5, 0.75);
+
+        for (final LivingEntity target : level.getEntitiesOfClass(LivingEntity.class, hitbox, entity ->
+                !this.isChimeraAlly(entity) && !this.hasPassenger(entity)
+                        && direction.dot(entity.position().subtract(this.position()).multiply(1, 0, 1)) > 0
+        )) {
+            target.hurtServer(level, level.damageSources().mobAttack(this), 3.5f);
+            this.applyBeakedPoison(target);
+        }
+
+        this.playSound(SoundEvents.FOX_BITE, 0.9F, 1.25F + this.getRandom().nextFloat() * 0.15F);
+    }
+
+    private void stopBeakedPeck() {
+        this.entityData.set(BEAKED_PECKING, false);
+        this.beakedPeckDamageApplied = false;
+    }
+
+    private boolean isBeakedPecking() {
+        return this.entityData.get(BEAKED_PECKING);
+    }
+
+    private Vec3 getBeakedPeckDirection() {
+        final float rotation = this.entityData.get(BEAKED_PECK_Y_ROT) * Mth.DEG_TO_RAD;
+        return new Vec3(-Mth.sin(rotation), 0.0D, Mth.cos(rotation));
     }
 
     private void tryStartShieldCharge() {
@@ -813,9 +914,14 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         switch (this.getHeadVariant()) {
             case CRUNCHING, SNARLED, SNORTING -> { ;; }
             case SHIELDED -> target.knockback(1.6, this.getX() - target.getX(), this.getZ() - target.getZ());
-            case BEAKED -> target.addEffect(new MobEffectInstance(MobEffects.POISON, 100, 0), this);
+            case BEAKED -> this.applyBeakedPoison(target);
         }
 
+    }
+
+    private void applyBeakedPoison(LivingEntity target) {
+        target.forceAddEffect(new MobEffectInstance(MobEffects.POISON, 40 + this.getRandom().nextInt(145), 0), this);
+        target.forceAddEffect(new MobEffectInstance(MobEffects.BLINDNESS, 40 + this.getRandom().nextInt(100), 0), this);
     }
 
     private void applyTailAttack(ServerLevel level, LivingEntity primaryTarget) {

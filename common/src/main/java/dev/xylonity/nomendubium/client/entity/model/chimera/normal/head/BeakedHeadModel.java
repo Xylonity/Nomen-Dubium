@@ -1,6 +1,7 @@
 package dev.xylonity.nomendubium.client.entity.model.chimera.normal.head;
 
 import dev.xylonity.nomendubium.client.entity.model.chimera.ChimeraModelConnections;
+import dev.xylonity.nomendubium.client.entity.render.chimera.ChimeraRenderState;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
@@ -8,11 +9,20 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.util.Mth;
 
 public final class BeakedHeadModel extends ChimeraHeadModel {
 
     public BeakedHeadModel(ModelPart root) {
-        super(root, "head", 1.0F, "jaw");
+        super(root, "head", 1, "jaw");
+    }
+
+    @Override
+    public void setupAnim(ChimeraRenderState state) {
+        super.setupAnim(state);
+        final float progress = Mth.clamp(state.beakedPeckProgress, 0, 1);
+        final float sin = Mth.sin(progress * Mth.PI);
+        this.head.z -= sin * 5;
     }
 
     public static LayerDefinition createLayer() {
@@ -21,7 +31,7 @@ public final class BeakedHeadModel extends ChimeraHeadModel {
         PartDefinition entireHead = root.addOrReplaceChild(
             "entire_head",
             CubeListBuilder.create(),
-            ChimeraModelConnections.alignToConnection(0.0F, -8.0F, 3.0F)
+            ChimeraModelConnections.alignToConnection(0, -8, 3)
         );
         entireHead.addOrReplaceChild(
             "neck",
