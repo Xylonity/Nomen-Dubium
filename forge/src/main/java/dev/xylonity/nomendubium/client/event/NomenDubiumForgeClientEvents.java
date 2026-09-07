@@ -18,14 +18,14 @@ import dev.xylonity.nomendubium.registry.NomenDubiumEntities;
 import dev.xylonity.nomendubium.registry.NomenDubiumMenus;
 import dev.xylonity.nomendubium.registry.NomenDubiumBlockEntities;
 import dev.xylonity.nomendubium.client.util.SkeletonPartModelLayers;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.RegisterMenuScreensEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
-@EventBusSubscriber(modid = NomenDubium.MOD_ID, value = Dist.CLIENT)
-public final class NomenDubiumNeoForgeClientEvents {
+@Mod.EventBusSubscriber(modid = NomenDubium.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
+public final class NomenDubiumForgeClientEvents {
 
     @SubscribeEvent
     public static void registerLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {

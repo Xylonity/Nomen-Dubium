@@ -1,11 +1,24 @@
+# eclipse
+bin
+*.launch
+.settings
+.metadata
+.classpath
+.project
 
-/.gradle
-/.idea
-/buildSrc
-/common/build
-/fabric/build
-/neoforge/build
-/neoforge/runs
-/fabric/.gradle
-/build/reports
-/fabric/runs
+# idea
+out
+*.ipr
+*.iws
+*.iml
+.idea/*
+!.idea/scopes
+
+# gradle
+build
+.gradle
+
+# runtime
+eclipse
+run
+runs

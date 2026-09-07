@@ -25,18 +25,18 @@ import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfigur
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.RegistryObject;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.List;
 
 /**
- * Neo doesn't like inline variables for some reason
+ * Forge doesn't like inline variables for some reason
  */
-public class NomenDubiumPlatformNeoForge implements NomenDubiumPlatform {
+public class NomenDubiumPlatformForge implements NomenDubiumPlatform {
 
     private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(Registries.BLOCK, NomenDubium.MOD_ID);
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(Registries.ITEM, NomenDubium.MOD_ID);
@@ -78,12 +78,12 @@ public class NomenDubiumPlatformNeoForge implements NomenDubiumPlatform {
 
     @Override
     public <T extends Block> Supplier<T> registerBlock(String name, Function<ResourceKey<Block>, T> factory) {
-        return BLOCKS.register(name, id -> factory.apply(ResourceKey.create(Registries.BLOCK, id)));
+        return BLOCKS.register(name, () -> factory.apply(ResourceKey.create(Registries.BLOCK, NomenDubium.of(name))));
     }
 
     @Override
     public <T extends Item> Supplier<T> registerItem(String name, Function<ResourceKey<Item>, T> factory) {
-        return ITEMS.register(name, id -> factory.apply(ResourceKey.create(Registries.ITEM, id)));
+        return ITEMS.register(name, () -> factory.apply(ResourceKey.create(Registries.ITEM, NomenDubium.of(name))));
     }
 
     @Override
@@ -93,19 +93,19 @@ public class NomenDubiumPlatformNeoForge implements NomenDubiumPlatform {
 
     @Override
     public <T> Supplier<DataComponentType<T>> registerDataComponent(String name, Supplier<DataComponentType<T>> factory) {
-        final DeferredHolder<DataComponentType<?>, DataComponentType<T>> holder = DATA_COMPONENT_TYPES.register(name, factory);
+        final RegistryObject<DataComponentType<T>> holder = DATA_COMPONENT_TYPES.register(name, factory);
         return holder;
     }
 
     @Override
     public <T extends Entity> Supplier<EntityType<T>> registerEntity(String name, Function<ResourceKey<EntityType<?>>, EntityType<T>> factory) {
-        final DeferredHolder<EntityType<?>, EntityType<T>> holder = ENTITY_TYPES.register(name, id -> factory.apply(ResourceKey.create(Registries.ENTITY_TYPE, id)));
+        final RegistryObject<EntityType<T>> holder = ENTITY_TYPES.register(name, () -> factory.apply(ResourceKey.create(Registries.ENTITY_TYPE, NomenDubium.of(name))));
         return holder;
     }
 
     @Override
     public <T extends BlockEntity> Supplier<BlockEntityType<T>> registerBlockEntity(String name, BlockEntityFactory<T> factory, List<Supplier<? extends Block>> validBlocks) {
-        final DeferredHolder<BlockEntityType<?>, BlockEntityType<T>> holder = BLOCK_ENTITY_TYPES.register(name, () -> new BlockEntityType<>(
+        final RegistryObject<BlockEntityType<T>> holder = BLOCK_ENTITY_TYPES.register(name, () -> new BlockEntityType<>(
             factory::create,
             validBlocks.stream().map(Supplier::get).collect(java.util.stream.Collectors.toUnmodifiableSet())
         ));
@@ -114,13 +114,13 @@ public class NomenDubiumPlatformNeoForge implements NomenDubiumPlatform {
 
     @Override
     public <T extends AbstractContainerMenu> Supplier<MenuType<T>> registerMenu(String name, MenuFactory<T> factory) {
-        final DeferredHolder<MenuType<?>, MenuType<T>> holder = MENU_TYPES.register(name, () -> new MenuType<>(factory::create, FeatureFlags.VANILLA_SET));
+        final RegistryObject<MenuType<T>> holder = MENU_TYPES.register(name, () -> new MenuType<>(factory::create, FeatureFlags.VANILLA_SET));
         return holder;
     }
 
     @Override
     public <T extends Recipe<?>> Supplier<RecipeType<T>> registerRecipeType(String name) {
-        final DeferredHolder<RecipeType<?>, RecipeType<T>> holder = RECIPE_TYPES.register(name, () -> new RecipeType<>() {
+        final RegistryObject<RecipeType<T>> holder = RECIPE_TYPES.register(name, () -> new RecipeType<>() {
             @Override
             public String toString() {
                 return NomenDubium.of(name).toString();
@@ -132,19 +132,19 @@ public class NomenDubiumPlatformNeoForge implements NomenDubiumPlatform {
 
     @Override
     public <T extends Recipe<?>> Supplier<RecipeSerializer<T>> registerRecipeSerializer(String name, Supplier<RecipeSerializer<T>> factory) {
-        final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<T>> holder = RECIPE_SERIALIZERS.register(name, factory);
+        final RegistryObject<RecipeSerializer<T>> holder = RECIPE_SERIALIZERS.register(name, factory);
         return holder;
     }
 
     @Override
     public <C extends FeatureConfiguration> Supplier<Feature<C>> registerFeature(String name, Supplier<Feature<C>> factory) {
-        final DeferredHolder<Feature<?>, Feature<C>> holder = FEATURES.register(name, factory);
+        final RegistryObject<Feature<C>> holder = FEATURES.register(name, factory);
         return holder;
     }
 
     @Override
     public <S extends Structure> Supplier<StructureType<S>> registerStructureType(String name, Supplier<StructureType<S>> factory) {
-        final DeferredHolder<StructureType<?>, StructureType<S>> holder = STRUCTURE_TYPES.register(name, factory);
+        final RegistryObject<StructureType<S>> holder = STRUCTURE_TYPES.register(name, factory);
         return holder;
     }
 
