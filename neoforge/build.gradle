@@ -103,7 +103,7 @@ def changelogSection = extractChangelogForVersion(project.file('../CHANGELOG.md'
 tasks.register('publishCurseForge', TaskPublishCurseForge) {
     group = 'publishing'
     apiToken = System.getenv("CURSEFORGE_TOKEN")
-    def mainFile = upload("1668064", reobfJar)
+    def mainFile = upload("1668064", jar)
 
     mainFile.displayName = "[NEOFORGE] Nomen Dubium " + project.property('version').toString() + "-" + minecraft_version
 
