@@ -13,7 +13,7 @@ public final class CoaldenPressurePlateBlock extends PressurePlateBlock {
     private static final int FIRE_SPREAD_SPEED = 1;
 
     public CoaldenPressurePlateBlock(BlockSetType blockSetType, Properties properties) {
-        super(blockSetType, properties);
+        super(Sensitivity.EVERYTHING, properties, blockSetType);
     }
 
     public int getFlammability(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {

@@ -1,66 +1,41 @@
 package dev.xylonity.nomendubium.client.entity.render.chimera;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.xylonity.nomendubium.NomenDubium;
-import dev.xylonity.nomendubium.client.entity.model.chimera.normal.back.BoneyPlatesModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.normal.back.DorsalScalesModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.normal.back.SpikesModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.normal.back.SpineSailModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.normal.back.ThornsModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.normal.body.AvianBodyModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.normal.body.HulkingBodyModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.normal.body.LankyBodyModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.normal.body.ChimeraBodyModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.normal.body.PuffyBodyModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.normal.body.ShelledBodyModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.normal.head.BeakedHeadModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.normal.head.CrunchingHeadModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.normal.head.ShieldedHeadModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.normal.head.SnarledHeadModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.normal.head.SnortingHeadModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.normal.tail.ClubbedTailModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.normal.tail.FanTailModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.normal.tail.SpearedTailModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.normal.tail.SpikedTailModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.normal.tail.StubbyTailModel;
+import dev.xylonity.nomendubium.client.entity.model.NomenDubiumEntityModel;
+import dev.xylonity.nomendubium.client.entity.model.chimera.normal.back.*;
+import dev.xylonity.nomendubium.client.entity.model.chimera.normal.body.*;
+import dev.xylonity.nomendubium.client.entity.model.chimera.normal.head.*;
+import dev.xylonity.nomendubium.client.entity.model.chimera.normal.tail.*;
 import dev.xylonity.nomendubium.client.util.ChimeraModelLayers;
 import dev.xylonity.nomendubium.common.entity.ChimeraEntity;
-import dev.xylonity.nomendubium.common.entity.variant.ChimeraBackVariant;
-import dev.xylonity.nomendubium.common.entity.variant.ChimeraBodyVariant;
-import dev.xylonity.nomendubium.common.entity.variant.ChimeraHeadVariant;
-import dev.xylonity.nomendubium.common.entity.variant.ChimeraPaletteVariant;
-import dev.xylonity.nomendubium.common.entity.variant.ChimeraTailVariant;
-import java.util.EnumMap;
-import java.util.Map;
-import net.minecraft.client.model.EntityModel;
+import dev.xylonity.nomendubium.common.entity.variant.*;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Sheets;
-import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.state.AvatarRenderState;
-import net.minecraft.client.renderer.state.level.CameraRenderState;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.sprite.SpriteGetter;
-import net.minecraft.client.resources.model.sprite.SpriteId;
-import net.minecraft.resources.Identifier;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
-public final class ChimeraRenderer extends EntityRenderer<ChimeraEntity, ChimeraRenderState> {
+import java.util.EnumMap;
+import java.util.Map;
+
+public final class ChimeraRenderer extends EntityRenderer<ChimeraEntity> {
 
     private final Map<ChimeraBodyVariant, RenderedBody> bodies = new EnumMap<>(ChimeraBodyVariant.class);
     private final Map<ChimeraHeadVariant, RenderedPart> heads = new EnumMap<>(ChimeraHeadVariant.class);
     private final Map<ChimeraTailVariant, RenderedPart> tails = new EnumMap<>(ChimeraTailVariant.class);
     private final Map<ChimeraBackVariant, RenderedPart> backs = new EnumMap<>(ChimeraBackVariant.class);
 
-    private final SpriteGetter sprites;
-
     public ChimeraRenderer(EntityRendererProvider.Context context) {
         super(context);
-        shadowRadius = 1;
-        sprites = context.getSprites();
-
+        this.shadowRadius = 1.0F;
         bodies.put(ChimeraBodyVariant.HULKING, body(new HulkingBodyModel(context.bakeLayer(ChimeraModelLayers.HULKING_BODY)), "hulkingbody"));
         bodies.put(ChimeraBodyVariant.SHELLED, body(new ShelledBodyModel(context.bakeLayer(ChimeraModelLayers.SHELLED_BODY)), "shelledbody"));
         bodies.put(ChimeraBodyVariant.AVIAN, body(new AvianBodyModel(context.bakeLayer(ChimeraModelLayers.AVIAN_BODY)), "avianbody"));
@@ -84,142 +59,134 @@ public final class ChimeraRenderer extends EntityRenderer<ChimeraEntity, Chimera
     }
 
     @Override
-    public void submit(ChimeraRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
+    public void render(ChimeraEntity entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffers, int packedLight) {
+        final RenderedBody body = this.bodies.get(entity.getBodyVariant());
+        if (body == null) {
+            super.render(entity, entityYaw, partialTicks, poseStack, buffers, packedLight);
+            return;
+        }
+
+        final float age = entity.tickCount + partialTicks;
+        final float limbSwing = entity.walkAnimation.position(partialTicks);
+        final float limbAmount = entity.walkAnimation.speed(partialTicks);
+        final float bodyYaw = Mth.rotLerp(partialTicks, entity.yBodyRotO, entity.yBodyRot);
+        final float headYaw = Mth.wrapDegrees(Mth.rotLerp(partialTicks, entity.yHeadRotO, entity.yHeadRot) - bodyYaw);
+        final float headPitch = Mth.lerp(partialTicks, entity.xRotO, entity.getXRot());
+
         poseStack.pushPose();
 
-        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - state.yRot));
+        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - bodyYaw));
+
         poseStack.scale(-1.0F, -1.0F, 1.0F);
         poseStack.translate(0.0F, -1.501F, 0.0F);
 
-        final RenderedBody body = bodies.get(state.body);
-
-        submitPart(body.part(), state, poseStack, submitNodeCollector);
-        submitAttachedPart(heads.get(state.head), body.model(), Attachment.HEAD, state, poseStack, submitNodeCollector);
-        submitAttachedPart(tails.get(state.tail), body.model(), Attachment.TAIL, state, poseStack, submitNodeCollector);
-        submitAttachedPart(backs.get(state.back), body.model(), Attachment.BACK, state, poseStack, submitNodeCollector);
-        submitRider(state.rider, body.model(), poseStack, submitNodeCollector, camera);
+        renderPart(body.part(), entity, limbSwing, limbAmount, age, headYaw, headPitch, poseStack, buffers, packedLight);
+        renderAttached(heads.get(entity.getHeadVariant()), body.model(), Attachment.HEAD, entity, limbSwing, limbAmount, age, headYaw, headPitch, poseStack, buffers, packedLight);
+        renderAttached(tails.get(entity.getTailVariant()), body.model(), Attachment.TAIL, entity, limbSwing, limbAmount, age, headYaw, headPitch, poseStack, buffers, packedLight);
+        renderAttached(backs.get(entity.getBackVariant()), body.model(), Attachment.BACK, entity, limbSwing, limbAmount, age, headYaw, headPitch, poseStack, buffers, packedLight);
+        renderRider(entity, body.model(), partialTicks, poseStack, buffers, packedLight);
 
         poseStack.popPose();
 
-        super.submit(state, poseStack, submitNodeCollector, camera);
+        super.render(entity, entityYaw, partialTicks, poseStack, buffers, packedLight);
     }
 
     @Override
-    public ChimeraRenderState createRenderState() {
-        return new ChimeraRenderState();
+    public ResourceLocation getTextureLocation(ChimeraEntity entity) {
+        final RenderedBody body = this.bodies.get(entity.getBodyVariant());
+        return body == null ? NomenDubium.of("textures/entity/chimera/hulkingbody.png") : body.part().baseTexture();
     }
 
-    @Override
-    public void extractRenderState(ChimeraEntity entity, ChimeraRenderState state, float partialTicks) {
-        super.extractRenderState(entity, state, partialTicks);
-        state.yRot = entity.getPreciseBodyRotation(partialTicks);
-        final float headRot = Mth.rotLerp(partialTicks, entity.yHeadRotO, entity.yHeadRot);
-        state.headYaw = Mth.wrapDegrees(headRot - state.yRot);
-        state.headPitch = entity.getXRot(partialTicks);
-        state.walkAnimationPos = entity.walkAnimation.position(partialTicks);
-        state.walkAnimationSpeed = entity.walkAnimation.speed(partialTicks);
-        state.sitProgress = entity.getSitAnimation(partialTicks);
-        state.jumpProgress = entity.getJumpAnimation(partialTicks);
-        state.roarAnimation = entity.getRoarAnimation(partialTicks);
-        state.shieldChargeProgress = entity.getShieldChargeAnimation(partialTicks);
-        state.crunchingBiteProgress = entity.getCrunchingBiteProgress(partialTicks);
-        state.snortingExtractionProgress = entity.getSnortingExtractionProgress(partialTicks);
-        state.beakedPeckProgress = entity.getBeakedPeckProgress(partialTicks);
-        state.verticalSpeed = (float) entity.getDeltaMovement().y;
-        state.onGround = entity.onGround();
-        state.body = entity.getBodyVariant();
-        state.head = entity.getHeadVariant();
-        state.tail = entity.getTailVariant();
-        state.back = entity.getBackVariant();
-        state.palette = entity.getPaletteVariant();
-        state.rider = null;
-        if (entity.getFirstPassenger() instanceof AbstractClientPlayer player) {
-            state.rider = this.entityRenderDispatcher.getPlayerRenderer(player).createRenderState(player, partialTicks);
-            state.rider.bodyRot = 180.0F;
-            state.rider.walkAnimationSpeed = 0.0F;
-            ((ChimeraRiderRenderState) state.rider).nomendubium$setAnchoredToChimera(true);
+    private void renderAttached(RenderedPart part, ChimeraBodyModel body, Attachment attachment, ChimeraEntity entity, float limbSwing, float limbAmount, float age, float headYaw, float headPitch, PoseStack poses, MultiBufferSource buffers, int light) {
+        if (part == null) {
+            return;
         }
 
+        poses.pushPose();
+
+        switch (attachment) {
+            case HEAD -> body.moveToHead(poses);
+            case TAIL -> body.moveToTail(poses);
+            case BACK -> body.moveToBack(poses);
+        }
+
+        renderPart(part, entity, limbSwing, limbAmount, age, headYaw, headPitch, poses, buffers, light);
+
+        poses.popPose();
     }
 
-    private static RenderedPart part(EntityModel<ChimeraRenderState> model, String texture) {
-        final Identifier baseTexture = NomenDubium.of("textures/entity/chimera/" + texture + ".png");
-        final Map<ChimeraPaletteVariant, SpriteId> paletteSprites = new EnumMap<>(ChimeraPaletteVariant.class);
+    private void renderPart(RenderedPart part, ChimeraEntity entity, float limbSwing, float limbAmount, float age, float headYaw, float headPitch, PoseStack poses, MultiBufferSource buffers, int light) {
+        if (part == null) {
+            return;
+        }
+
+        part.model().resetPose();
+        part.model().setupAnim(entity, limbSwing, limbAmount, age, headYaw, headPitch);
+
+        final VertexConsumer consumer;
+        if (entity.getPaletteVariant() == ChimeraPaletteVariant.NORMAL) {
+            consumer = buffers.getBuffer(part.model().renderType(part.baseTexture()));
+        }
+        else {
+            final TextureAtlasSprite sprite = Minecraft.getInstance().getModelManager().getAtlas(Sheets.ARMOR_TRIMS_SHEET).getSprite(part.paletteSprites().get(entity.getPaletteVariant()));
+            consumer = sprite.wrap(buffers.getBuffer(part.model().renderType(Sheets.ARMOR_TRIMS_SHEET)));
+        }
+
+        final int overlay = LivingEntityRenderer.getOverlayCoords(entity, 0.0F);
+        part.model().renderToBuffer(poses, consumer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+    }
+
+    private void renderRider(ChimeraEntity chimera, ChimeraBodyModel body, float partialTicks, PoseStack poseStack, MultiBufferSource buffers, int packedLight) {
+        if (!(chimera.getFirstPassenger() instanceof AbstractClientPlayer rider)) {
+            return;
+        }
+
+        final Minecraft minecraft = Minecraft.getInstance();
+        if (rider == minecraft.player && minecraft.options.getCameraType().isFirstPerson()) {
+            return;
+        }
+
+        final EntityRenderer<? super AbstractClientPlayer> renderer = minecraft.getEntityRenderDispatcher().getRenderer(rider);
+        poseStack.pushPose();
+
+        body.moveToRider(poseStack);
+
+        poseStack.scale(-1, -1, 1);
+        poseStack.translate(0, -0.57F, 0);
+
+        final float riderBodyYaw = getPassengerBodyYaw(rider, chimera, partialTicks);
+        poseStack.mulPose(Axis.YP.rotationDegrees(riderBodyYaw - 180.0F));
+        renderer.render(rider, 0.0F, partialTicks, poseStack, buffers, packedLight);
+
+        poseStack.popPose();
+    }
+
+    private static float getPassengerBodyYaw(AbstractClientPlayer rider, ChimeraEntity chimera, float partialTicks) {
+        final float vehicleYaw = Mth.rotLerp(partialTicks, chimera.yBodyRotO, chimera.yBodyRot);
+        final float headYaw = Mth.rotLerp(partialTicks, rider.yHeadRotO, rider.yHeadRot);
+        final float headOffset = Mth.clamp(Mth.wrapDegrees(headYaw - vehicleYaw), -85.0F, 85.0F);
+        float bodyYaw = headYaw - headOffset;
+        if (headOffset * headOffset > 2500.0F) {
+            bodyYaw += headOffset * 0.2F;
+        }
+
+        return bodyYaw;
+    }
+
+    private static RenderedPart part(NomenDubiumEntityModel<ChimeraEntity> model, String texture) {
+        final Map<ChimeraPaletteVariant, ResourceLocation> sprites = new EnumMap<>(ChimeraPaletteVariant.class);
         for (final ChimeraPaletteVariant palette : ChimeraPaletteVariant.values()) {
             if (palette != ChimeraPaletteVariant.NORMAL) {
-                paletteSprites.put(palette, sprite(texture, palette.parsedName()));
+                sprites.put(palette, NomenDubium.of("entity/chimera/" + texture + "_" + palette.parsedName()));
             }
 
         }
 
-        return new RenderedPart(model, baseTexture, paletteSprites);
+        return new RenderedPart(model, NomenDubium.of("textures/entity/chimera/" + texture + ".png"), sprites);
     }
 
     private static RenderedBody body(ChimeraBodyModel model, String texture) {
         return new RenderedBody(model, part(model, texture));
-    }
-
-    private static SpriteId sprite(String texture, String palette) {
-        return new SpriteId(Sheets.ARMOR_TRIMS_SHEET, NomenDubium.of("entity/chimera/" + texture + "_" + palette));
-    }
-
-    private void submitPart(RenderedPart part, ChimeraRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector) {
-        if (part == null) {
-            return;
-        }
-
-        // Procedural animation call
-        part.model().setupAnim(state);
-
-        if (state.palette == ChimeraPaletteVariant.NORMAL) {
-            submitNodeCollector.submitModel(part.model(), state, poseStack, part.baseTexture(), state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor, null);
-
-            return;
-        }
-
-        submitNodeCollector.submitModel(part.model(), state, poseStack, state.lightCoords, OverlayTexture.NO_OVERLAY, -1, part.paletteSprites().get(state.palette), sprites, state.outlineColor, null);
-    }
-
-    private void submitAttachedPart(RenderedPart part, ChimeraBodyModel body, Attachment attachment, ChimeraRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector) {
-        if (part == null) {
-            return;
-        }
-
-        poseStack.pushPose();
-        
-        switch (attachment) {
-            case HEAD -> body.moveToHead(poseStack);
-            case TAIL -> body.moveToTail(poseStack);
-            case BACK -> body.moveToBack(poseStack);
-        }
-
-        submitPart(part, state, poseStack, submitNodeCollector);
-
-        poseStack.popPose();
-    }
-
-    private void submitRider(AvatarRenderState rider, ChimeraBodyModel body, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
-        if (rider == null || this.isFirstPersonCameraRider(rider)) {
-            return;
-        }
-
-        final EntityRenderer<?, ? super AvatarRenderState> renderer = this.entityRenderDispatcher.getRenderer(rider);
-        if (renderer == null) {
-            return;
-        }
-
-        poseStack.pushPose();
-
-        body.moveToRider(poseStack);
-        poseStack.scale(-1.0F, -1.0F, 1.0F);
-        poseStack.translate(0, -0.57, 0);
-        renderer.submit(rider, poseStack, submitNodeCollector, camera);
-
-        poseStack.popPose();
-    }
-
-    private boolean isFirstPersonCameraRider(AvatarRenderState rider) {
-        return this.entityRenderDispatcher.camera != null && this.entityRenderDispatcher.camera.entity() != null && this.entityRenderDispatcher.camera.entity().getId() == rider.id && this.entityRenderDispatcher.options.getCameraType().isFirstPerson();
     }
 
     private enum Attachment {
@@ -236,9 +203,9 @@ public final class ChimeraRenderer extends EntityRenderer<ChimeraEntity, Chimera
     }
 
     private record RenderedPart(
-        EntityModel<ChimeraRenderState> model,
-        Identifier baseTexture,
-        Map<ChimeraPaletteVariant, SpriteId> paletteSprites
+            NomenDubiumEntityModel<ChimeraEntity> model,
+            ResourceLocation baseTexture,
+            Map<ChimeraPaletteVariant, ResourceLocation> paletteSprites
     ) {
         ;;
     }

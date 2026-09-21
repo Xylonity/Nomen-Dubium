@@ -59,6 +59,10 @@ public enum ChimeraPaletteVariant {
         return ordinal();
     }
 
+    public float modelPredicateValue() {
+        return (ordinal() + 1.0F) / VALUES.length;
+    }
+
     public String parsedName() {
         return name().toLowerCase(Locale.ROOT);
     }

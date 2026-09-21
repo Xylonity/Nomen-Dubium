@@ -1,17 +1,17 @@
 package dev.xylonity.nomendubium.client.entity.model.chimera.normal.body;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.xylonity.nomendubium.client.entity.model.NomenDubiumEntityModel;
 import dev.xylonity.nomendubium.client.entity.model.chimera.normal.head.ChimeraHeadModel;
-import dev.xylonity.nomendubium.client.entity.render.chimera.ChimeraRenderState;
+import dev.xylonity.nomendubium.common.entity.ChimeraEntity;
 import java.util.Arrays;
-import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import org.joml.Matrix4fc;
 import org.joml.Quaternionf;
 
 /// A chunk of the implementation is based off citadel's helpers for procedural animation handling (specially for wings motion)
-public abstract class ChimeraBodyModel extends EntityModel<ChimeraRenderState> {
+public abstract class ChimeraBodyModel extends NomenDubiumEntityModel<ChimeraEntity> {
 
     private final ModelPart body;
     private final ModelPart torso;
@@ -32,20 +32,21 @@ public abstract class ChimeraBodyModel extends EntityModel<ChimeraRenderState> {
         this.gait = gait;
         this.legs = Arrays.stream(legSpecs).map(spec -> spec.resolve(this.body)).toArray(LegRig[]::new);
         this.headDirection = Math.signum(
-            this.headConnection.getInitialPose().z() - this.tailConnection.getInitialPose().z()
+            this.headConnection.getInitialPose().z - this.tailConnection.getInitialPose().z
         );
 
     }
 
     @Override
-    public void setupAnim(ChimeraRenderState state) {
-        super.setupAnim(state);
+    public void setupAnim(ChimeraEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+        super.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+        final float partialTick = ageInTicks - entity.tickCount;
 
-        final float sit = ChimeraHeadModel.smoothstep(Mth.clamp(state.sitProgress, 0.0F, 1.0F));
-        final float movement = Mth.clamp(state.walkAnimationSpeed, 0.0F, 1.0F) * (1.0F - sit);
+        final float sit = ChimeraHeadModel.smoothstep(Mth.clamp(entity.getSitAnimation(partialTick), 0.0F, 1.0F));
+        final float movement = Mth.clamp(limbSwingAmount, 0.0F, 1.0F) * (1.0F - sit);
         final float idleWeight = 1.0F - movement;
-        final float walkPhase = state.walkAnimationPos * gait.frequency;
-        final float idlePhase = state.ageInTicks * 0.09F;
+        final float walkPhase = limbSwing * gait.frequency;
+        final float idlePhase = ageInTicks * 0.09F;
 
         // Small whole body translation inherited by every part
         this.body.y += Mth.sin(idlePhase) * gait.idleBob * idleWeight;
@@ -70,14 +71,14 @@ public abstract class ChimeraBodyModel extends EntityModel<ChimeraRenderState> {
             animateSittingLeg(leg, sit);
         }
 
-        this.animateLankyJump(state, sit);
-        this.animateSnortingExtraction(state);
-        this.animateBeakedPeck(state);
+        this.animateLankyJump(entity, partialTick, sit);
+        this.animateSnortingExtraction(entity, partialTick);
+        this.animateBeakedPeck(entity, partialTick);
 
     }
 
-    private void animateBeakedPeck(ChimeraRenderState state) {
-        final float progress = Mth.clamp(state.beakedPeckProgress, 0, 1);
+    private void animateBeakedPeck(ChimeraEntity entity, float partialTick) {
+        final float progress = Mth.clamp(entity.getBeakedPeckProgress(partialTick), 0, 1);
         if (progress <= 0) {
             return;
         }
@@ -88,8 +89,8 @@ public abstract class ChimeraBodyModel extends EntityModel<ChimeraRenderState> {
         this.torso.xRot -= this.headDirection * 0.05F * sin;
     }
 
-    private void animateSnortingExtraction(ChimeraRenderState state) {
-        final float progress = Mth.clamp(state.snortingExtractionProgress, 0, 1);
+    private void animateSnortingExtraction(ChimeraEntity entity, float partialTick) {
+        final float progress = Mth.clamp(entity.getSnortingExtractionProgress(partialTick), 0, 1);
         if (progress <= 0) {
             return;
         }
@@ -105,13 +106,14 @@ public abstract class ChimeraBodyModel extends EntityModel<ChimeraRenderState> {
         this.torso.xRot += bounce * 0.045F;
     }
 
-    private void animateLankyJump(ChimeraRenderState state, float sit) {
-        if (this.gait != Gait.LANKY || state.jumpProgress <= 0 || sit > 0) {
+    private void animateLankyJump(ChimeraEntity entity, float partialTick, float sit) {
+        final float jumpProgress = entity.getJumpAnimation(partialTick);
+        if (this.gait != Gait.LANKY || jumpProgress <= 0 || sit > 0) {
             return;
         }
 
-        final float jump = ChimeraHeadModel.smoothstep(Mth.clamp(state.jumpProgress, 0.0F, 1.0F));
-        if (state.onGround) {
+        final float jump = ChimeraHeadModel.smoothstep(Mth.clamp(jumpProgress, 0.0F, 1.0F));
+        if (entity.onGround()) {
             // Brief landing squash
             this.body.yScale -= 0.155f * jump;
             this.body.xScale += 0.132f * jump;
@@ -120,16 +122,16 @@ public abstract class ChimeraBodyModel extends EntityModel<ChimeraRenderState> {
             return;
         }
 
-        final float velocityStretch = Mth.clamp(Math.abs(state.verticalSpeed) * 0.075F, 0.0F, 0.045F);
+        final float velocityStretch = Mth.clamp(Math.abs((float) entity.getDeltaMovement().y) * 0.075F, 0.0F, 0.045F);
         final float stretch = (0.045F + velocityStretch) * jump;
         this.body.yScale += stretch;
         this.body.xScale -= stretch * 0.28F;
         this.body.zScale -= stretch * 0.28F;
 
         for (final LegRig leg : this.legs) {
-            final float legZ = leg.upper.getInitialPose().z();
-            final float headZ = this.headConnection.getInitialPose().z();
-            final float tailZ = this.tailConnection.getInitialPose().z();
+            final float legZ = leg.upper.getInitialPose().z;
+            final float headZ = this.headConnection.getInitialPose().z;
+            final float tailZ = this.tailConnection.getInitialPose().z;
             final float rear = Mth.clamp((legZ - headZ) / (tailZ - headZ), 0.0F, 1.0F);
             leg.upper.xRot += this.headDirection * Mth.lerp(rear, 0.10F, 0.22F) * jump;
         }
@@ -141,9 +143,9 @@ public abstract class ChimeraBodyModel extends EntityModel<ChimeraRenderState> {
             return;
         }
 
-        final float headZ = this.headConnection.getInitialPose().z();
-        final float tailZ = this.tailConnection.getInitialPose().z();
-        final float legZ = leg.upper.getInitialPose().z();
+        final float headZ = this.headConnection.getInitialPose().z;
+        final float tailZ = this.tailConnection.getInitialPose().z;
+        final float legZ = leg.upper.getInitialPose().z;
         final float length = tailZ - headZ;
         final float rearPosition = Math.abs(length) < 1.0E-4F ? 0.5F : Mth.clamp((legZ - headZ) / length, 0.0F, 1.0F);
         final float rearWeight = ChimeraHeadModel.smoothstep(rearPosition);
@@ -154,7 +156,7 @@ public abstract class ChimeraBodyModel extends EntityModel<ChimeraRenderState> {
         final float fold = Mth.lerp(rearWeight, this.gait.frontBrace, this.gait.rearFold);
         leg.upper.xRot += this.headDirection * fold * sit;
 
-        final float side = Math.signum(leg.upper.getInitialPose().x());
+        final float side = Math.signum(leg.upper.getInitialPose().x);
         leg.upper.zRot -= side * this.gait.sitSplay * rearWeight * sit;
 
         if (leg.lower != null) {
@@ -198,6 +200,12 @@ public abstract class ChimeraBodyModel extends EntityModel<ChimeraRenderState> {
 
     public void moveToBack(PoseStack poseStack) {
         this.moveTo(this.backConnection, poseStack);
+
+        final Quaternionf initialBodyRotation = new Quaternionf().rotationZYX(this.body.getInitialPose().zRot, this.body.getInitialPose().yRot, this.body.getInitialPose().xRot);
+        final Quaternionf bodyAnimation = new Quaternionf()
+            .rotationZYX(this.body.zRot, this.body.yRot, this.body.xRot)
+            .mul(initialBodyRotation.conjugate());
+        poseStack.mulPose(bodyAnimation);
     }
 
     public void moveToRider(PoseStack poseStack) {
@@ -216,14 +224,14 @@ public abstract class ChimeraBodyModel extends EntityModel<ChimeraRenderState> {
         // Inherits the animated rotation without carrying authored base rotations into the player model
         final Quaternionf bodyRotation = new Quaternionf().rotationZYX(this.body.zRot, this.body.yRot, this.body.xRot);
         final Quaternionf initialBodyRotation = new Quaternionf().rotationZYX(
-            this.body.getInitialPose().zRot(),
-            this.body.getInitialPose().yRot(),
-            this.body.getInitialPose().xRot()
+            this.body.getInitialPose().zRot,
+            this.body.getInitialPose().yRot,
+            this.body.getInitialPose().xRot
         );
         final Quaternionf initialTorsoRotation = new Quaternionf().rotationZYX(
-            this.torso.getInitialPose().zRot(),
-            this.torso.getInitialPose().yRot(),
-            this.torso.getInitialPose().xRot()
+            this.torso.getInitialPose().zRot,
+            this.torso.getInitialPose().yRot,
+            this.torso.getInitialPose().xRot
         );
 
         final Quaternionf torsoAnimation = new Quaternionf().rotationZYX(this.torso.zRot, this.torso.yRot, this.torso.xRot)

@@ -1,0 +1,22 @@
+{
+    "type":  "minecraft:crafting_shaped",
+    "category":  "misc",
+    "group":  "wooden_sign",
+    "key":  {
+                "#":  {
+                          "item":  "nomendubium:coalden_planks"
+                      },
+                "X":  {
+                          "item":  "minecraft:stick"
+                      }
+            },
+    "pattern":  [
+                    "###",
+                    "###",
+                    " X "
+                ],
+    "result":  {
+                   "item":  "nomendubium:coalden_sign",
+                   "count":  3
+               }
+}

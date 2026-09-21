@@ -13,7 +13,7 @@ public final class CoaldenTrapDoorBlock extends TrapDoorBlock {
     private static final int FIRE_SPREAD_SPEED = 1;
 
     public CoaldenTrapDoorBlock(BlockSetType blockSetType, Properties properties) {
-        super(blockSetType, properties);
+        super(properties, blockSetType);
     }
 
     public int getFlammability(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {

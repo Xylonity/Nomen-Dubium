@@ -9,7 +9,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DoublePlantBlock;
@@ -54,7 +53,7 @@ public final class LifeHollowFeature extends Feature<NoneFeatureConfiguration> {
         final int roofY = Math.min(surfaceY - random.nextIntBetweenInclusive(3, 4), lowestSurfaceY - 3);
         // Irregular shape
         final HollowShape shape = HollowShape.random(random, radiusX, radiusZ, roofY - random.nextIntBetweenInclusive(10, 12), roofY);
-        if (shape.minFloorY() <= level.getMinY() + 6) {
+        if (shape.minFloorY() <= level.getMinBuildHeight() + 6) {
             return false;
         }
 
@@ -358,7 +357,7 @@ public final class LifeHollowFeature extends Feature<NoneFeatureConfiguration> {
                     case 2, 3, 4 -> Blocks.LILY_OF_THE_VALLEY.defaultBlockState();
                     case 5, 6, 7 -> Blocks.WHITE_TULIP.defaultBlockState();
                     case 8, 9, 10 -> Blocks.FERN.defaultBlockState();
-                    case 11, 12, 13, 14, 15, 16, 17, 18, 19 -> Blocks.SHORT_GRASS.defaultBlockState();
+                    case 11, 12, 13, 14, 15, 16, 17, 18, 19 -> Blocks.GRASS.defaultBlockState();
                     default -> Blocks.MOSS_CARPET.defaultBlockState();
                 };
 
@@ -459,12 +458,12 @@ public final class LifeHollowFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     private static boolean spawnTreeOfLife(WorldGenLevel level, int centerX, int centerZ, int floorY) {
-        final TreeOfLifeEntity tree = NomenDubiumEntities.TREE_OF_LIFE.get().create(level.getLevel(), EntitySpawnReason.STRUCTURE);
+        final TreeOfLifeEntity tree = NomenDubiumEntities.TREE_OF_LIFE.get().create(level.getLevel());
         if (tree == null) {
             return false;
         }
 
-        tree.snapTo(centerX + 0.5, floorY + 1.0, centerZ + 0.5, 90, 0);
+        tree.moveTo(centerX + 0.5, floorY + 1.0, centerZ + 0.5, 90, 0);
         tree.setYBodyRot(90);
         tree.setYHeadRot(90);
         tree.yRotO = 90;
@@ -477,11 +476,11 @@ public final class LifeHollowFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     private static boolean isGrassySurface(BlockState state) {
-        return state.is(BlockTags.GRASS_BLOCKS) || state.is(BlockTags.DIRT) || state.is(BlockTags.MOSS_BLOCKS);
+        return state.is(Blocks.GRASS_BLOCK) || state.is(BlockTags.DIRT) || state.is(Blocks.MOSS_BLOCK);
     }
 
     private static boolean isGrassyGround(BlockState state) {
-        return state.is(BlockTags.GRASS_BLOCKS) || state.is(BlockTags.DIRT) || state.is(BlockTags.MOSS_BLOCKS);
+        return state.is(Blocks.GRASS_BLOCK) || state.is(BlockTags.DIRT) || state.is(Blocks.MOSS_BLOCK);
     }
 
     private static boolean isNaturalStone(BlockState state) {
@@ -501,13 +500,13 @@ public final class LifeHollowFeature extends Feature<NoneFeatureConfiguration> {
 
     private static int surfaceY(WorldGenLevel level, int x, int z) {
         final int top = level.getHeight(Heightmap.Types.WORLD_SURFACE_WG, x, z) - 1;
-        final int lowestScan = Math.max(level.getMinY(), top - 24);
+        final int lowestScan = Math.max(level.getMinBuildHeight(), top - 24);
         final BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
         for (int y = top; y >= lowestScan; y--) {
             mutableBlockPos.set(x, y, z);
             final BlockState state = level.getBlockState(mutableBlockPos);
             if (
-                state.is(BlockTags.GRASS_BLOCKS) || state.is(BlockTags.DIRT) || state.is(BlockTags.MUD) || state.is(BlockTags.MOSS_BLOCKS)
+                state.is(Blocks.GRASS_BLOCK) || state.is(BlockTags.DIRT) || state.is(Blocks.MUD) || state.is(Blocks.MOSS_BLOCK)
                 || state.is(BlockTags.SAND) || state.is(BlockTags.TERRACOTTA) || state.is(BlockTags.BASE_STONE_OVERWORLD) || state.is(Blocks.GRAVEL)
             ) {
                 return y;

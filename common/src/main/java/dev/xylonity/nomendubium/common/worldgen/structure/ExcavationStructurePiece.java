@@ -39,7 +39,7 @@ public final class ExcavationStructurePiece extends StructurePiece {
 
     public ExcavationStructurePiece(CompoundTag tag) {
         super(NomenDubiumWorldgen.EXCAVATION_PIECE.get(), tag);
-        this.variant = ExcavationStructure.Variant.byName(tag.getStringOr("variant", "OPEN_PIT"));
+        this.variant = ExcavationStructure.Variant.byName(tag.contains("variant") ? tag.getString("variant") : "OPEN_PIT");
     }
 
     @Override

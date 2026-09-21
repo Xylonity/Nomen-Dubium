@@ -37,7 +37,9 @@ public class AmberItem extends DescribedItem {
         final Component message;
         if (variant >= 5) {
             final BlockPos hollow = level.findNearestMapStructure(LIFE_HOLLOWS, player.blockPosition(), 100, false);
-            message = hollow == null ? Component.translatable("vision.nomendubium.amber.life_hollow_missing") : Component.translatable("vision.nomendubium.amber.4", hollow.getX(), hollow.getZ());
+            message = hollow == null ? Component.translatable("vision.nomendubium.amber.life_hollow_missing") : Component.translatable("vision.nomendubium.amber.4",
+                    Component.literal(Integer.toString(hollow.getX())),
+                    Component.literal(Integer.toString(hollow.getZ())));
         }
         else {
             message = Component.translatable("vision.nomendubium.amber." + variant);

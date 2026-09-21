@@ -1,8 +1,8 @@
 package dev.xylonity.nomendubium.client.entity.model.chimera.normal.back;
 
 import dev.xylonity.nomendubium.client.entity.model.chimera.ChimeraModelConnections;
-import dev.xylonity.nomendubium.client.entity.render.chimera.ChimeraRenderState;
-import net.minecraft.client.model.EntityModel;
+import dev.xylonity.nomendubium.client.entity.model.NomenDubiumEntityModel;
+import dev.xylonity.nomendubium.common.entity.ChimeraEntity;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
@@ -11,7 +11,7 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 
-public final class DorsalScalesModel extends EntityModel<ChimeraRenderState> {
+public final class DorsalScalesModel extends NomenDubiumEntityModel<ChimeraEntity> {
 
 	public DorsalScalesModel(ModelPart root) {
 		super(root);

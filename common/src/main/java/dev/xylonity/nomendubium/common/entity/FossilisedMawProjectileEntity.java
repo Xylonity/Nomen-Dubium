@@ -2,10 +2,11 @@ package dev.xylonity.nomendubium.common.entity;
 
 import java.util.HashSet;
 import java.util.Set;
-import dev.xylonity.nomendubium.common.item.FossilisedMawItem;
+import dev.xylonity.nomendubium.config.NomenDubiumConfig;
 import dev.xylonity.nomendubium.registry.NomenDubiumEntities;
 import dev.xylonity.nomendubium.registry.NomenDubiumItems;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -15,11 +16,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.ItemSupplier;
-import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -41,22 +40,22 @@ public final class FossilisedMawProjectileEntity extends AbstractArrow implement
     }
 
     public FossilisedMawProjectileEntity(ServerLevel level, LivingEntity owner, ItemStack thrownItem, boolean creativePickup) {
-        super(NomenDubiumEntities.FOSSILISED_MAW.get(), owner, level, thrownItem.copyWithCount(1), null);
+        super(NomenDubiumEntities.FOSSILISED_MAW.get(), owner, level);
         pickup = creativePickup ? Pickup.CREATIVE_ONLY : Pickup.ALLOWED;
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.@NonNull Builder entityData) {
-        super.defineSynchedData(entityData);
-        entityData.define(IMPACT_FACE, -1);
-        entityData.define(IMPACT_ROLL, 0F);
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(IMPACT_FACE, -1);
+        this.entityData.define(IMPACT_ROLL, 0F);
     }
 
     @Override
     public void tick() {
         super.tick();
 
-        if (isEmbedded() && !isInGround() && !level().isClientSide()) {
+        if (isEmbedded() && !this.inGround && !level().isClientSide()) {
             setImpactDirection(null);
         }
     }
@@ -67,12 +66,13 @@ public final class FossilisedMawProjectileEntity extends AbstractArrow implement
         super.onHitBlock(hitResult);
 
         final Direction impactDirection = hitResult.getDirection();
-        final Vec3 surfaceNormal = impactDirection.getUnitVec3();
+        final Vec3 surfaceNormal = Vec3.atLowerCornerOf(impactDirection.getNormal());
         setImpactDirection(impactDirection);
         setImpactRoll(computeImpactRoll(impactDirection, movement));
 
         // The renderer compensates from this depth and leaves the top left part of the model slightly buried
         setPos(hitResult.getLocation().subtract(surfaceNormal.scale(EXTRA_DEPTH)));
+        setDeltaMovement(Vec3.ZERO);
     }
 
     @Override
@@ -84,7 +84,7 @@ public final class FossilisedMawProjectileEntity extends AbstractArrow implement
 
         // Hurts and ignores entities on hit
         if (level() instanceof ServerLevel serverLevel) {
-            hitEntity.hurtServer(serverLevel, damageSources().thrown(this, getOwner()), FossilisedMawItem.ATTACK_DAMAGE);
+            hitEntity.hurt(damageSources().thrown(this, getOwner()), NomenDubiumConfig.FOSSILISED_MAW_DAMAGE);
         }
 
     }
@@ -98,18 +98,19 @@ public final class FossilisedMawProjectileEntity extends AbstractArrow implement
     public void onSyncedDataUpdated(@NonNull EntityDataAccessor<?> dataAccessor) {
         super.onSyncedDataUpdated(dataAccessor);
         if (IMPACT_FACE.equals(dataAccessor)) {
-            setBoundingBox(makeBoundingBox(position()));
+            setBoundingBox(makeBoundingBox());
         }
 
     }
 
     @Override
-    protected @NonNull AABB makeBoundingBox(@NonNull Vec3 position) {
+    protected @NonNull AABB makeBoundingBox() {
         if (!isEmbedded()) {
-            return super.makeBoundingBox(position);
+            return super.makeBoundingBox();
         }
 
-        final Vec3 normal = getImpactDirection().getUnitVec3();
+        final Vec3 normal = Vec3.atLowerCornerOf(getImpactDirection().getNormal());
+        final Vec3 position = position();
         final double offset = EXTRA_DEPTH + 0.38D;
         final double centerX = position.x + normal.x * offset;
         final double centerY = position.y + normal.y * offset;
@@ -124,14 +125,13 @@ public final class FossilisedMawProjectileEntity extends AbstractArrow implement
     }
 
     @Override
-    protected @NonNull ItemStack getDefaultPickupItem() {
+    protected @NonNull ItemStack getPickupItem() {
         return new ItemStack(NomenDubiumItems.FOSSILISED_MAW.get());
     }
 
     @Override
     public @NonNull ItemStack getItem() {
-        final ItemStack pickupStack = getPickupItemStackOrigin();
-        return pickupStack.isEmpty() ? new ItemStack(NomenDubiumItems.FOSSILISED_MAW.get()) : pickupStack;
+        return new ItemStack(NomenDubiumItems.FOSSILISED_MAW.get());
     }
 
     public boolean isEmbedded() {
@@ -167,7 +167,7 @@ public final class FossilisedMawProjectileEntity extends AbstractArrow implement
             return Mth.wrapDegrees(tickCount * SPIN_DEGREES + variation);
         }
 
-        final Vec3 outward = impactDirection.getUnitVec3();
+        final Vec3 outward = Vec3.atLowerCornerOf(impactDirection.getNormal());
         final Vec3 movement = incomingMovement.subtract(outward.scale(incomingMovement.dot(outward)));
         if (movement.lengthSqr() < 1.0E-6D) {
             return variation;
@@ -183,20 +183,20 @@ public final class FossilisedMawProjectileEntity extends AbstractArrow implement
     }
 
     @Override
-    protected void readAdditionalSaveData(@NonNull ValueInput input) {
-        super.readAdditionalSaveData(input);
-        final int face = input.getIntOr("impact_face", -1);
+    public void readAdditionalSaveData(@NonNull CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+        final int face = tag.contains("impact_face") ? tag.getInt("impact_face") : -1;
         entityData.set(IMPACT_FACE, face >= 0 && face < Direction.values().length ? face : -1);
-        entityData.set(IMPACT_ROLL, input.getFloatOr("impact_roll", 0.0F));
-        setBoundingBox(makeBoundingBox(position()));
+        entityData.set(IMPACT_ROLL, tag.getFloat("impact_roll"));
+        setBoundingBox(makeBoundingBox());
     }
 
     @Override
-    protected void addAdditionalSaveData(@NonNull ValueOutput output) {
-        super.addAdditionalSaveData(output);
+    public void addAdditionalSaveData(@NonNull CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
         if (isEmbedded()) {
-            output.putInt("impact_face", entityData.get(IMPACT_FACE));
-            output.putFloat("impact_roll", getImpactRoll());
+            tag.putInt("impact_face", entityData.get(IMPACT_FACE));
+            tag.putFloat("impact_roll", getImpactRoll());
         }
 
     }

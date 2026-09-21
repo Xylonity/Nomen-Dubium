@@ -3,9 +3,11 @@ package dev.xylonity.nomendubium.common.entity;
 import java.util.HashSet;
 import java.util.Set;
 import dev.xylonity.nomendubium.common.item.PrehistoricMawItem;
+import dev.xylonity.nomendubium.config.NomenDubiumConfig;
 import dev.xylonity.nomendubium.registry.NomenDubiumEntities;
 import dev.xylonity.nomendubium.registry.NomenDubiumItems;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -21,8 +23,6 @@ import net.minecraft.world.entity.projectile.ItemSupplier;
 import net.minecraft.world.entity.projectile.ThrowableProjectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -39,7 +39,7 @@ public final class PrehistoricMawProjectileEntity extends ThrowableProjectile im
 
     private boolean returnsToInventory = true;
     private ItemStack thrownItem = ItemStack.EMPTY;
-    private float launchDamage = PrehistoricMawItem.BASE_ATTACK_DAMAGE;
+    private float launchDamage = NomenDubiumConfig.PREHISTORIC_MAW_BASE_DAMAGE;
 
     private final Set<Integer> hitEntityIds = new HashSet<>();
 
@@ -56,12 +56,12 @@ public final class PrehistoricMawProjectileEntity extends ThrowableProjectile im
         setPos(owner.getX(), owner.getEyePosition().y - 0.1D, owner.getZ());
         this.thrownItem = thrownItem.copyWithCount(1);
         this.returnsToInventory = returnsToInventory;
-        this.launchDamage = Math.clamp(launchDamage, PrehistoricMawItem.BASE_ATTACK_DAMAGE, PrehistoricMawItem.MAX_ATTACK_DAMAGE);
+        this.launchDamage = Mth.clamp(launchDamage, NomenDubiumConfig.PREHISTORIC_MAW_BASE_DAMAGE, NomenDubiumConfig.PREHISTORIC_MAW_MAX_DAMAGE);
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.@NonNull Builder entityData) {
-        entityData.define(RETURNING, false);
+    protected void defineSynchedData() {
+        this.entityData.define(RETURNING, false);
     }
 
     @Override
@@ -142,7 +142,7 @@ public final class PrehistoricMawProjectileEntity extends ThrowableProjectile im
         // The offset fades near the owner producing a wide arc
         Vec3 tangent = new Vec3(-targetDirection.z, 0, targetDirection.x);
         if (tangent.lengthSqr() < 1.0E-6D) {
-            tangent = Vec3.X_AXIS;
+            tangent = new Vec3(1, 0, 0);
         }
         else {
             tangent = tangent.normalize();
@@ -184,7 +184,7 @@ public final class PrehistoricMawProjectileEntity extends ThrowableProjectile im
 
         final Entity owner = getOwner();
         if (level() instanceof ServerLevel serverLevel) {
-            final boolean hurt = hitEntity.hurtServer(serverLevel, damageSources().thrown(this, owner), launchDamage);
+            final boolean hurt = hitEntity.hurt(damageSources().thrown(this, owner), launchDamage);
             if (hurt && hitEntity instanceof LivingEntity livingEntity && livingEntity.isDeadOrDying()) {
                 PrehistoricMawItem.recordKill(thrownItem);
             }
@@ -207,7 +207,7 @@ public final class PrehistoricMawProjectileEntity extends ThrowableProjectile im
         };
 
         if (reflected.lengthSqr() < 1.0E-6D) {
-            reflected = hitResult.getDirection().getUnitVec3();
+            reflected = Vec3.atLowerCornerOf(hitResult.getDirection().getNormal());
         }
 
         setDeltaMovement(reflected.scale(0.9D));
@@ -225,8 +225,8 @@ public final class PrehistoricMawProjectileEntity extends ThrowableProjectile im
     }
 
     @Override
-    protected double getDefaultGravity() {
-        return 0;
+    protected float getGravity() {
+        return 0.0F;
     }
 
     @Override
@@ -250,7 +250,7 @@ public final class PrehistoricMawProjectileEntity extends ThrowableProjectile im
         if (returnsToInventory) {
             final ItemStack returnedStack = getItem().copyWithCount(1);
             if (!(owner instanceof Player player) || !player.getInventory().add(returnedStack)) {
-                owner.spawnAtLocation(level, returnedStack);
+                owner.spawnAtLocation(returnedStack);
             }
 
         }
@@ -262,33 +262,33 @@ public final class PrehistoricMawProjectileEntity extends ThrowableProjectile im
 
     private void dropReturnedItem(ServerLevel level) {
         if (returnsToInventory) {
-            spawnAtLocation(level, getItem().copyWithCount(1));
+            spawnAtLocation(getItem().copyWithCount(1));
         }
 
     }
 
     @Override
-    protected void readAdditionalSaveData(ValueInput input) {
-        super.readAdditionalSaveData(input);
-        entityData.set(RETURNING, input.getBooleanOr("returning", false));
-        returnsToInventory = input.getBooleanOr("returns_to_inventory", true);
-        thrownItem = input.read("item", ItemStack.CODEC).orElse(ItemStack.EMPTY);
-        launchDamage = Math.clamp(input.getFloatOr("launch_damage", PrehistoricMawItem.getAttackDamage(thrownItem)),
-            PrehistoricMawItem.BASE_ATTACK_DAMAGE, PrehistoricMawItem.MAX_ATTACK_DAMAGE
+    protected void readAdditionalSaveData(CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+        entityData.set(RETURNING, tag.getBoolean("returning"));
+        returnsToInventory = !tag.contains("returns_to_inventory") || tag.getBoolean("returns_to_inventory");
+        thrownItem = tag.contains("item") ? ItemStack.of(tag.getCompound("item")) : ItemStack.EMPTY;
+        launchDamage = Mth.clamp(tag.contains("launch_damage") ? tag.getFloat("launch_damage") : PrehistoricMawItem.getAttackDamage(thrownItem),
+            NomenDubiumConfig.PREHISTORIC_MAW_BASE_DAMAGE, NomenDubiumConfig.PREHISTORIC_MAW_MAX_DAMAGE
         );
 
     }
 
     @Override
-    protected void addAdditionalSaveData(ValueOutput output) {
-        super.addAdditionalSaveData(output);
-        output.putBoolean("returning", isReturning());
-        output.putBoolean("returns_to_inventory", returnsToInventory);
+    protected void addAdditionalSaveData(CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        tag.putBoolean("returning", isReturning());
+        tag.putBoolean("returns_to_inventory", returnsToInventory);
         if (!thrownItem.isEmpty()) {
-            output.store("item", ItemStack.CODEC, thrownItem);
+            tag.put("item", thrownItem.save(new CompoundTag()));
         }
 
-        output.putFloat("launch_damage", launchDamage);
+        tag.putFloat("launch_damage", launchDamage);
 
     }
 

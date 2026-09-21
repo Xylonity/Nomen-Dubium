@@ -42,6 +42,18 @@ repositories {
         name = 'BlameJared'
         url = 'https://maven.blamejared.com'
     }
+    maven {
+        name = "Xylonity's vault"
+        url = 'https://raw.githubusercontent.com/Xylonity/maven-centralish/main/maven/'
+    }
+    maven {
+        name = 'Terraformers'
+        url = 'https://maven.terraformersmc.com/'
+    }
+}
+
+dependencies {
+    compileOnly 'org.jspecify:jspecify:1.0.0'
 }
 
 // Declare capabilities on the outgoing configurations.
@@ -97,6 +109,7 @@ processResources {
             'description'                  : project.description,
             "forge_version"                : forge_version,
             "forge_loader_version_range"   : forge_loader_version_range,
+            'knightlib_version'             : knightlib_version,
             'credits'                      : credits,
             'java_version'                 : java_version
     ]

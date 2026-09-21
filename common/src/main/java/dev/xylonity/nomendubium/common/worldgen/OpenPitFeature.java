@@ -7,8 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -22,7 +21,6 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
-import net.minecraft.world.level.storage.loot.LootTable;
 
 /// Derived from my own implementation
 ///
@@ -35,7 +33,7 @@ public final class OpenPitFeature extends Feature<NoneFeatureConfiguration> {
     private static final double SPIRAL_TURNS = 1.35D;
     private static final double SANDY_RIM_RADIUS = 1.30D;
 
-    private static final ResourceKey<LootTable> ARCHAEOLOGY_LOOT = ResourceKey.create(Registries.LOOT_TABLE, NomenDubium.of("archaeology/open_pit"));
+    private static final ResourceLocation ARCHAEOLOGY_LOOT = NomenDubium.of("archaeology/open_pit");
 
     public OpenPitFeature(Codec<NoneFeatureConfiguration> codec) {
         super(codec);
@@ -54,7 +52,7 @@ public final class OpenPitFeature extends Feature<NoneFeatureConfiguration> {
             random.nextDouble() * Math.PI * 2.0, random.nextDouble() * Math.PI * 2.0, random.nextDouble() * Math.PI * 2.0, random.nextBoolean() ? 1 : -1
         );
 
-        if (centerSurface - shape.depth() <= level.getMinY() + 4) {
+        if (centerSurface - shape.depth() <= level.getMinBuildHeight() + 4) {
             return false;
         }
 
@@ -434,7 +432,7 @@ public final class OpenPitFeature extends Feature<NoneFeatureConfiguration> {
 
     private static EntityType<?> randomSpawnerMob(RandomSource random) {
         return switch (random.nextInt(10)) {
-            case 0, 1 -> EntityType.PARCHED;
+            case 0, 1 -> EntityType.HUSK;
             case 2, 3, 4 -> EntityType.HUSK;
             default -> EntityType.CAVE_SPIDER;
         };
@@ -539,12 +537,12 @@ public final class OpenPitFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     private static boolean isNaturalStone(BlockState state) {
-        return state.is(BlockTags.OVERWORLD_CARVER_REPLACEABLES) || state.is(BlockTags.GRASS_BLOCKS) || state.is(BlockTags.DIRT) || state.is(BlockTags.SAND) || state.is(BlockTags.TERRACOTTA)
+        return state.is(BlockTags.OVERWORLD_CARVER_REPLACEABLES) || state.is(Blocks.GRASS_BLOCK) || state.is(BlockTags.DIRT) || state.is(BlockTags.SAND) || state.is(BlockTags.TERRACOTTA)
             || state.is(BlockTags.SNOW) || state.is(Blocks.GRAVEL) || state.is(Blocks.PACKED_MUD) || state.is(Blocks.MUD);
     }
 
     private static boolean isLooseSurface(BlockState state) {
-        return state.is(BlockTags.GRASS_BLOCKS) || state.is(BlockTags.DIRT) || state.is(BlockTags.SAND) || state.is(BlockTags.SNOW)
+        return state.is(Blocks.GRASS_BLOCK) || state.is(BlockTags.DIRT) || state.is(BlockTags.SAND) || state.is(BlockTags.SNOW)
                 || state.is(Blocks.GRAVEL) || state.is(Blocks.PACKED_MUD) || state.is(Blocks.MUD);
     }
 
@@ -573,7 +571,7 @@ public final class OpenPitFeature extends Feature<NoneFeatureConfiguration> {
     private static int surfaceY(WorldGenLevel level, int x, int z) {
         final BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
         int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z) - 1;
-        while (y > level.getMinY()) {
+        while (y > level.getMinBuildHeight()) {
             mutableBlockPos.set(x, y, z);
 
             final BlockState state = level.getBlockState(mutableBlockPos);

@@ -54,11 +54,11 @@ public final class ChimeraRoarGoal extends Goal {
         this.chimera.getNavigation().stop();
         this.chimera.playSound(NomenDubiumSounds.CHIMERA_ROAR.get(), 1.2F, 0.95F + this.chimera.getRandom().nextFloat() * 0.1F);
 
-        final ServerLevel level = getServerLevel(this.chimera);
+        final ServerLevel level = (ServerLevel) this.chimera.level();
         for (final LivingEntity ally : level.getEntitiesOfClass(LivingEntity.class, this.chimera.getBoundingBox()
                 .inflate(10), entity -> this.chimera.isChimeraAlly(entity)
         )) {
-            ally.addEffect(new MobEffectInstance(MobEffects.STRENGTH, COOLDOWN_TICKS, 0), this.chimera);
+            ally.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, COOLDOWN_TICKS, 0), this.chimera);
         }
 
     }

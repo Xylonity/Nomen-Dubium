@@ -1,51 +1,35 @@
 package dev.xylonity.nomendubium.client.projectile.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.xylonity.nomendubium.NomenDubium;
-import dev.xylonity.nomendubium.client.entity.model.chimera.skeleton.back.BoneyPlatesFossilModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.skeleton.back.DorsalScalesFossilModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.skeleton.back.SpikesFossilModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.skeleton.back.SpineSailFossilModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.skeleton.back.ThornsFossilModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.skeleton.body.AvianSkeletonModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.skeleton.body.HulkingSkeletonModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.skeleton.body.LankySkeletonModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.skeleton.body.PuffySkeletonModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.skeleton.body.ShelledSkeletonModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.skeleton.head.BeakedSkullModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.skeleton.head.CrunchingSkullModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.skeleton.head.ShieldedSkullModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.skeleton.head.SnarledSkullModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.skeleton.head.SnortingSkullModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.skeleton.tail.ClubbedTailFossilModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.skeleton.tail.FanTailFossilModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.skeleton.tail.SpearedTailFossilModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.skeleton.tail.SpikedTailFossilModel;
-import dev.xylonity.nomendubium.client.entity.model.chimera.skeleton.tail.StubbyTailFossilModel;
+import dev.xylonity.nomendubium.client.entity.model.NomenDubiumEntityModel;
+import dev.xylonity.nomendubium.client.entity.model.chimera.skeleton.back.*;
+import dev.xylonity.nomendubium.client.entity.model.chimera.skeleton.body.*;
+import dev.xylonity.nomendubium.client.entity.model.chimera.skeleton.head.*;
+import dev.xylonity.nomendubium.client.entity.model.chimera.skeleton.tail.*;
 import dev.xylonity.nomendubium.client.util.SkeletonPartModelLayers;
 import dev.xylonity.nomendubium.common.entity.SkeletonPartEntity;
 import dev.xylonity.nomendubium.common.entity.skeleton.SkeletonPartType;
-import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import org.jspecify.annotations.NonNull;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.EnumMap;
 import java.util.Map;
 
-public final class SkeletonPartRenderer extends EntityRenderer<SkeletonPartEntity, SkeletonPartRenderState> {
+public final class SkeletonPartRenderer extends EntityRenderer<SkeletonPartEntity> {
 
     private final Map<SkeletonPartType, RenderedPart> parts = new EnumMap<>(SkeletonPartType.class);
 
     public SkeletonPartRenderer(EntityRendererProvider.Context context) {
         super(context);
-        shadowRadius = 0F;
+        this.shadowRadius = 0.0F;
 
         put(SkeletonPartType.HULKING_BODY, new HulkingSkeletonModel(context.bakeLayer(SkeletonPartModelLayers.HULKING_BODY)));
         put(SkeletonPartType.SHELLED_BODY, new ShelledSkeletonModel(context.bakeLayer(SkeletonPartModelLayers.SHELLED_BODY)));
@@ -73,77 +57,68 @@ public final class SkeletonPartRenderer extends EntityRenderer<SkeletonPartEntit
     }
 
     @Override
-    public void submit(SkeletonPartRenderState state, @NonNull PoseStack poseStack, @NonNull SubmitNodeCollector submitNodeCollector, @NonNull CameraRenderState camera) {
-        final RenderedPart renderedPart = parts.get(state.partType);
-        if (renderedPart == null) {
+    public void render(SkeletonPartEntity entity, float entityYaw, float partialTicks, PoseStack poses, MultiBufferSource buffers, int packedLight) {
+        final RenderedPart part = this.parts.get(entity.getPartType());
+        if (part == null) {
             return;
         }
 
-        poseStack.pushPose();
-        applyRevivalAnimation(state, poseStack);
-        poseStack.mulPose(Axis.YP.rotationDegrees(180F - state.yRot));
-        poseStack.scale(-1F, -1F, 1F);
-        if (state.partType.isBody()) {
-            poseStack.translate(0F, -1.501F, 0F);
+        poses.pushPose();
+
+        applyRevivalAnimation(entity, partialTicks, poses);
+
+        poses.mulPose(Axis.YP.rotationDegrees(180.0F - Mth.lerp(partialTicks, entity.yRotO, entity.getYRot())));
+        poses.scale(-1.0F, -1.0F, 1.0F);
+        if (entity.getPartType().isBody()) {
+            poses.translate(0.0F, -1.501F, 0.0F);
         }
 
-        submitNodeCollector.submitModel(
-            renderedPart.model,
-            state,
-            poseStack,
-            renderedPart.texture,
-            state.lightCoords,
-            OverlayTexture.NO_OVERLAY,
-            state.outlineColor,
-            null
-        );
+        part.model().resetPose();
+        part.model().setupAnim(entity, 0, 0, entity.tickCount + partialTicks, 0, 0);
 
-        poseStack.popPose();
+        final VertexConsumer consumer = buffers.getBuffer(part.model().renderType(part.texture()));
+        part.model().renderToBuffer(poses, consumer, packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
 
-        super.submit(state, poseStack, submitNodeCollector, camera);
+        poses.popPose();
+
+        super.render(entity, entityYaw, partialTicks, poses, buffers, packedLight);
     }
 
     @Override
-    public SkeletonPartRenderState createRenderState() {
-        return new SkeletonPartRenderState();
+    public ResourceLocation getTextureLocation(SkeletonPartEntity entity) {
+        final RenderedPart part = this.parts.get(entity.getPartType());
+        return part == null ? NomenDubium.of("textures/entity/skeleton/hulking_body.png") : part.texture();
     }
 
-    @Override
-    public void extractRenderState(SkeletonPartEntity entity, SkeletonPartRenderState state, float partialTicks) {
-        super.extractRenderState(entity, state, partialTicks);
-        state.partType = entity.getPartType();
-        state.yRot = entity.getYRot(partialTicks);
-        final int revivalTicks = entity.getRevivalTicks();
-        state.revivalTicks = revivalTicks > 0 ? revivalTicks + partialTicks : 0F;
-        state.pivot = entity.getRevivalPivotOffset();
-    }
-
-    private static void applyRevivalAnimation(SkeletonPartRenderState state, PoseStack poseStack) {
-        if (state.revivalTicks <= 0F) {
+    private static void applyRevivalAnimation(SkeletonPartEntity entity, float partialTicks, PoseStack poses) {
+        final int ticks = entity.getRevivalTicks();
+        if (ticks <= 0) {
             return;
         }
 
-        final float progress = Mth.clamp(state.revivalTicks / SkeletonPartEntity.REVIVAL_DURATION, 0F, 1F);
+        final float revivalTicks = ticks + partialTicks;
+        final float progress = Mth.clamp(revivalTicks / SkeletonPartEntity.REVIVAL_DURATION, 0, 1);
         final float intensity = Mth.sin(progress * Mth.PI);
         final float lift = intensity * 0.7F;
-        final float spin = progress * 720F + Mth.sin(state.revivalTicks * 0.45F) * intensity * 12F;
-        final float tilt = Mth.sin(state.revivalTicks * 0.32F) * intensity * 7F;
-        final float pulse = 1F + Mth.sin(state.revivalTicks * 0.7F) * intensity * 0.06f;
+        final float spin = progress * 720.0F + Mth.sin(revivalTicks * 0.45F) * intensity * 12.0F;
+        final float tilt = Mth.sin(revivalTicks * 0.32F) * intensity * 7.0F;
+        final float pulse = 1.0F + Mth.sin(revivalTicks * 0.7F) * intensity * 0.06F;
+        final Vec3 pivot = entity.getRevivalPivotOffset();
 
-        poseStack.translate(state.pivot.x, state.pivot.y + lift, state.pivot.z);
-        poseStack.mulPose(Axis.YP.rotationDegrees(spin));
-        poseStack.mulPose(Axis.ZP.rotationDegrees(tilt));
-        poseStack.scale(pulse, pulse, pulse);
-        poseStack.translate(-state.pivot.x, -state.pivot.y, -state.pivot.z);
+        poses.translate(pivot.x, pivot.y + lift, pivot.z);
+        poses.mulPose(Axis.YP.rotationDegrees(spin));
+        poses.mulPose(Axis.ZP.rotationDegrees(tilt));
+        poses.scale(pulse, pulse, pulse);
+        poses.translate(-pivot.x, -pivot.y, -pivot.z);
     }
 
-    private void put(SkeletonPartType type, EntityModel<SkeletonPartRenderState> model) {
-        parts.put(type, new RenderedPart(model, NomenDubium.of("textures/entity/skeleton/" + type.texture() + ".png")));
+    private void put(SkeletonPartType type, NomenDubiumEntityModel<SkeletonPartEntity> model) {
+        this.parts.put(type, new RenderedPart(model, NomenDubium.of("textures/entity/skeleton/" + type.texture() + ".png")));
     }
 
     private record RenderedPart(
-            EntityModel<SkeletonPartRenderState> model,
-            Identifier texture
+            NomenDubiumEntityModel<SkeletonPartEntity> model,
+            ResourceLocation texture
     ) {
         ;;
     }

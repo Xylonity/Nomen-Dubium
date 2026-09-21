@@ -10,7 +10,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.projectile.ItemSupplier;
-import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
@@ -27,12 +27,12 @@ public final class HuntersArrowEntity extends AbstractArrow implements ItemSuppl
     }
 
     public HuntersArrowEntity(Level level, LivingEntity owner, ItemStack arrowStack, ItemStack weaponStack) {
-        super(NomenDubiumEntities.HUNTERS_ARROW.get(), owner, level, arrowStack, weaponStack);
+        super(NomenDubiumEntities.HUNTERS_ARROW.get(), owner, level);
         setBaseDamage(BASE_DAMAGE);
     }
 
     public HuntersArrowEntity(Level level, double x, double y, double z, ItemStack arrowStack, ItemStack weaponStack) {
-        super(NomenDubiumEntities.HUNTERS_ARROW.get(), x, y, z, level, arrowStack, weaponStack);
+        super(NomenDubiumEntities.HUNTERS_ARROW.get(), x, y, z, level);
         setBaseDamage(BASE_DAMAGE);
     }
 
@@ -43,7 +43,7 @@ public final class HuntersArrowEntity extends AbstractArrow implements ItemSuppl
         if (hitEntity instanceof LivingEntity livingEntity && hasEquippedArmor(livingEntity)) {
             final Vec3 pos = hitResult.getLocation();
             if (!level().isClientSide()) {
-                level().playSound(null, pos.x, pos.y, pos.z, SoundEvents.SHIELD_BLOCK.value(), SoundSource.NEUTRAL, 0.8F, 1.2F);
+                level().playSound(null, pos.x, pos.y, pos.z, SoundEvents.SHIELD_BLOCK, SoundSource.NEUTRAL, 0.8F, 1.2F);
             }
 
             discard();
@@ -55,7 +55,7 @@ public final class HuntersArrowEntity extends AbstractArrow implements ItemSuppl
     }
 
     private static boolean hasEquippedArmor(LivingEntity entity) {
-        return hasArmor(entity, EquipmentSlot.HEAD) || hasArmor(entity, EquipmentSlot.CHEST) || hasArmor(entity, EquipmentSlot.LEGS) || hasArmor(entity, EquipmentSlot.FEET) || hasArmor(entity, EquipmentSlot.BODY);
+        return hasArmor(entity, EquipmentSlot.HEAD) || hasArmor(entity, EquipmentSlot.CHEST) || hasArmor(entity, EquipmentSlot.LEGS) || hasArmor(entity, EquipmentSlot.FEET);
     }
 
     private static boolean hasArmor(LivingEntity entity, EquipmentSlot slot) {
@@ -64,15 +64,8 @@ public final class HuntersArrowEntity extends AbstractArrow implements ItemSuppl
             return false;
         }
 
-        final boolean[] providesArmor = {false};
-        equippedStack.forEachModifier(slot, (attribute, modifier) -> {
-            if (attribute.equals(Attributes.ARMOR) && modifier.amount() > 0) {
-                providesArmor[0] = true;
-            }
-
-        });
-
-        return providesArmor[0];
+        return equippedStack.getAttributeModifiers(slot).get(Attributes.ARMOR).stream()
+            .anyMatch(modifier -> modifier.getAmount() > 0);
     }
 
     @Override
@@ -91,14 +84,13 @@ public final class HuntersArrowEntity extends AbstractArrow implements ItemSuppl
     }
 
     @Override
-    protected @NonNull ItemStack getDefaultPickupItem() {
+    protected @NonNull ItemStack getPickupItem() {
         return new ItemStack(NomenDubiumItems.HUNTERS_ARROW.get());
     }
 
     @Override
     public @NonNull ItemStack getItem() {
-        final ItemStack pickupStack = getPickupItemStackOrigin();
-        return pickupStack.isEmpty() ? new ItemStack(NomenDubiumItems.HUNTERS_ARROW.get()) : pickupStack;
+        return new ItemStack(NomenDubiumItems.HUNTERS_ARROW.get());
     }
 
 }

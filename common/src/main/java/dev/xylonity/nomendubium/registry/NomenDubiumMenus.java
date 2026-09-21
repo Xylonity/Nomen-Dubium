@@ -1,19 +1,19 @@
 package dev.xylonity.nomendubium.registry;
 
+import dev.xylonity.knightlib.api.registrar.ResourceDispatcher;
+import dev.xylonity.knightlib.api.registrar.ResourceEntry;
+import dev.xylonity.knightlib.api.registrar.ResourceRegistry;
 import dev.xylonity.nomendubium.NomenDubium;
 import dev.xylonity.nomendubium.common.menu.PaleontologyTableMenu;
 import dev.xylonity.nomendubium.common.menu.TreeOfLifeMenu;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.inventory.MenuType;
-
-import java.util.function.Supplier;
 
 public final class NomenDubiumMenus {
 
-    public static void init() {
-        ;;
-    }
+    public static final ResourceRegistry<MenuType<?>> MENUS = ResourceDispatcher.create(BuiltInRegistries.MENU, NomenDubium.MOD_ID);
 
-    public static final Supplier<MenuType<PaleontologyTableMenu>> PALEONTOLOGY_TABLE = NomenDubium.PLATFORM.registerMenu("paleontology_table", PaleontologyTableMenu::new);
-    public static final Supplier<MenuType<TreeOfLifeMenu>> TREE_OF_LIFE = NomenDubium.PLATFORM.registerMenu("tree_of_life", TreeOfLifeMenu::new);
+    public static final ResourceEntry<MenuType<PaleontologyTableMenu>> PALEONTOLOGY_TABLE = MENUS.registerMenu("paleontology_table", (syncId, inventory, buffer) -> new PaleontologyTableMenu(syncId, inventory));
+    public static final ResourceEntry<MenuType<TreeOfLifeMenu>> TREE_OF_LIFE = MENUS.registerMenu("tree_of_life", (syncId, inventory, buffer) -> new TreeOfLifeMenu(syncId, inventory));
 
 }

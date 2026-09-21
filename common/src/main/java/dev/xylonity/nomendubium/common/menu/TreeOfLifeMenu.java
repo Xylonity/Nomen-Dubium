@@ -67,7 +67,7 @@ public final class TreeOfLifeMenu extends AbstractContainerMenu {
         });
 
         // Inventory
-        this.addStandardInventorySlots(inventory, 10, 86);
+        this.addPlayerInventory(inventory, 10, 86);
 
         // Extra slots
         this.addDataSlots(data);
@@ -127,7 +127,7 @@ public final class TreeOfLifeMenu extends AbstractContainerMenu {
         }
 
         if (stack.isEmpty()) {
-            slot.setByPlayer(ItemStack.EMPTY);
+            slot.set(ItemStack.EMPTY);
         }
         else {
             slot.setChanged();
@@ -140,6 +140,20 @@ public final class TreeOfLifeMenu extends AbstractContainerMenu {
         slot.onTake(player, stack);
 
         return original;
+    }
+
+    private void addPlayerInventory(Inventory inventory, int x, int y) {
+        for (int row = 0; row < 3; row++) {
+            for (int column = 0; column < 9; column++) {
+                this.addSlot(new Slot(inventory, column + row * 9 + 9, x + column * 18, y + row * 18));
+            }
+
+        }
+
+        for (int column = 0; column < 9; column++) {
+            this.addSlot(new Slot(inventory, column, x + column * 18, y + 58));
+        }
+
     }
 
     public int getProgressWidth(int maximumWidth) {

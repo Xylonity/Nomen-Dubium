@@ -15,7 +15,7 @@ public final class CoaldenStandingSignBlock extends StandingSignBlock {
     private static final int FIRE_SPREAD_SPEED = 1;
 
     public CoaldenStandingSignBlock(WoodType woodType, Properties properties) {
-        super(woodType, properties);
+        super(properties, woodType);
     }
 
     @Override

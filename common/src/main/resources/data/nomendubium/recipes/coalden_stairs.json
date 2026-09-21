@@ -1,0 +1,19 @@
+{
+    "type":  "minecraft:crafting_shaped",
+    "category":  "building",
+    "group":  "wooden_stairs",
+    "key":  {
+                "#":  {
+                          "item":  "nomendubium:coalden_planks"
+                      }
+            },
+    "pattern":  [
+                    "#  ",
+                    "## ",
+                    "###"
+                ],
+    "result":  {
+                   "item":  "nomendubium:coalden_stairs",
+                   "count":  4
+               }
+}

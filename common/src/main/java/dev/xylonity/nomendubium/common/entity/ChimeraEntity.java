@@ -11,6 +11,7 @@ import dev.xylonity.nomendubium.common.entity.variant.ChimeraHeadVariant;
 import dev.xylonity.nomendubium.common.entity.variant.ChimeraPaletteVariant;
 import dev.xylonity.nomendubium.common.entity.variant.ChimeraTailVariant;
 import dev.xylonity.nomendubium.common.entity.skeleton.SkeletonPartType;
+import dev.xylonity.nomendubium.config.NomenDubiumConfig;
 import dev.xylonity.nomendubium.registry.NomenDubiumBlocks;
 import dev.xylonity.nomendubium.registry.NomenDubiumItems;
 import dev.xylonity.nomendubium.registry.NomenDubiumSounds;
@@ -18,7 +19,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -38,6 +38,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.PlayerRideableJumping;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.TamableAnimal;
@@ -61,8 +62,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.NonNull;
@@ -161,21 +161,19 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     public ChimeraEntity(EntityType<? extends ChimeraEntity> type, Level level) {
         super(type, level);
         this.resetRootGrowthCooldown();
+        this.applyBodyAttributes();
     }
 
     public static AttributeSupplier.Builder createAttributes() {
         return TamableAnimal.createMobAttributes()
             .add(Attributes.MAX_HEALTH, 50.0)
-            .add(Attributes.MOVEMENT_SPEED, 0.30)
-            .add(Attributes.ATTACK_DAMAGE, 10.0)
+            .add(Attributes.MOVEMENT_SPEED, NomenDubiumConfig.HULKING_CHIMERA_SPEED)
+            .add(Attributes.ATTACK_DAMAGE, NomenDubiumConfig.CRUNCHING_CHIMERA_HEAD_DAMAGE + 2.0)
             .add(Attributes.ATTACK_KNOCKBACK, 1.2)
             .add(Attributes.ARMOR, 4.0)
             .add(Attributes.KNOCKBACK_RESISTANCE, 0.75)
             .add(Attributes.FOLLOW_RANGE, 32.0)
-            .add(Attributes.JUMP_STRENGTH, 0.48)
-            .add(Attributes.STEP_HEIGHT, 1.25)
-            .add(Attributes.SAFE_FALL_DISTANCE, 4.0)
-            .add(Attributes.WATER_MOVEMENT_EFFICIENCY, 0.1);
+            .add(Attributes.JUMP_STRENGTH, 0.48);
     }
 
     @Override
@@ -193,34 +191,35 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         this.targetSelector.addGoal(2, new OwnerHurtTargetGoal(this));
         this.targetSelector.addGoal(3, new HurtByTargetGoal(this));
         this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 5, true, false,
-            (target, _) -> this.isValidHostileTarget(target)
+            target -> this.isValidHostileTarget(target)
         ));
 
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.@NonNull Builder entityData) {
-        super.defineSynchedData(entityData);
-        entityData.define(BODY, ChimeraBodyVariant.HULKING.index());
-        entityData.define(HEAD, ChimeraHeadVariant.CRUNCHING.index());
-        entityData.define(TAIL, ChimeraTailVariant.SPIKED.index());
-        entityData.define(BACK, ChimeraBackVariant.NONE.index());
-        entityData.define(PALETTE, ChimeraPaletteVariant.NORMAL.index());
-        entityData.define(HOSTILE, false);
-        entityData.define(MAIN_ACTION, ACTION_FOLLOW);
-        entityData.define(ROARING, false);
-        entityData.define(SHIELD_CHARGING, false);
-        entityData.define(SHIELD_CHARGE_Y_ROT, 0.0F);
-        entityData.define(CRUNCHING_BITING, false);
-        entityData.define(SNORTING_EXTRACTING, false);
-        entityData.define(BEAKED_PECKING, false);
-        entityData.define(BEAKED_PECK_Y_ROT, 0.0F);
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(BODY, ChimeraBodyVariant.HULKING.index());
+        this.entityData.define(HEAD, ChimeraHeadVariant.CRUNCHING.index());
+        this.entityData.define(TAIL, ChimeraTailVariant.SPIKED.index());
+        this.entityData.define(BACK, ChimeraBackVariant.NONE.index());
+        this.entityData.define(PALETTE, ChimeraPaletteVariant.NORMAL.index());
+        this.entityData.define(HOSTILE, false);
+        this.entityData.define(MAIN_ACTION, ACTION_FOLLOW);
+        this.entityData.define(ROARING, false);
+        this.entityData.define(SHIELD_CHARGING, false);
+        this.entityData.define(SHIELD_CHARGE_Y_ROT, 0.0F);
+        this.entityData.define(CRUNCHING_BITING, false);
+        this.entityData.define(SNORTING_EXTRACTING, false);
+        this.entityData.define(BEAKED_PECKING, false);
+        this.entityData.define(BEAKED_PECK_Y_ROT, 0.0F);
     }
 
     @Override
     public void onSyncedDataUpdated(@NonNull EntityDataAccessor<?> dataAccessor) {
         super.onSyncedDataUpdated(dataAccessor);
         if (BODY.equals(dataAccessor)) {
+            this.applyBodyAttributes();
             this.refreshDimensions();
         }
 
@@ -440,7 +439,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
                 this.setTarget(null);
                 this.level().broadcastEntityEvent(this, (byte) 7);
                 this.setMainAction(ACTION_SIT, player);
-                return InteractionResult.SUCCESS_SERVER;
+                return InteractionResult.CONSUME;
             }
 
             // Or heals the chimera
@@ -450,7 +449,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
                     this.heal(10);
                 }
 
-                return this.level().isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+                return this.level().isClientSide() ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
             }
 
         }
@@ -464,7 +463,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
                     this.setMainAction(this.getMainAction() + 1, player);
                 }
 
-                return this.level().isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+                return this.level().isClientSide() ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
             }
 
             // Rides the chimera on normal interaction
@@ -476,7 +475,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
                     player.startRiding(this);
                 }
 
-                return this.level().isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+                return this.level().isClientSide() ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
             }
 
         }
@@ -510,7 +509,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
                 default -> "main_action.nomendubium.client_message.is_following";
             };
 
-            player.sendOverlayMessage(Component.translatable(messageKey, this.getName()));
+            player.displayClientMessage(Component.translatable(messageKey, this.getName()), true);
         }
 
     }
@@ -521,7 +520,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     }
 
     @Override
-    protected EntityDimensions getDefaultDimensions(Pose pose) {
+    public EntityDimensions getDimensions(Pose pose) {
         return this.getBodySkeletonType().entityDimensions();
     }
 
@@ -543,6 +542,11 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     @Override
     protected boolean canAddPassenger(Entity passenger) {
         return this.getPassengers().isEmpty() && !this.isHostile() && this.isTame() && passenger instanceof Player player && this.isOwnedBy(player);
+    }
+
+    @Override
+    public double getPassengersRidingOffset() {
+        return this.getBbHeight();
     }
 
     @Override
@@ -576,7 +580,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
             final Vec3 movement = this.getDeltaMovement();
             final Vec3 direction = this.getShieldChargeDirection();
             this.setDeltaMovement(direction.x * SHIELDED_CHARGE_SPEED, movement.y, direction.z * SHIELDED_CHARGE_SPEED);
-            this.needsSync = true;
+            this.hasImpulse = true;
         }
 
         // Short charge to the front
@@ -586,12 +590,12 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
             final Vec3 movement = this.getDeltaMovement();
             final Vec3 direction = this.getBeakedPeckDirection();
             this.setDeltaMovement(direction.x * speed, movement.y, direction.z * speed);
-            this.needsSync = true;
+            this.hasImpulse = true;
         }
 
         // Jump
-        if (this.isLocalInstanceAuthoritative() && this.playerJumpPendingScale > 0.0F && this.onGround()) {
-            final double jumpPower = this.getJumpPower(this.playerJumpPendingScale);
+        if (this.isControlledByLocalInstance() && this.playerJumpPendingScale > 0.0F && this.onGround()) {
+            final double jumpPower = this.getAttributeValue(Attributes.JUMP_STRENGTH) * this.playerJumpPendingScale * this.getBlockJumpFactor() + this.getJumpBoostPower();
             final Vec3 movement = this.getDeltaMovement();
             this.setDeltaMovement(movement.x, jumpPower, movement.z);
             if (travelVector.z > 0.0) {
@@ -599,7 +603,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
                 this.setDeltaMovement(this.getDeltaMovement().add(-0.35F * Mth.sin(rotation) * this.playerJumpPendingScale, 0, 0.35F * Mth.cos(rotation) * this.playerJumpPendingScale));
             }
 
-            this.needsSync = true;
+            this.hasImpulse = true;
             this.playerJumpPendingScale = 0.0F;
         }
 
@@ -671,13 +675,13 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         final ServerLevel level = (ServerLevel) this.level();
         final float rotation = this.getYRot() * Mth.DEG_TO_RAD;
         final Vec3 direction = new Vec3(-Mth.sin(rotation), 0, Mth.cos(rotation));
-        final AABB hitbox = this.getBoundingBox().expandTowards(direction.scale(2.2)).inflate(0.4, 0.3, 0.4);
+        final AABB hitbox = this.getBoundingBox().expandTowards(direction.scale(2.2)).inflate(0.8, 0.45, 0.8);
 
         for (final LivingEntity target : level.getEntitiesOfClass(LivingEntity.class, hitbox, entity ->
                 !this.isChimeraAlly(entity) && !this.hasPassenger(entity)
                         && direction.dot(entity.position().subtract(this.position()).multiply(1, 0, 1)) > 0
         )) {
-            this.doHurtTarget(level, target);
+            this.doHurtTarget(target);
         }
 
         this.playSound(SoundEvents.PHANTOM_BITE, 1.0F, 0.88F + this.getRandom().nextFloat() * 0.12F);
@@ -809,7 +813,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
                 !this.isChimeraAlly(entity) && !this.hasPassenger(entity)
                         && direction.dot(entity.position().subtract(this.position()).multiply(1, 0, 1)) > 0
         )) {
-            target.hurtServer(level, level.damageSources().mobAttack(this), 3.5f);
+            target.hurt(level.damageSources().mobAttack(this), NomenDubiumConfig.BEAKED_CHIMERA_PECK_DAMAGE);
             this.applyBeakedPoison(target);
         }
 
@@ -873,14 +877,14 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         final Vec3 direction = this.getShieldChargeDirection();
         final Vec3 movement = this.getDeltaMovement();
         this.setDeltaMovement(direction.x * SHIELDED_CHARGE_SPEED, movement.y, direction.z * SHIELDED_CHARGE_SPEED);
-        this.needsSync = true;
+        this.hasImpulse = true;
 
         final ServerLevel level = (ServerLevel) this.level();
         final AABB hitbox = this.getBoundingBox().expandTowards(direction.scale(0.8D)).inflate(0.35D, 0.2D, 0.35D);
         for (final LivingEntity target : level.getEntitiesOfClass(LivingEntity.class, hitbox, entity ->
                 !this.isChimeraAlly(entity) && !this.hasPassenger(entity) && this.shieldChargeHitEntities.add(entity.getId())
         )) {
-            final boolean hurt = this.doHurtTarget(level, target);
+            final boolean hurt = this.doHurtTarget(target);
             if (hurt) {
                 this.playSound(SoundEvents.GOAT_RAM_IMPACT, 1.0F, 0.9F + this.getRandom().nextFloat() * 0.12F);
             }
@@ -909,13 +913,14 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     protected void updateWalkAnimation(float movementDistance) {
         final float speed = (float) this.getAttributeValue(Attributes.MOVEMENT_SPEED);
         final float animationSpeed = speed > 0 ? Mth.clamp(movementDistance / speed, 0, 1) : 0;
-        this.walkAnimation.update(animationSpeed, 0.4F, 0.85f);
+        this.walkAnimation.update(animationSpeed, 0.4F);
     }
 
     @Override
     public void onPlayerJump(int jumpPower) {
         if (jumpPower >= 0) {
-            this.playerJumpPendingScale = this.getPlayerJumpPendingScale(Mth.clamp(jumpPower, 0, 90));
+            final int clampedPower = Mth.clamp(jumpPower, 0, 90);
+            this.playerJumpPendingScale = clampedPower >= 90 ? 1.0F : 0.4F + 0.4F * clampedPower / 90.0F;
         }
 
     }
@@ -936,6 +941,16 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     @Override
     public void travel(Vec3 travelVector) {
         super.travel(travelVector);
+        if (this.isInWater()) {
+            float efficiency = this.getWaterMovementEfficiency();
+            if (!this.onGround()) {
+                efficiency *= 0.5F;
+            }
+
+            final float extraAcceleration = (this.getSpeed() - 0.02F) * efficiency;
+            this.moveRelative(extraAcceleration * this.getWaterSlowDown(), travelVector);
+        }
+
         if (this.getBodyVariant() == ChimeraBodyVariant.SHELLED && (this.isInWater() || this.isInLava())) {
             final Vec3 movement = this.getDeltaMovement();
             final double horizontalBoost = this.isInLava() ? 1.65 : 1.15;
@@ -946,7 +961,41 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
 
     @Override
     protected float getWaterSlowDown() {
-        return this.getBodyVariant() == ChimeraBodyVariant.SHELLED ? 0.95F : super.getWaterSlowDown();
+        float efficiency = this.getWaterMovementEfficiency();
+        if (!this.onGround()) {
+            efficiency *= 0.5F;
+        }
+
+        final float baseSlowDown = this.getBodyVariant() == ChimeraBodyVariant.SHELLED ? 0.95F : super.getWaterSlowDown();
+        return Mth.lerp(efficiency, baseSlowDown, 0.54600006F);
+    }
+
+    private float getWaterMovementEfficiency() {
+        return switch (this.getBodyVariant()) {
+            case SHELLED -> 0.5F;
+            case PUFFY -> 0.2F;
+            default -> 0.1F;
+        };
+
+    }
+
+    @Override
+    public int getMaxFallDistance() {
+        return Math.max(super.getMaxFallDistance(), Mth.ceil(this.getSafeFallDistance()));
+    }
+
+    @Override
+    protected int calculateFallDamage(float fallDistance, float damageMultiplier) {
+        return super.calculateFallDamage(fallDistance - this.getSafeFallDistance() + 3.0F, damageMultiplier);
+    }
+
+    private float getSafeFallDistance() {
+        return switch (this.getBodyVariant()) {
+            case AVIAN -> 5.0F;
+            case LANKY -> 12.0F;
+            default -> 4.0F;
+        };
+
     }
 
     @Override
@@ -965,7 +1014,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     @Override
     public void push(Entity other) {
         super.push(other);
-        if (this.level().isClientSide() || this.getBodyVariant() != ChimeraBodyVariant.HULKING || this.getDeltaMovement().horizontalDistanceSqr() < 0.0025 || this.hasPassenger(other) || this.considersEntityAsAlly(other)) {
+        if (this.level().isClientSide() || this.getBodyVariant() != ChimeraBodyVariant.HULKING || this.getDeltaMovement().horizontalDistanceSqr() < 0.0025 || this.hasPassenger(other) || this.isChimeraAlly(other)) {
             return;
         }
 
@@ -978,34 +1027,36 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     }
 
     @Override
-    public boolean doHurtTarget(ServerLevel level, Entity target) {
-        if (this.getHeadVariant() == ChimeraHeadVariant.SNARLED) {
+    public boolean doHurtTarget(Entity target) {
+        if (this.isChimeraAlly(target) || this.getHeadVariant() == ChimeraHeadVariant.SNARLED) {
             return false;
         }
 
         final boolean hurt;
         if (this.getTailVariant() == ChimeraTailVariant.SPEARED && target instanceof LivingEntity living) {
-            hurt = living.hurtServer(level, level.damageSources().indirectMagic(this, this), (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE));
+            hurt = living.hurt(this.damageSources().indirectMagic(this, this), (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE));
             if (hurt) {
-                this.playAttackSound();
+                this.playSound(SoundEvents.PLAYER_ATTACK_STRONG, 1.0F, 1.0F);
             }
 
         }
         else {
-            hurt = super.doHurtTarget(level, target);
+            hurt = super.doHurtTarget(target);
         }
 
         if (!hurt || !(target instanceof LivingEntity living)) {
             return hurt;
         }
 
-        this.applyHeadAttack(level, living);
-        this.applyTailAttack(level, living);
+        this.applyHeadAttack(living);
+        if (this.level() instanceof ServerLevel serverLevel) {
+            this.applyTailAttack(serverLevel, living);
+        }
 
         return true;
     }
 
-    private void applyHeadAttack(ServerLevel level, LivingEntity target) {
+    private void applyHeadAttack(LivingEntity target) {
         switch (this.getHeadVariant()) {
             case CRUNCHING, SNARLED, SNORTING -> { ;; }
             case SHIELDED -> target.knockback(1.6, this.getX() - target.getX(), this.getZ() - target.getZ());
@@ -1027,24 +1078,33 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         final AABB sweepArea = primaryTarget.getBoundingBox().inflate(4.0, 1.5, 4.0);
         final float sweepDamage = (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE) * 0.45F;
         for (final LivingEntity target : level.getEntitiesOfClass(LivingEntity.class, sweepArea, entity ->
-            entity != this && entity != primaryTarget && !this.considersEntityAsAlly(entity) && (this.isHostile() || entity.getType() == primaryTarget.getType())
+            entity != this && entity != primaryTarget && !this.isChimeraAlly(entity) && (this.isHostile() || entity.getType() == primaryTarget.getType())
         )) {
-            target.hurtServer(level, level.damageSources().mobAttack(this), sweepDamage);
+            target.hurt(level.damageSources().mobAttack(this), sweepDamage);
         }
 
     }
 
     public boolean isValidHostileTarget(LivingEntity target) {
-        return this.isHostile() && target != this && target.isAlive() && !this.hasPassenger(target) && !(target instanceof ChimeraEntity chimera && chimera.isHostile());
+        return this.isHostile() && target.isAlive() && !this.hasPassenger(target) && !this.isChimeraAlly(target);
     }
 
     public boolean isChimeraAlly(Entity entity) {
-        return entity == this || this.considersEntityAsAlly(entity) || this.isHostile() && entity instanceof ChimeraEntity chimera && chimera.isHostile();
+        return entity == this || this.isAlliedTo(entity) || this.hasSameOwner(entity) || this.isHostile() && entity instanceof ChimeraEntity chimera && chimera.isHostile();
+    }
+
+    private boolean hasSameOwner(Entity entity) {
+        return this.getOwnerUUID() != null && entity instanceof OwnableEntity ownable && this.getOwnerUUID().equals(ownable.getOwnerUUID());
+    }
+
+    @Override
+    public boolean wantsToAttack(LivingEntity target, LivingEntity owner) {
+        return !this.isChimeraAlly(target) && super.wantsToAttack(target, owner);
     }
 
     @Override
     public boolean canAttack(LivingEntity target) {
-        return this.isHostile() ? this.isValidHostileTarget(target) && super.canAttack(target) : super.canAttack(target);
+        return !this.isChimeraAlly(target) && (!this.isHostile() || this.isValidHostileTarget(target)) && super.canAttack(target);
     }
 
     @Override
@@ -1058,31 +1118,36 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     }
 
     @Override
-    protected void readAdditionalSaveData(ValueInput input) {
-        super.readAdditionalSaveData(input);
-        this.setBodyVariant(ChimeraBodyVariant.index(input.getIntOr("bodyvariant", ChimeraBodyVariant.HULKING.index())));
-        this.setHeadVariant(ChimeraHeadVariant.index(input.getIntOr("headvariant", ChimeraHeadVariant.CRUNCHING.index())));
-        this.setTailVariant(ChimeraTailVariant.index(input.getIntOr("tailvariant", ChimeraTailVariant.SPIKED.index())));
-        this.setBackVariant(ChimeraBackVariant.index(input.getIntOr("backvariant", ChimeraBackVariant.NONE.index())));
-        final int legacyPalette = input.getBooleanOr("junglepalette", false) ? ChimeraPaletteVariant.JUNGLE.index() : ChimeraPaletteVariant.NORMAL.index();
-        this.setPaletteVariant(ChimeraPaletteVariant.index(input.getIntOr("palettevariant", legacyPalette)));
+    public void readAdditionalSaveData(CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+        this.setBodyVariant(ChimeraBodyVariant.index(tag.contains("bodyvariant") ? tag.getInt("bodyvariant") : ChimeraBodyVariant.HULKING.index()));
+        this.setHeadVariant(ChimeraHeadVariant.index(tag.contains("headvariant") ? tag.getInt("headvariant") : ChimeraHeadVariant.CRUNCHING.index()));
+        this.setTailVariant(ChimeraTailVariant.index(tag.contains("tailvariant") ? tag.getInt("tailvariant") : ChimeraTailVariant.SPIKED.index()));
+        this.setBackVariant(ChimeraBackVariant.index(tag.contains("backvariant") ? tag.getInt("backvariant") : ChimeraBackVariant.NONE.index()));
+
+        final int legacyPalette = tag.getBoolean("junglepalette") ? ChimeraPaletteVariant.JUNGLE.index() : ChimeraPaletteVariant.NORMAL.index();
+        this.setPaletteVariant(ChimeraPaletteVariant.index(tag.contains("palettevariant") ? tag.getInt("palettevariant") : legacyPalette));
+
         final int legacyMainAction = this.isOrderedToSit() ? ACTION_SIT : ACTION_FOLLOW;
-        this.setMainAction(input.getIntOr("mainaction", legacyMainAction), null);
-        this.setHostile(input.getBooleanOr("hostile", false));
-        this.rootGrowthCooldown = input.getIntOr("rootgrowthcooldown", this.rootGrowthCooldown);
+        this.setMainAction(tag.contains("mainaction") ? tag.getInt("mainaction") : legacyMainAction, null);
+        this.setHostile(tag.getBoolean("hostile"));
+        if (tag.contains("rootgrowthcooldown")) {
+            this.rootGrowthCooldown = tag.getInt("rootgrowthcooldown");
+        }
+
     }
 
     @Override
-    protected void addAdditionalSaveData(ValueOutput output) {
-        super.addAdditionalSaveData(output);
-        output.putInt("bodyvariant", this.getBodyVariant().index());
-        output.putInt("headvariant", this.getHeadVariant().index());
-        output.putInt("tailvariant", this.getTailVariant().index());
-        output.putInt("backvariant", this.getBackVariant().index());
-        output.putInt("palettevariant", this.getPaletteVariant().index());
-        output.putInt("mainaction", this.getMainAction());
-        output.putBoolean("hostile", this.isHostile());
-        output.putInt("rootgrowthcooldown", this.rootGrowthCooldown);
+    public void addAdditionalSaveData(CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        tag.putInt("bodyvariant", this.getBodyVariant().index());
+        tag.putInt("headvariant", this.getHeadVariant().index());
+        tag.putInt("tailvariant", this.getTailVariant().index());
+        tag.putInt("backvariant", this.getBackVariant().index());
+        tag.putInt("palettevariant", this.getPaletteVariant().index());
+        tag.putInt("mainaction", this.getMainAction());
+        tag.putBoolean("hostile", this.isHostile());
+        tag.putInt("rootgrowthcooldown", this.rootGrowthCooldown);
     }
 
     public ChimeraBodyVariant getBodyVariant() {
@@ -1138,8 +1203,8 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         if (hostile) {
             this.setOrderedToSit(false);
             this.setInSittingPose(false);
-            this.setTame(false, true);
-            this.setOwnerReference(null);
+            this.setTame(false);
+            this.setOwnerUUID(null);
             this.ejectPassengers();
         }
 
@@ -1148,49 +1213,39 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     private void applyBodyAttributes() {
         switch (this.getBodyVariant()) {
             case HULKING -> {
-                this.setAttributeBase(Attributes.MOVEMENT_SPEED, 0.22);
+                this.setAttributeBase(Attributes.MOVEMENT_SPEED, NomenDubiumConfig.HULKING_CHIMERA_SPEED);
                 this.setAttributeBase(Attributes.ARMOR, 4.0);
                 this.setAttributeBase(Attributes.KNOCKBACK_RESISTANCE, 0.75);
                 this.setAttributeBase(Attributes.JUMP_STRENGTH, 0.48);
-                this.setAttributeBase(Attributes.STEP_HEIGHT, 1.25);
-                this.setAttributeBase(Attributes.SAFE_FALL_DISTANCE, 4.0);
-                this.setAttributeBase(Attributes.WATER_MOVEMENT_EFFICIENCY, 0.1);
+                this.setMaxUpStep(1.25F);
             }
             case SHELLED -> {
-                this.setAttributeBase(Attributes.MOVEMENT_SPEED, 0.145);
+                this.setAttributeBase(Attributes.MOVEMENT_SPEED, NomenDubiumConfig.SHELLED_CHIMERA_SPEED);
                 this.setAttributeBase(Attributes.ARMOR, 10.0);
                 this.setAttributeBase(Attributes.KNOCKBACK_RESISTANCE, 0.90);
                 this.setAttributeBase(Attributes.JUMP_STRENGTH, 0.42);
-                this.setAttributeBase(Attributes.STEP_HEIGHT, 1.0);
-                this.setAttributeBase(Attributes.SAFE_FALL_DISTANCE, 4.0);
-                this.setAttributeBase(Attributes.WATER_MOVEMENT_EFFICIENCY, 0.5);
+                this.setMaxUpStep(1.0F);
             }
             case AVIAN -> {
-                this.setAttributeBase(Attributes.MOVEMENT_SPEED, 0.36);
+                this.setAttributeBase(Attributes.MOVEMENT_SPEED, NomenDubiumConfig.AVIAN_CHIMERA_SPEED);
                 this.setAttributeBase(Attributes.ARMOR, 2.0);
                 this.setAttributeBase(Attributes.KNOCKBACK_RESISTANCE, 0.20);
                 this.setAttributeBase(Attributes.JUMP_STRENGTH, 0.55);
-                this.setAttributeBase(Attributes.STEP_HEIGHT, 1.0);
-                this.setAttributeBase(Attributes.SAFE_FALL_DISTANCE, 5.0);
-                this.setAttributeBase(Attributes.WATER_MOVEMENT_EFFICIENCY, 0.1);
+                this.setMaxUpStep(1.0F);
             }
             case LANKY -> {
-                this.setAttributeBase(Attributes.MOVEMENT_SPEED, 0.22);
+                this.setAttributeBase(Attributes.MOVEMENT_SPEED, NomenDubiumConfig.LANKY_CHIMERA_SPEED);
                 this.setAttributeBase(Attributes.ARMOR, 2.0);
                 this.setAttributeBase(Attributes.KNOCKBACK_RESISTANCE, 0.20);
                 this.setAttributeBase(Attributes.JUMP_STRENGTH, 1.05);
-                this.setAttributeBase(Attributes.STEP_HEIGHT, 1.5);
-                this.setAttributeBase(Attributes.SAFE_FALL_DISTANCE, 12.0);
-                this.setAttributeBase(Attributes.WATER_MOVEMENT_EFFICIENCY, 0.1);
+                this.setMaxUpStep(1.5F);
             }
             case PUFFY -> {
-                this.setAttributeBase(Attributes.MOVEMENT_SPEED, 0.22);
+                this.setAttributeBase(Attributes.MOVEMENT_SPEED, NomenDubiumConfig.PUFFY_CHIMERA_SPEED);
                 this.setAttributeBase(Attributes.ARMOR, 3.0);
                 this.setAttributeBase(Attributes.KNOCKBACK_RESISTANCE, 0.35);
                 this.setAttributeBase(Attributes.JUMP_STRENGTH, 0.45);
-                this.setAttributeBase(Attributes.STEP_HEIGHT, 1.0);
-                this.setAttributeBase(Attributes.SAFE_FALL_DISTANCE, 4.0);
-                this.setAttributeBase(Attributes.WATER_MOVEMENT_EFFICIENCY, 0.2);
+                this.setMaxUpStep(1.0F);
             }
 
         }
@@ -1199,12 +1254,12 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     }
 
     private void applyCombatAttributes() {
-        double attackDamage = 6;
-        attackDamage += switch (this.getHeadVariant()) {
-            case CRUNCHING -> 2;
-            case SHIELDED -> 1;
-            case SNARLED, BEAKED -> 0;
-            case SNORTING -> -1.0;
+        double attackDamage = switch (this.getHeadVariant()) {
+            case CRUNCHING -> NomenDubiumConfig.CRUNCHING_CHIMERA_HEAD_DAMAGE;
+            case SHIELDED -> NomenDubiumConfig.SHIELDED_CHIMERA_HEAD_DAMAGE;
+            case BEAKED -> NomenDubiumConfig.BEAKED_CHIMERA_HEAD_DAMAGE;
+            case SNORTING -> NomenDubiumConfig.SNORTING_CHIMERA_HEAD_DAMAGE;
+            case SNARLED -> 6.0;
         };
         attackDamage += switch (this.getTailVariant()) {
             case SPIKED -> 2.0;
@@ -1224,7 +1279,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         this.setAttributeBase(Attributes.ATTACK_KNOCKBACK, attackKnockback);
     }
 
-    private void setAttributeBase(Holder<Attribute> attribute, double value) {
+    private void setAttributeBase(Attribute attribute, double value) {
         final AttributeInstance instance = this.getAttribute(attribute);
         if (instance != null) {
             instance.setBaseValue(value);

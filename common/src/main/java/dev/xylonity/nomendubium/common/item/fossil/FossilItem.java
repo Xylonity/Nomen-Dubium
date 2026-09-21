@@ -3,7 +3,6 @@ package dev.xylonity.nomendubium.common.item.fossil;
 import dev.xylonity.nomendubium.common.entity.SkeletonPartEntity;
 import dev.xylonity.nomendubium.common.entity.skeleton.SkeletonPartType;
 import dev.xylonity.nomendubium.common.item.DescribedItem;
-import dev.xylonity.nomendubium.registry.NomenDubiumDataComponents;
 import dev.xylonity.nomendubium.registry.NomenDubiumEntities;
 import java.util.function.Consumer;
 import net.minecraft.ChatFormatting;
@@ -28,12 +27,12 @@ public final class FossilItem extends DescribedItem {
 
     public ItemStack createStack(String part) {
         final ItemStack stack = new ItemStack(this);
-        stack.set(NomenDubiumDataComponents.FOSSIL_PART.get(), part);
+        stack.getOrCreateTag().putString("FossilPart", part);
         return stack;
     }
 
     public static String getPart(ItemStack stack) {
-        return stack.get(NomenDubiumDataComponents.FOSSIL_PART.get());
+        return stack.hasTag() && stack.getTag().contains("FossilPart") ? stack.getTag().getString("FossilPart") : null;
     }
 
     @Override
@@ -59,7 +58,7 @@ public final class FossilItem extends DescribedItem {
         }
 
         // Centers the skeleton
-        skeleton.snapTo(position.x(), position.y(), position.z(), yaw, 0.0F);
+        skeleton.moveTo(position.x(), position.y(), position.z(), yaw, 0.0F);
 
         if (!level.noCollision(skeleton, skeleton.getBoundingBox())) {
             return InteractionResult.FAIL;
@@ -69,11 +68,11 @@ public final class FossilItem extends DescribedItem {
             // Adds the skeleton
             level.addFreshEntity(skeleton);
             level.playSound(null, position.x(), position.y(), position.z(), SoundEvents.BONE_BLOCK_PLACE, SoundSource.BLOCKS, 0.9F, 0.9F + level.getRandom().nextFloat() * 0.2F);
-            if (context.getPlayer() == null || !context.getPlayer().hasInfiniteMaterials()) {
+            if (context.getPlayer() == null || !context.getPlayer().getAbilities().instabuild) {
                 context.getItemInHand().shrink(1);
             }
 
-            return InteractionResult.SUCCESS_SERVER;
+            return InteractionResult.CONSUME;
         }
 
         return InteractionResult.SUCCESS;

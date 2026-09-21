@@ -8,47 +8,52 @@ import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.SnowLayerBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 public final class SedimentBlock extends SnowLayerBlock {
 
+    private boolean creativePlayerDestroying;
+
     public SedimentBlock(Properties properties) {
         super(properties);
     }
 
     @Override
-    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess tickAccess, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
-        tickAccess.scheduleTick(pos, this, 2);
+    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+        level.scheduleTick(pos, this, 2);
         return state;
     }
 
     @Override
-    protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        if (FallingBlock.isFree(level.getBlockState(pos.below())) && pos.getY() >= level.getMinY()) {
+    public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        if (FallingBlock.isFree(level.getBlockState(pos.below())) && pos.getY() >= level.getMinBuildHeight()) {
             final FallingBlockEntity fallingSediment = FallingBlockEntity.fall(level, pos, state);
             fallingSediment.disableDrop();
         }
+
     }
 
     @Override
-    protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+    public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        ;;
     }
 
     @Override
-    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        final BlockState destroyedState = super.playerWillDestroy(level, pos, state, player);
-        return player.isCreative() ? destroyedState.setValue(LAYERS, 1) : destroyedState;
+    public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        this.creativePlayerDestroying = player.isCreative();
+        super.playerWillDestroy(level, pos, state, player);
     }
 
     @Override
     public void destroy(LevelAccessor level, BlockPos pos, BlockState state) {
         final int layers = state.getValue(LAYERS);
-        if (layers > 2) {
-            level.setBlock(pos, state.setValue(LAYERS, layers - 2), 3);
+        final int destroyedLayers = this.creativePlayerDestroying ? 1 : 2;
+        this.creativePlayerDestroying = false;
+
+        if (layers > destroyedLayers) {
+            level.setBlock(pos, state.setValue(LAYERS, layers - destroyedLayers), 3);
         }
 
     }

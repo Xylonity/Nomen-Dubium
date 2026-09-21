@@ -1,7 +1,7 @@
 package dev.xylonity.nomendubium.client.projectile.model;
 
-import dev.xylonity.nomendubium.client.projectile.renderer.PrimitiveArrowRenderState;
-import net.minecraft.client.model.EntityModel;
+import dev.xylonity.nomendubium.client.entity.model.NomenDubiumEntityModel;
+import dev.xylonity.nomendubium.common.entity.PrimitiveArrowEntity;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
@@ -9,13 +9,12 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.util.Mth;
+import net.minecraft.client.renderer.RenderType;
 
-public final class PrimitiveArrowModel extends EntityModel<PrimitiveArrowRenderState> {
+public final class PrimitiveArrowModel extends NomenDubiumEntityModel<PrimitiveArrowEntity> {
 
     public PrimitiveArrowModel(ModelPart root) {
-        super(root, RenderTypes::entityCutoutCull);
+        super(root, RenderType::entityCutout);
     }
 
     public static LayerDefinition createLayer() {
@@ -45,16 +44,6 @@ public final class PrimitiveArrowModel extends EntityModel<PrimitiveArrowRenderS
         );
 
         return LayerDefinition.create(meshDefinition, 64, 64);
-    }
-
-    @Override
-    public void setupAnim(PrimitiveArrowRenderState state) {
-        super.setupAnim(state);
-        if (state.shake > 0.0F) {
-            float shakeRotation = -Mth.sin(state.shake * 3.0F) * state.shake;
-            root.zRot += shakeRotation * Mth.DEG_TO_RAD;
-        }
-
     }
 
 }

@@ -1,7 +1,7 @@
 package dev.xylonity.nomendubium.client.entity.model.chimera.skeleton.tail;
 
-import dev.xylonity.nomendubium.client.projectile.renderer.SkeletonPartRenderState;
-import net.minecraft.client.model.EntityModel;
+import dev.xylonity.nomendubium.client.entity.model.NomenDubiumEntityModel;
+import dev.xylonity.nomendubium.common.entity.SkeletonPartEntity;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
@@ -10,7 +10,7 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 
-public final class ClubbedTailFossilModel extends EntityModel<SkeletonPartRenderState> {
+public final class ClubbedTailFossilModel extends NomenDubiumEntityModel<SkeletonPartEntity> {
 
     public ClubbedTailFossilModel(ModelPart root) {
         super(root);

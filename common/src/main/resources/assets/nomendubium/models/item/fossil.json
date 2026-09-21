@@ -1,0 +1,25 @@
+{
+  "parent": "nomendubium:item/shielded_head_fossil",
+  "overrides": [
+    { "predicate": { "nomendubium:fossil_part": 0.05 }, "model": "nomendubium:item/hulking_body_fossil" },
+    { "predicate": { "nomendubium:fossil_part": 0.10 }, "model": "nomendubium:item/shelled_body_fossil" },
+    { "predicate": { "nomendubium:fossil_part": 0.15 }, "model": "nomendubium:item/avian_body_fossil" },
+    { "predicate": { "nomendubium:fossil_part": 0.20 }, "model": "nomendubium:item/lanky_body_fossil" },
+    { "predicate": { "nomendubium:fossil_part": 0.25 }, "model": "nomendubium:item/puffy_body_fossil" },
+    { "predicate": { "nomendubium:fossil_part": 0.30 }, "model": "nomendubium:item/crunching_head_fossil" },
+    { "predicate": { "nomendubium:fossil_part": 0.35 }, "model": "nomendubium:item/shielded_head_fossil" },
+    { "predicate": { "nomendubium:fossil_part": 0.40 }, "model": "nomendubium:item/snarled_head_fossil" },
+    { "predicate": { "nomendubium:fossil_part": 0.45 }, "model": "nomendubium:item/beaked_head_fossil" },
+    { "predicate": { "nomendubium:fossil_part": 0.50 }, "model": "nomendubium:item/snorting_head_fossil" },
+    { "predicate": { "nomendubium:fossil_part": 0.55 }, "model": "nomendubium:item/spiked_tail_fossil" },
+    { "predicate": { "nomendubium:fossil_part": 0.60 }, "model": "nomendubium:item/stubby_tail_fossil" },
+    { "predicate": { "nomendubium:fossil_part": 0.65 }, "model": "nomendubium:item/clubbed_tail_fossil" },
+    { "predicate": { "nomendubium:fossil_part": 0.70 }, "model": "nomendubium:item/fan_tail_fossil" },
+    { "predicate": { "nomendubium:fossil_part": 0.75 }, "model": "nomendubium:item/speared_tail_fossil" },
+    { "predicate": { "nomendubium:fossil_part": 0.80 }, "model": "nomendubium:item/boney_plates_back_fossil" },
+    { "predicate": { "nomendubium:fossil_part": 0.85 }, "model": "nomendubium:item/dorsal_scales_back_fossil" },
+    { "predicate": { "nomendubium:fossil_part": 0.90 }, "model": "nomendubium:item/spikes_back_fossil" },
+    { "predicate": { "nomendubium:fossil_part": 0.95 }, "model": "nomendubium:item/spine_sail_back_fossil" },
+    { "predicate": { "nomendubium:fossil_part": 1.00 }, "model": "nomendubium:item/thorns_back_fossil" }
+  ]
+}

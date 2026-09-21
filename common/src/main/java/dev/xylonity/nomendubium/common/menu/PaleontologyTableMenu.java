@@ -1,7 +1,6 @@
 package dev.xylonity.nomendubium.common.menu;
 
 import dev.xylonity.nomendubium.common.item.fossil.util.FossilCategory;
-import dev.xylonity.nomendubium.registry.NomenDubiumDataComponents;
 import dev.xylonity.nomendubium.registry.NomenDubiumItems;
 import dev.xylonity.nomendubium.registry.NomenDubiumMenus;
 import net.minecraft.world.Container;
@@ -99,7 +98,7 @@ public class PaleontologyTableMenu extends AbstractContainerMenu {
 
         });
 
-        this.addStandardInventorySlots(inventory, 48, 129);
+        this.addPlayerInventory(inventory, 48, 129);
 
         for (int i = 0; i < DATA_COUNT; i++) {
             this.addDataSlot(DataSlot.shared(this.gameData, i));
@@ -141,13 +140,27 @@ public class PaleontologyTableMenu extends AbstractContainerMenu {
 
         // Clears the source slot if everything moved
         if (stack.isEmpty()) {
-            slot.setByPlayer(ItemStack.EMPTY);
+            slot.set(ItemStack.EMPTY);
         }
         else {
             slot.setChanged();
         }
 
         return original;
+    }
+
+    private void addPlayerInventory(Inventory inventory, int x, int y) {
+        for (int row = 0; row < 3; row++) {
+            for (int column = 0; column < 9; column++) {
+                this.addSlot(new Slot(inventory, column + row * 9 + 9, x + column * 18, y + row * 18));
+            }
+
+        }
+
+        for (int column = 0; column < 9; column++) {
+            this.addSlot(new Slot(inventory, column, x + column * 18, y + 58));
+        }
+
     }
 
     @Override
@@ -351,10 +364,10 @@ public class PaleontologyTableMenu extends AbstractContainerMenu {
     }
 
     private FossilCategory getOrAssignCategory(ItemStack workpiece) {
-        FossilCategory category = FossilCategory.name(workpiece.get(NomenDubiumDataComponents.FOSSIL_CATEGORY.get()));
+        FossilCategory category = FossilCategory.name(workpiece.hasTag() ? workpiece.getTag().getString("FossilCategory") : null);
         if (category == null) {
             category = FossilCategory.random(this.player.level().getRandom());
-            workpiece.set(NomenDubiumDataComponents.FOSSIL_CATEGORY.get(), category.serializedName());
+            workpiece.getOrCreateTag().putString("FossilCategory", category.serializedName());
             this.container.setChanged();
         }
 

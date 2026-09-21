@@ -27,8 +27,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.NonNull;
@@ -60,11 +59,11 @@ public final class SkeletonPartEntity extends Entity {
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.@NonNull Builder entityData) {
-        entityData.define(PART_TYPE, SkeletonPartType.HULKING_BODY.index());
-        entityData.define(PARENT_ID, -1);
-        entityData.define(REVIVAL_TICKS, 0);
-        entityData.define(REVIVAL_PALETTE, ChimeraPaletteVariant.NORMAL.index());
+    protected void defineSynchedData() {
+        this.entityData.define(PART_TYPE, SkeletonPartType.HULKING_BODY.index());
+        this.entityData.define(PARENT_ID, -1);
+        this.entityData.define(REVIVAL_TICKS, 0);
+        this.entityData.define(REVIVAL_PALETTE, ChimeraPaletteVariant.NORMAL.index());
     }
 
     @Override
@@ -124,8 +123,8 @@ public final class SkeletonPartEntity extends Entity {
     }
 
     @Override
-    protected @NonNull AABB makeBoundingBox(@NonNull Vec3 position) {
-        return getPartType().interactionBox(position, getYRot());
+    protected @NonNull AABB makeBoundingBox() {
+        return getPartType().interactionBox(position(), getYRot());
     }
 
     @Override
@@ -135,7 +134,7 @@ public final class SkeletonPartEntity extends Entity {
     }
 
     @Override
-    public @NonNull InteractionResult interact(Player player, @NonNull InteractionHand hand, @NonNull Vec3 location) {
+    public @NonNull InteractionResult interact(Player player, @NonNull InteractionHand hand) {
         final ItemStack heldItem = player.getItemInHand(hand);
         final SkeletonPartEntity body = getPartType().isBody() ? this : getParentBody();
 
@@ -151,7 +150,7 @@ public final class SkeletonPartEntity extends Entity {
         }
 
         if (body != null && body.isReviving()) {
-            return level().isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+            return level().isClientSide() ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
         }
 
         final SkeletonPartType heldPart = heldItem.is(NomenDubiumItems.FOSSIL.get()) ? SkeletonPartType.byFossilPart(FossilItem.getPart(heldItem)) : null;
@@ -164,7 +163,7 @@ public final class SkeletonPartEntity extends Entity {
                 }
 
                 // Replaces the actual piece with the held one
-                return body.attachOrReplace(player, heldItem, heldPart) ? InteractionResult.SUCCESS_SERVER : InteractionResult.FAIL;
+                return body.attachOrReplace(player, heldItem, heldPart) ? InteractionResult.CONSUME : InteractionResult.FAIL;
             }
 
         }
@@ -175,7 +174,7 @@ public final class SkeletonPartEntity extends Entity {
 
         dismantle(player);
 
-        return InteractionResult.SUCCESS_SERVER;
+        return InteractionResult.CONSUME;
     }
 
     @Override
@@ -197,7 +196,7 @@ public final class SkeletonPartEntity extends Entity {
     }
 
     @Override
-    public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
+    public boolean hurt(DamageSource source, float amount) {
         if (isRevivingAssembly()) {
             return false;
         }
@@ -217,40 +216,40 @@ public final class SkeletonPartEntity extends Entity {
     }
 
     @Override
-    protected void readAdditionalSaveData(ValueInput input) {
-        setPartType(SkeletonPartType.byFossilPart(input.getStringOr("part", SkeletonPartType.HULKING_BODY.fossilPart())));
-        parentUuid = getUuidPer(input, "parent");
+    protected void readAdditionalSaveData(CompoundTag tag) {
+        setPartType(SkeletonPartType.byFossilPart(tag.contains("part") ? tag.getString("part") : SkeletonPartType.HULKING_BODY.fossilPart()));
+        parentUuid = getUuidPer(tag, "parent");
         entityData.set(PARENT_ID, -1);
-        entityData.set(REVIVAL_TICKS, input.getIntOr("revival_ticks", 0));
-        entityData.set(REVIVAL_PALETTE, input.getIntOr("revival_palette", ChimeraPaletteVariant.NORMAL.index()));
+        entityData.set(REVIVAL_TICKS, tag.getInt("revival_ticks"));
+        entityData.set(REVIVAL_PALETTE, tag.contains("revival_palette") ? tag.getInt("revival_palette") : ChimeraPaletteVariant.NORMAL.index());
 
         attachments.clear();
 
-        readAttachment(input, ChimeraPartCategory.HEAD);
-        readAttachment(input, ChimeraPartCategory.TAIL);
-        readAttachment(input, ChimeraPartCategory.BACK);
+        readAttachment(tag, ChimeraPartCategory.HEAD);
+        readAttachment(tag, ChimeraPartCategory.TAIL);
+        readAttachment(tag, ChimeraPartCategory.BACK);
     }
 
     @Override
-    protected void addAdditionalSaveData(ValueOutput output) {
-        output.putString("part", getPartType().fossilPart());
+    protected void addAdditionalSaveData(CompoundTag tag) {
+        tag.putString("part", getPartType().fossilPart());
         if (parentUuid != null) {
-            output.putString("parent", parentUuid.toString());
+            tag.putString("parent", parentUuid.toString());
         }
 
         if (isReviving()) {
-            output.putInt("revival_ticks", entityData.get(REVIVAL_TICKS));
-            output.putInt("revival_palette", entityData.get(REVIVAL_PALETTE));
+            tag.putInt("revival_ticks", entityData.get(REVIVAL_TICKS));
+            tag.putInt("revival_palette", entityData.get(REVIVAL_PALETTE));
         }
 
         for (final Map.Entry<ChimeraPartCategory, UUID> attachment : attachments.entrySet()) {
-            output.putString(attachment.getKey().name().toLowerCase(), attachment.getValue().toString());
+            tag.putString(attachment.getKey().name().toLowerCase(), attachment.getValue().toString());
         }
 
     }
 
     @Override
-    public void onRemoval(@NonNull RemovalReason reason) {
+    public void remove(@NonNull RemovalReason reason) {
         // If the body is dismantled, every attached part is removed too
         if (!dismantling && reason.shouldDestroy() && level() instanceof ServerLevel) {
             if (getPartType().isBody()) {
@@ -266,7 +265,7 @@ public final class SkeletonPartEntity extends Entity {
 
         }
 
-        super.onRemoval(reason);
+        super.remove(reason);
     }
 
     public SkeletonPartType getPartType() {
@@ -331,7 +330,7 @@ public final class SkeletonPartEntity extends Entity {
         }
 
         if (getAttachedPart(ChimeraPartCategory.HEAD) == null || getAttachedPart(ChimeraPartCategory.TAIL) == null) {
-            player.sendOverlayMessage(Component.translatable("message.nomendubium.fruit_of_life.incomplete"));
+            player.displayClientMessage(Component.translatable("message.nomendubium.fruit_of_life.incomplete"), true);
             return InteractionResult.FAIL;
         }
 
@@ -342,7 +341,7 @@ public final class SkeletonPartEntity extends Entity {
 
         entityData.set(REVIVAL_PALETTE, palette.index());
         entityData.set(REVIVAL_TICKS, 1);
-        if (!player.hasInfiniteMaterials()) {
+        if (!player.getAbilities().instabuild) {
             fruit.shrink(1);
         }
 
@@ -353,7 +352,7 @@ public final class SkeletonPartEntity extends Entity {
             serverLevel.playSound(null, blockPosition(), SoundEvents.BEACON_ACTIVATE, SoundSource.NEUTRAL, 1.0F, 1.25F);
         }
 
-        return InteractionResult.SUCCESS_SERVER;
+        return InteractionResult.CONSUME;
     }
 
     private void tickRevival(ServerLevel level) {
@@ -397,7 +396,7 @@ public final class SkeletonPartEntity extends Entity {
         chimera.setTailVariant((ChimeraTailVariant) tail.getPartType().variant());
         chimera.setBackVariant(back == null ? ChimeraBackVariant.NONE : (ChimeraBackVariant) back.getPartType().variant());
         chimera.setPaletteVariant(ChimeraPaletteVariant.index(entityData.get(REVIVAL_PALETTE)));
-        chimera.snapTo(getX(), getY(), getZ(), getYRot(), 0.0F);
+        chimera.moveTo(getX(), getY(), getZ(), getYRot(), 0.0F);
         chimera.setHealth(chimera.getMaxHealth());
 
         if (!level.addFreshEntity(chimera)) {
@@ -430,7 +429,7 @@ public final class SkeletonPartEntity extends Entity {
     }
 
     private void refreshBoundingBox() {
-        setBoundingBox(makeBoundingBox(position()));
+        setBoundingBox(makeBoundingBox());
     }
 
     private boolean attachOrReplace(Player player, ItemStack heldItem, SkeletonPartType newPart) {
@@ -462,7 +461,7 @@ public final class SkeletonPartEntity extends Entity {
             attachment.playPlaceSound();
         }
 
-        if (!player.hasInfiniteMaterials()) {
+        if (!player.getAbilities().instabuild) {
             heldItem.shrink(1);
         }
 
@@ -520,7 +519,7 @@ public final class SkeletonPartEntity extends Entity {
         }
 
         if (!fossil.isEmpty() && level() instanceof ServerLevel serverLevel) {
-            spawnAtLocation(serverLevel, fossil);
+            spawnAtLocation(fossil);
         }
 
     }
@@ -535,7 +534,7 @@ public final class SkeletonPartEntity extends Entity {
             return null;
         }
 
-        final Entity entity = serverLevel.getEntityInAnyDimension(uuid);
+        final Entity entity = serverLevel.getEntity(uuid);
         if (entity instanceof SkeletonPartEntity part && !part.isRemoved()) {
             return part;
         }
@@ -548,7 +547,7 @@ public final class SkeletonPartEntity extends Entity {
     private SkeletonPartEntity getParentBody() {
         Entity parent = level().getEntity(entityData.get(PARENT_ID));
         if (!(parent instanceof SkeletonPartEntity) && parentUuid != null && level() instanceof ServerLevel serverLevel) {
-            parent = serverLevel.getEntityInAnyDimension(parentUuid);
+            parent = serverLevel.getEntity(parentUuid);
             if (parent instanceof SkeletonPartEntity) {
                 entityData.set(PARENT_ID, parent.getId());
             }
@@ -587,16 +586,16 @@ public final class SkeletonPartEntity extends Entity {
 
     }
 
-    private void readAttachment(ValueInput input, ChimeraPartCategory category) {
-        final UUID uuid = getUuidPer(input, category.name().toLowerCase());
+    private void readAttachment(CompoundTag tag, ChimeraPartCategory category) {
+        final UUID uuid = getUuidPer(tag, category.name().toLowerCase());
         if (uuid != null) {
             attachments.put(category, uuid);
         }
 
     }
 
-    private static UUID getUuidPer(ValueInput input, String key) {
-        final String value = input.getStringOr(key, "");
+    private static UUID getUuidPer(CompoundTag tag, String key) {
+        final String value = tag.getString(key);
         if (value.isEmpty()) {
             return null;
         }
@@ -604,7 +603,7 @@ public final class SkeletonPartEntity extends Entity {
         try {
             return UUID.fromString(value);
         }
-        catch (Exception _) {
+        catch (Exception ignored) {
             return null;
         }
 

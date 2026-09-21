@@ -1,0 +1,18 @@
+{
+    "type":  "minecraft:crafting_shaped",
+    "category":  "building",
+    "group":  "bark",
+    "key":  {
+                "#":  {
+                          "item":  "nomendubium:coalden_log"
+                      }
+            },
+    "pattern":  [
+                    "##",
+                    "##"
+                ],
+    "result":  {
+                   "item":  "nomendubium:coalden_wood",
+                   "count":  3
+               }
+}

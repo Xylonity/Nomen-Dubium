@@ -1,0 +1,15 @@
+{
+    "type":  "nomendubium:fruit_of_life_palette",
+    "ingredients":  [
+                        {
+                            "item":  "nomendubium:fruit_of_life"
+                        },
+                        {
+                            "item":  "minecraft:orange_dye"
+                        },
+                        {
+                            "item":  "minecraft:magenta_dye"
+                        }
+                    ],
+    "palette":  "sunset"
+}

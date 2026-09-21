@@ -1,8 +1,9 @@
 package dev.xylonity.nomendubium.common.item;
 
+import dev.xylonity.nomendubium.config.NomenDubiumConfig;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -21,10 +22,10 @@ public final class RegeneratingChopItem extends DescribedItem {
     }
 
     @Override
-    public @NonNull InteractionResult use(@NonNull Level level, Player player, @NonNull InteractionHand hand) {
+    public @NonNull InteractionResultHolder<ItemStack> use(@NonNull Level level, Player player, @NonNull InteractionHand hand) {
         final ItemStack stack = player.getItemInHand(hand);
         if (remainingDurability(stack) < DURABILITY_PER_USE) {
-            return InteractionResult.FAIL;
+            return InteractionResultHolder.fail(stack);
         }
 
         return super.use(level, player, hand);
@@ -46,8 +47,8 @@ public final class RegeneratingChopItem extends DescribedItem {
     }
 
     @Override
-    public void inventoryTick(ItemStack stack, @NonNull ServerLevel level, @NonNull Entity entity, EquipmentSlot slot) {
-        if (stack.getDamageValue() > 0 && entity.tickCount % 20 == 0) {
+    public void inventoryTick(ItemStack stack, @NonNull Level level, @NonNull Entity entity, int slot, boolean selected) {
+        if (stack.getDamageValue() > 0 && entity.tickCount % NomenDubiumConfig.REGENERATING_CHOP_REGENERATION_INTERVAL == 0) {
             stack.setDamageValue(stack.getDamageValue() - 1);
         }
 

@@ -1,7 +1,7 @@
 package dev.xylonity.nomendubium.client.entity.model.chimera.normal.head;
 
 import dev.xylonity.nomendubium.client.entity.model.chimera.ChimeraModelConnections;
-import dev.xylonity.nomendubium.client.entity.render.chimera.ChimeraRenderState;
+import dev.xylonity.nomendubium.common.entity.ChimeraEntity;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
@@ -18,9 +18,9 @@ public final class CrunchingHeadModel extends ChimeraHeadModel {
     }
 
     @Override
-    public void setupAnim(ChimeraRenderState state) {
-        super.setupAnim(state);
-        final float progress = Mth.clamp(state.crunchingBiteProgress, 0, 1);
+    public void setupAnim(ChimeraEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+        super.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+        final float progress = Mth.clamp(entity.getCrunchingBiteProgress(ageInTicks - entity.tickCount), 0, 1);
         final float bite = Mth.sin(progress * Mth.PI);
         this.jaw.xRot += 0.72f * bite;
         this.head.xRot += 0.1f * bite;

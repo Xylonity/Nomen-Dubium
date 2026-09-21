@@ -1,0 +1,12 @@
+{
+    "type":  "nomendubium:fruit_of_life_palette",
+    "ingredients":  [
+                        {
+                            "item":  "nomendubium:fruit_of_life"
+                        },
+                        {
+                            "item":  "minecraft:light_gray_dye"
+                        }
+                    ],
+    "palette":  "tundra"
+}

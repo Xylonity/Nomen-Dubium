@@ -83,6 +83,10 @@ public enum SkeletonPartType {
         return ordinal();
     }
 
+    public float modelPredicateValue() {
+        return (ordinal() + 1.0F) / VALUES.length;
+    }
+
     public boolean isBody() {
         return category() == ChimeraPartCategory.BODY;
     }

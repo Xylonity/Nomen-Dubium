@@ -1,0 +1,17 @@
+{
+    "type":  "minecraft:crafting_shaped",
+    "category":  "misc",
+    "key":  {
+                "S":  {
+                          "item":  "nomendubium:sediment"
+                      }
+            },
+    "pattern":  [
+                    "SS",
+                    "SS"
+                ],
+    "result":  {
+                   "item":  "minecraft:clay",
+                   "count":  1
+               }
+}

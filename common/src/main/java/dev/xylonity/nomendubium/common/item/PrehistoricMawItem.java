@@ -1,104 +1,114 @@
 package dev.xylonity.nomendubium.common.item;
 
+import com.google.common.collect.Multimap;
+import dev.xylonity.knightlib.api.item.KnightLibRenderedItem;
+import dev.xylonity.nomendubium.client.item.MawItemRenderer;
 import dev.xylonity.nomendubium.common.entity.PrehistoricMawProjectileEntity;
-import dev.xylonity.nomendubium.registry.NomenDubiumDataComponents;
-import net.minecraft.core.component.DataComponents;
+import dev.xylonity.nomendubium.config.NomenDubiumConfig;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemUseAnimation;
+import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
+import net.minecraft.util.Mth;
 import org.jspecify.annotations.NonNull;
 
-public final class PrehistoricMawItem extends DescribedItem {
+import java.util.function.Supplier;
 
-    public static final float BASE_ATTACK_DAMAGE = 9;
-    public static final float MAX_ATTACK_DAMAGE = 14;
+public final class PrehistoricMawItem extends DescribedItem implements KnightLibRenderedItem {
 
     private static final long DECAY = 20 * 60;
 
     public PrehistoricMawItem(Properties properties) {
-        super(properties.attributes(FossilisedMawItem.createAttributes(BASE_ATTACK_DAMAGE)));
+        super(properties);
     }
 
     @Override
-    public @NonNull InteractionResult use(@NonNull Level level, Player player, @NonNull InteractionHand hand) {
+    public Supplier<Object> rendererFactory() {
+        return () -> new MawItemRenderer("prehistoric_maw");
+    }
+
+    @Override
+    public @NonNull InteractionResultHolder<ItemStack> use(@NonNull Level level, Player player, @NonNull InteractionHand hand) {
         player.startUsingItem(hand);
-        return InteractionResult.CONSUME;
+        return InteractionResultHolder.consume(player.getItemInHand(hand));
     }
 
     @Override
-    public @NonNull ItemUseAnimation getUseAnimation(@NonNull ItemStack stack) {
-        return ItemUseAnimation.BOW;
+    public @NonNull UseAnim getUseAnimation(@NonNull ItemStack stack) {
+        return UseAnim.BOW;
     }
 
     @Override
-    public int getUseDuration(@NonNull ItemStack stack, @NonNull LivingEntity entity) {
+    public int getUseDuration(@NonNull ItemStack stack) {
         return 72000;
     }
 
     @Override
-    public boolean releaseUsing(@NonNull ItemStack stack, @NonNull Level level, @NonNull LivingEntity livingEntity, int timeLeft) {
+    public void releaseUsing(@NonNull ItemStack stack, @NonNull Level level, @NonNull LivingEntity livingEntity, int timeLeft) {
         if (!(livingEntity instanceof Player player)) {
-            return false;
+            return;
         }
 
-        final int charge = getUseDuration(stack, livingEntity) - timeLeft;
+        final int charge = getUseDuration(stack) - timeLeft;
         if (charge < 12) {
-            return false;
+            return;
         }
 
         if (!(level instanceof ServerLevel serverLevel)) {
-            return true;
+            return;
         }
 
         applyElapsedDecay(stack, serverLevel.getGameTime());
 
         // Throws the maw
-        final boolean returns = !player.hasInfiniteMaterials();
+        final boolean returns = !player.getAbilities().instabuild;
         final float launchDamage = getAttackDamage(stack);
+
         setAttackDamage(stack, launchDamage - 0.25f);
+
         final ItemStack maw = stack.copyWithCount(1);
         if (returns) {
             stack.shrink(1);
         }
 
-        Projectile.spawnProjectileFromRotation((projectileLevel, owner, projectileStack) ->
-                new PrehistoricMawProjectileEntity(projectileLevel, owner, projectileStack, returns, launchDamage), serverLevel, maw, player, 0, 1.2f, 0
-        );
+        final PrehistoricMawProjectileEntity projectile = new PrehistoricMawProjectileEntity(serverLevel, player, maw, returns, launchDamage);
+        projectile.shootFromRotation(player, player.getXRot(), player.getYRot(), 0, 1.2F, 0);
+        serverLevel.addFreshEntity(projectile);
 
         serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.TRIDENT_THROW, SoundSource.PLAYERS, 1F, 1.1F);
         player.awardStat(Stats.ITEM_USED.get(this));
 
-        return true;
     }
 
     @Override
-    public void hurtEnemy(ItemStack stack, @NonNull LivingEntity target, @NonNull LivingEntity attacker) {
-        super.hurtEnemy(stack, target, attacker);
+    public boolean hurtEnemy(ItemStack stack, @NonNull LivingEntity target, @NonNull LivingEntity attacker) {
+        final boolean result = super.hurtEnemy(stack, target, attacker);
         if (!attacker.level().isClientSide() && target.isDeadOrDying()) {
             recordKill(stack);
         }
 
+        return result;
     }
 
     @Override
-    public void inventoryTick(ItemStack stack, @NonNull ServerLevel level, @NonNull Entity entity, EquipmentSlot slot) {
-        applyElapsedDecay(stack, level.getGameTime());
+    public void inventoryTick(ItemStack stack, @NonNull Level level, @NonNull Entity entity, int slot, boolean selected) {
+        if (!level.isClientSide()) applyElapsedDecay(stack, level.getGameTime());
     }
 
     public static float getAttackDamage(ItemStack stack) {
-        final Float storedDamage = stack.get(NomenDubiumDataComponents.PREHISTORIC_MAW_DAMAGE.get());
-        return storedDamage == null ? BASE_ATTACK_DAMAGE : Math.clamp(storedDamage, BASE_ATTACK_DAMAGE, MAX_ATTACK_DAMAGE);
+        return stack.hasTag() && stack.getTag().contains("PrehistoricMawDamage") ? Mth.clamp(stack.getTag().getFloat("PrehistoricMawDamage"), NomenDubiumConfig.PREHISTORIC_MAW_BASE_DAMAGE, NomenDubiumConfig.PREHISTORIC_MAW_MAX_DAMAGE) : NomenDubiumConfig.PREHISTORIC_MAW_BASE_DAMAGE;
     }
 
     public static void recordKill(ItemStack stack) {
@@ -106,16 +116,25 @@ public final class PrehistoricMawItem extends DescribedItem {
     }
 
     private static void setAttackDamage(ItemStack stack, float damage) {
-        final float clampedDamage = Math.clamp(damage, BASE_ATTACK_DAMAGE, MAX_ATTACK_DAMAGE);
-        stack.set(NomenDubiumDataComponents.PREHISTORIC_MAW_DAMAGE.get(), clampedDamage);
-        stack.set(DataComponents.ATTRIBUTE_MODIFIERS, FossilisedMawItem.createAttributes(clampedDamage));
+        final float clampedDamage = Mth.clamp(damage, NomenDubiumConfig.PREHISTORIC_MAW_BASE_DAMAGE, NomenDubiumConfig.PREHISTORIC_MAW_MAX_DAMAGE);
+        stack.getOrCreateTag().putFloat("PrehistoricMawDamage", clampedDamage);
+        stack.getOrCreateTag().remove("AttributeModifiers");
+        stack.addAttributeModifier(Attributes.ATTACK_DAMAGE,
+            new AttributeModifier(BASE_ATTACK_DAMAGE_UUID, "Weapon modifier", clampedDamage - 1.0F, AttributeModifier.Operation.ADDITION),
+            EquipmentSlot.MAINHAND
+        );
+        stack.addAttributeModifier(Attributes.ATTACK_SPEED,
+            new AttributeModifier(BASE_ATTACK_SPEED_UUID, "Weapon modifier", -3.2F, AttributeModifier.Operation.ADDITION),
+            EquipmentSlot.MAINHAND
+        );
+
     }
 
     // Damage decreases per minute + when throwing the maw itself
     private static void applyElapsedDecay(ItemStack stack, long gameTime) {
-        final Long lastDecayTick = stack.get(NomenDubiumDataComponents.PREHISTORIC_MAW_LAST_DECAY_TICK.get());
-        if (lastDecayTick == null || gameTime < lastDecayTick) {
-            stack.set(NomenDubiumDataComponents.PREHISTORIC_MAW_LAST_DECAY_TICK.get(), gameTime);
+        final long lastDecayTick = stack.hasTag() && stack.getTag().contains("PrehistoricMawLastDecayTick") ? stack.getTag().getLong("PrehistoricMawLastDecayTick") : -1L;
+        if (lastDecayTick < 0 || gameTime < lastDecayTick) {
+            stack.getOrCreateTag().putLong("PrehistoricMawLastDecayTick", gameTime);
             return;
         }
 
@@ -125,7 +144,12 @@ public final class PrehistoricMawItem extends DescribedItem {
         }
 
         setAttackDamage(stack, getAttackDamage(stack) - elapsedIntervals * 0.5f);
-        stack.set(NomenDubiumDataComponents.PREHISTORIC_MAW_LAST_DECAY_TICK.get(), lastDecayTick + elapsedIntervals * DECAY);
+        stack.getOrCreateTag().putLong("PrehistoricMawLastDecayTick", lastDecayTick + elapsedIntervals * DECAY);
+    }
+
+    @Override
+    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot slot) {
+        return slot == EquipmentSlot.MAINHAND ? FossilisedMawItem.createAttributes(NomenDubiumConfig.PREHISTORIC_MAW_BASE_DAMAGE) : super.getDefaultAttributeModifiers(slot);
     }
 
     @Override

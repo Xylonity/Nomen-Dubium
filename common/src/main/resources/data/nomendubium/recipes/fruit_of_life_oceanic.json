@@ -1,0 +1,12 @@
+{
+    "type":  "nomendubium:fruit_of_life_palette",
+    "ingredients":  [
+                        {
+                            "item":  "nomendubium:fruit_of_life"
+                        },
+                        {
+                            "item":  "minecraft:cyan_dye"
+                        }
+                    ],
+    "palette":  "oceanic"
+}

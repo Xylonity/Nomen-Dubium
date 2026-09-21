@@ -2,7 +2,7 @@ package dev.xylonity.nomendubium.client;
 
 import dev.xylonity.nomendubium.registry.NomenDubiumSounds;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.network.chat.Component;
@@ -54,7 +54,7 @@ public final class AmberVisionClient {
         return startedAtNanos != INACTIVE && elapsedMillis() < DURATION_MS;
     }
 
-    public static void extractOverlay(GuiGraphicsExtractor graphics) {
+    public static void renderOverlay(GuiGraphics graphics) {
         if (startedAtNanos == INACTIVE) {
             return;
         }
@@ -81,15 +81,17 @@ public final class AmberVisionClient {
 
         final int alpha = Mth.clamp((int)(darkness * 230F), 0, 230);
         if (alpha > 0) {
-            graphics.nextStratum();
             // Black overlay
             graphics.fill(0, 0, graphics.guiWidth(), graphics.guiHeight(), alpha << 24);
             if (message != null) {
                 // Text rendering
                 final Minecraft minecraft = Minecraft.getInstance();
                 final int textAlpha = Mth.clamp((int)(darkness * 255.0F), 0, 255);
-                graphics.nextStratum();
-                graphics.centeredText(minecraft.font, message, graphics.guiWidth() / 2, (graphics.guiHeight() - minecraft.font.lineHeight) / 2, textAlpha << 24 | 0xFFFFFF);
+                if (textAlpha >= 4) {
+                    graphics.drawCenteredString(minecraft.font, message, graphics.guiWidth() / 2,
+                        (graphics.guiHeight() - minecraft.font.lineHeight) / 2, textAlpha << 24 | 0xFFFFFF);
+                }
+
             }
 
         }

@@ -1,6 +1,28 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "nomendubium:item/fruit_of_life"
-  }
+    "layer0": "nomendubium:item/random_fruit_of_life"
+  },
+  "overrides": [
+    { "predicate": { "nomendubium:chimera_palette": 0.05 }, "model": "nomendubium:item/fruit_of_life_normal" },
+    { "predicate": { "nomendubium:chimera_palette": 0.10 }, "model": "nomendubium:item/fruit_of_life_jungle" },
+    { "predicate": { "nomendubium:chimera_palette": 0.15 }, "model": "nomendubium:item/fruit_of_life_grassland" },
+    { "predicate": { "nomendubium:chimera_palette": 0.20 }, "model": "nomendubium:item/fruit_of_life_desert" },
+    { "predicate": { "nomendubium:chimera_palette": 0.25 }, "model": "nomendubium:item/fruit_of_life_oceanic" },
+    { "predicate": { "nomendubium:chimera_palette": 0.30 }, "model": "nomendubium:item/fruit_of_life_sniffish" },
+    { "predicate": { "nomendubium:chimera_palette": 0.35 }, "model": "nomendubium:item/fruit_of_life_tundra" },
+    { "predicate": { "nomendubium:chimera_palette": 0.40 }, "model": "nomendubium:item/fruit_of_life_tropical" },
+    { "predicate": { "nomendubium:chimera_palette": 0.45 }, "model": "nomendubium:item/fruit_of_life_drylands" },
+    { "predicate": { "nomendubium:chimera_palette": 0.50 }, "model": "nomendubium:item/fruit_of_life_permafrost" },
+    { "predicate": { "nomendubium:chimera_palette": 0.55 }, "model": "nomendubium:item/fruit_of_life_volcanic" },
+    { "predicate": { "nomendubium:chimera_palette": 0.60 }, "model": "nomendubium:item/fruit_of_life_sunset" },
+    { "predicate": { "nomendubium:chimera_palette": 0.65 }, "model": "nomendubium:item/fruit_of_life_abyssal" },
+    { "predicate": { "nomendubium:chimera_palette": 0.70 }, "model": "nomendubium:item/fruit_of_life_amber" },
+    { "predicate": { "nomendubium:chimera_palette": 0.75 }, "model": "nomendubium:item/fruit_of_life_copal" },
+    { "predicate": { "nomendubium:chimera_palette": 0.80 }, "model": "nomendubium:item/fruit_of_life_jasper" },
+    { "predicate": { "nomendubium:chimera_palette": 0.85 }, "model": "nomendubium:item/fruit_of_life_quartz" },
+    { "predicate": { "nomendubium:chimera_palette": 0.90 }, "model": "nomendubium:item/fruit_of_life_agate" },
+    { "predicate": { "nomendubium:chimera_palette": 0.95 }, "model": "nomendubium:item/fruit_of_life_opaline" },
+    { "predicate": { "nomendubium:chimera_palette": 1.00 }, "model": "nomendubium:item/fruit_of_life_obsidian" }
+  ]
 }

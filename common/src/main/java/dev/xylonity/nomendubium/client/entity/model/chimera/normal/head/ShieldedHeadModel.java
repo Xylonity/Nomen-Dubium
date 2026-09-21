@@ -1,7 +1,7 @@
 package dev.xylonity.nomendubium.client.entity.model.chimera.normal.head;
 
 import dev.xylonity.nomendubium.client.entity.model.chimera.ChimeraModelConnections;
-import dev.xylonity.nomendubium.client.entity.render.chimera.ChimeraRenderState;
+import dev.xylonity.nomendubium.common.entity.ChimeraEntity;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
@@ -18,9 +18,9 @@ public final class ShieldedHeadModel extends ChimeraHeadModel {
     }
 
     @Override
-    public void setupAnim(ChimeraRenderState state) {
-        super.setupAnim(state);
-        final float charge = smoothstep(Mth.clamp(state.shieldChargeProgress, 0.0F, 1.0F));
+    public void setupAnim(ChimeraEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+        super.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+        final float charge = smoothstep(Mth.clamp(entity.getShieldChargeAnimation(ageInTicks - entity.tickCount), 0.0F, 1.0F));
         this.jaw.xRot += 0.32F * charge;
     }
 

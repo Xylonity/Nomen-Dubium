@@ -1,6 +1,6 @@
 package dev.xylonity.nomendubium.common.worldgen.structure;
 
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import dev.xylonity.nomendubium.registry.NomenDubiumWorldgen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -12,8 +12,8 @@ import java.util.Optional;
 
 public final class ExcavationStructure extends Structure {
 
-    public static final MapCodec<ExcavationStructure> OPEN_PIT_CODEC = simpleCodec(settings -> new ExcavationStructure(settings, Variant.OPEN_PIT));
-    public static final MapCodec<ExcavationStructure> LIFE_HOLLOW_CODEC = simpleCodec(settings -> new ExcavationStructure(settings, Variant.LIFE_HOLLOW));
+    public static final Codec<ExcavationStructure> OPEN_PIT_CODEC = simpleCodec(settings -> new ExcavationStructure(settings, Variant.OPEN_PIT));
+    public static final Codec<ExcavationStructure> LIFE_HOLLOW_CODEC = simpleCodec(settings -> new ExcavationStructure(settings, Variant.LIFE_HOLLOW));
 
     private final Variant variant;
 
@@ -48,7 +48,7 @@ public final class ExcavationStructure extends Structure {
             try {
                 return valueOf(name);
             }
-            catch (Exception _) {
+            catch (Exception ignored) {
                 return OPEN_PIT;
             }
 

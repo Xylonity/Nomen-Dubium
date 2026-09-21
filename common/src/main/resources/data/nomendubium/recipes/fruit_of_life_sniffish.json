@@ -1,0 +1,15 @@
+{
+    "type":  "nomendubium:fruit_of_life_palette",
+    "ingredients":  [
+                        {
+                            "item":  "nomendubium:fruit_of_life"
+                        },
+                        {
+                            "item":  "minecraft:red_dye"
+                        },
+                        {
+                            "item":  "minecraft:cyan_dye"
+                        }
+                    ],
+    "palette":  "sniffish"
+}

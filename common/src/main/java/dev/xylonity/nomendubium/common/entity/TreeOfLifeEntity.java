@@ -1,22 +1,24 @@
 package dev.xylonity.nomendubium.common.entity;
 
+import dev.xylonity.knightlib.KnightLib;
+import dev.xylonity.knightlib.api.animation.KnightLibAnimatable;
+import dev.xylonity.knightlib.api.animation.KnightLibAnimationHandler;
 import dev.xylonity.nomendubium.common.menu.TreeOfLifeMenu;
 import dev.xylonity.nomendubium.common.recipe.TreeOfLifeRecipe;
 import dev.xylonity.nomendubium.common.recipe.TreeOfLifeRecipeInput;
 import dev.xylonity.nomendubium.registry.NomenDubiumRecipes;
-import net.minecraft.core.NonNullList;
-import net.minecraft.resources.ResourceKey;
+import com.mojang.datafixers.util.Pair;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Inventory;
@@ -24,18 +26,17 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.Optional;
 
-public final class TreeOfLifeEntity extends LivingEntity implements MenuProvider {
+public final class TreeOfLifeEntity extends Mob implements MenuProvider, KnightLibAnimatable {
+
+    private final KnightLibAnimationHandler animations = KnightLibAnimationHandler.of(this);
 
     private final SimpleContainer inventory = new SimpleContainer(TreeOfLifeMenu.SLOT_COUNT);
 
@@ -70,7 +71,7 @@ public final class TreeOfLifeEntity extends LivingEntity implements MenuProvider
 
     private int restorationProgress;
     private int restorationTime;
-    private @Nullable ResourceKey<Recipe<?>> activeRecipe;
+    private @Nullable ResourceLocation activeRecipe;
     private ItemStack pendingResult = ItemStack.EMPTY;
 
     public TreeOfLifeEntity(EntityType<? extends TreeOfLifeEntity> type, Level level) {
@@ -78,7 +79,7 @@ public final class TreeOfLifeEntity extends LivingEntity implements MenuProvider
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return LivingEntity.createLivingAttributes()
+        return Mob.createMobAttributes()
             .add(Attributes.MAX_HEALTH, 1);
     }
 
@@ -96,7 +97,8 @@ public final class TreeOfLifeEntity extends LivingEntity implements MenuProvider
         // Builds the recipe input
         final TreeOfLifeRecipeInput input = new TreeOfLifeRecipeInput(this.inventory.getItem(TreeOfLifeMenu.INGREDIENT_SLOT), this.inventory.getItem(TreeOfLifeMenu.ROOT_OF_LIFE_SLOT));
         // Looks for the matching recipe
-        final Optional<RecipeHolder<TreeOfLifeRecipe>> recipeHolder = level.recipeAccess().getRecipeFor(NomenDubiumRecipes.TREE_OF_LIFE_TYPE.get(), input, level, this.activeRecipe);
+        final Optional<Pair<ResourceLocation, TreeOfLifeRecipe>> recipeHolder = level.getRecipeManager()
+            .getRecipeFor(NomenDubiumRecipes.TREE_OF_LIFE_TYPE.get(), input, level, this.activeRecipe);
 
         // Invalid recipe
         if (recipeHolder.isEmpty()) {
@@ -105,11 +107,11 @@ public final class TreeOfLifeEntity extends LivingEntity implements MenuProvider
         }
 
 
-        final RecipeHolder<TreeOfLifeRecipe> holder = recipeHolder.get();
-        final TreeOfLifeRecipe recipe = holder.value();
+        final Pair<ResourceLocation, TreeOfLifeRecipe> holder = recipeHolder.get();
+        final TreeOfLifeRecipe recipe = holder.getSecond();
 
-        if (!holder.id().equals(this.activeRecipe) || this.pendingResult.isEmpty()) {
-            this.activeRecipe = holder.id();
+        if (!holder.getFirst().equals(this.activeRecipe) || this.pendingResult.isEmpty()) {
+            this.activeRecipe = holder.getFirst();
             this.restorationProgress = 0;
             this.pendingResult = recipe.random(this.random);
         }
@@ -157,7 +159,7 @@ public final class TreeOfLifeEntity extends LivingEntity implements MenuProvider
             return itemStack.getCount() <= itemStack.getMaxStackSize();
         }
 
-        return ItemStack.isSameItemSameComponents(current, itemStack) && current.getCount() + itemStack.getCount() <= current.getMaxStackSize();
+        return ItemStack.isSameItemSameTags(current, itemStack) && current.getCount() + itemStack.getCount() <= current.getMaxStackSize();
     }
 
     private void resetRestoration() {
@@ -172,23 +174,23 @@ public final class TreeOfLifeEntity extends LivingEntity implements MenuProvider
             return true;
         }
 
-        return serverLevel.recipeAccess()
+        return serverLevel.getRecipeManager()
             .getRecipes()
             .stream()
-            .map(RecipeHolder::value)
             .filter(TreeOfLifeRecipe.class::isInstance)
             .map(TreeOfLifeRecipe.class::cast)
             .anyMatch(recipe -> recipe.isIngredient(stack));
     }
 
     @Override
-    public @NonNull InteractionResult interact(Player player, @NonNull InteractionHand hand, @NonNull Vec3 location) {
+    public InteractionResult interactAt(Player player, Vec3 vec, InteractionHand hand) {
         if (this.level().isClientSide()) {
             return InteractionResult.SUCCESS;
         }
 
-        player.openMenu(this);
-        return InteractionResult.SUCCESS_SERVER;
+        KnightLib.PLATFORM.openMenu((ServerPlayer) player, this, friendlyByteBuf -> friendlyByteBuf.writeInt(getId()));
+
+        return InteractionResult.CONSUME;
     }
 
     @Override
@@ -197,30 +199,49 @@ public final class TreeOfLifeEntity extends LivingEntity implements MenuProvider
     }
 
     @Override
-    protected void readAdditionalSaveData(@NonNull ValueInput input) {
-        super.readAdditionalSaveData(input);
-        final NonNullList<ItemStack> items = this.inventory.getItems();
-        items.clear();
-        ContainerHelper.loadAllItems(input, items);
-        this.restorationProgress = Math.max(0, input.getIntOr("restoration_progress", 0));
-        this.restorationTime = Math.max(0, input.getIntOr("restoration_time", 0));
-        this.activeRecipe = input.read("active_restoration_recipe", Recipe.KEY_CODEC).orElse(null);
-        this.pendingResult = input.read("pending_restoration_result", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
+    public void readAdditionalSaveData(@NonNull CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+
+        this.inventory.clearContent();
+        for (int slot = 0; slot < this.inventory.getContainerSize(); slot++) {
+            if (tag.contains("InventorySlot" + slot)) {
+                this.inventory.setItem(slot, ItemStack.of(tag.getCompound("InventorySlot" + slot)));
+            }
+
+        }
+
+        this.restorationProgress = Math.max(0, tag.getInt("restoration_progress"));
+        this.restorationTime = Math.max(0, tag.getInt("restoration_time"));
+        this.activeRecipe = tag.contains("active_restoration_recipe") ? ResourceLocation.tryParse(tag.getString("active_restoration_recipe")) : null;
+        this.pendingResult = tag.contains("pending_restoration_result") ? ItemStack.of(tag.getCompound("pending_restoration_result")) : ItemStack.EMPTY;
     }
 
     @Override
-    protected void addAdditionalSaveData(@NonNull ValueOutput output) {
-        super.addAdditionalSaveData(output);
-        ContainerHelper.saveAllItems(output, this.inventory.getItems());
-        output.putInt("restoration_progress", this.restorationProgress);
-        output.putInt("restoration_time", this.restorationTime);
-        output.storeNullable("active_restoration_recipe", Recipe.KEY_CODEC, this.activeRecipe);
-        output.store("pending_restoration_result", ItemStack.OPTIONAL_CODEC, this.pendingResult);
+    public void addAdditionalSaveData(@NonNull CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        for (int slot = 0; slot < this.inventory.getContainerSize(); slot++) {
+            final ItemStack stack = this.inventory.getItem(slot);
+            if (!stack.isEmpty()) {
+                tag.put("InventorySlot" + slot, stack.save(new CompoundTag()));
+            }
+
+        }
+
+        tag.putInt("restoration_progress", this.restorationProgress);
+        tag.putInt("restoration_time", this.restorationTime);
+
+        if (this.activeRecipe != null) {
+            tag.putString("active_restoration_recipe", this.activeRecipe.toString());
+        }
+        if (!this.pendingResult.isEmpty()) {
+            tag.put("pending_restoration_result", this.pendingResult.save(new CompoundTag()));
+        }
+
     }
 
     @Override
-    public boolean isInvulnerableTo(@NonNull ServerLevel level, DamageSource source) {
-        return !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY) || super.isInvulnerableTo(level, source);
+    public boolean isInvulnerableTo(DamageSource source) {
+        return !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY) || super.isInvulnerableTo(source);
     }
 
     @Override
@@ -231,6 +252,26 @@ public final class TreeOfLifeEntity extends LivingEntity implements MenuProvider
     @Override
     public @NonNull HumanoidArm getMainArm() {
         return HumanoidArm.RIGHT;
+    }
+
+    @Override
+    public Iterable<ItemStack> getArmorSlots() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public ItemStack getItemBySlot(EquipmentSlot slot) {
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    public void setItemSlot(EquipmentSlot slot, ItemStack stack) {
+        ;;
+    }
+
+    @Override
+    public KnightLibAnimationHandler getAnimationHandler() {
+        return animations;
     }
 
 }
