@@ -1,5 +1,6 @@
 # 1.0.2
 - Fixed back parts detached from the puffy body
+- Fixed creatures being too bouncy on entity collision
 
 # 1.0.1
 - Fixed a hard crash due to a missing mixin refmap definition

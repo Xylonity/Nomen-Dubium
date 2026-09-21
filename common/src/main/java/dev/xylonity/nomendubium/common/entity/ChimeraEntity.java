@@ -91,6 +91,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     private static final EntityDataAccessor<Float> BEAKED_PECK_Y_ROT = SynchedEntityData.defineId(ChimeraEntity.class, EntityDataSerializers.FLOAT);
 
     private static final double SHIELDED_CHARGE_SPEED = 0.85;
+    private static final double HULKING_PUSH_FORCE = 0.2;
     private static final int CRUNCHING_BITE_DURATION = 8;
     private static final int BEAKED_PECK_DURATION = 10;
     private static final int SNORTING_EXTRACTION_DURATION = 48;
@@ -1020,8 +1021,8 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
 
         final Vec3 away = other.position().subtract(this.position()).multiply(1.0, 0.0, 1.0);
         if (away.lengthSqr() > 1.0E-4) {
-            final Vec3 force = away.normalize().scale(0.8);
-            other.push(force.x, 0.15, force.z);
+            final Vec3 force = away.normalize().scale(HULKING_PUSH_FORCE);
+            other.push(force.x, 0.0, force.z);
         }
 
     }
