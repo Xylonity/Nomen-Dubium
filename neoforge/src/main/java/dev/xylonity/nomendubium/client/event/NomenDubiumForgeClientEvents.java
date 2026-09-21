@@ -10,13 +10,13 @@ import dev.xylonity.nomendubium.common.item.fossil.FossilItem;
 import dev.xylonity.nomendubium.client.util.SkeletonPartModelLayers;
 import dev.xylonity.nomendubium.registry.NomenDubiumItems;
 import net.minecraft.client.renderer.item.ItemProperties;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 
-@Mod.EventBusSubscriber(modid = NomenDubium.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = NomenDubium.MOD_ID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
 public final class NomenDubiumForgeClientEvents {
 
     @SubscribeEvent

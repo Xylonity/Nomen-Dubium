@@ -15,7 +15,7 @@
     "environment": "*",
     "entrypoints": {
         "main": [
-          "dev.xylonity.nomendubium.NomenDubiumFabric"
+            "dev.xylonity.nomendubium.NomenDubiumFabric"
         ],
         "client": [
             "dev.xylonity.nomendubium.NomenDubiumFabricClient"

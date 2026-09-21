@@ -2,7 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "package": "dev.xylonity.nomendubium.mixin",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_21",
   "refmap": "nomendubium.refmap.json",
   "mixins": [],
   "client": [],
