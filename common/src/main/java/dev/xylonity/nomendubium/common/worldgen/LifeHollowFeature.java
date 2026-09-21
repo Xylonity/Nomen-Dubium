@@ -463,6 +463,7 @@ public final class LifeHollowFeature extends Feature<NoneFeatureConfiguration> {
             return false;
         }
 
+        tree.setPersistenceRequired();
         tree.moveTo(centerX + 0.5, floorY + 1.0, centerZ + 0.5, 90, 0);
         tree.setYBodyRot(90);
         tree.setYHeadRot(90);

@@ -245,6 +245,11 @@ public final class TreeOfLifeEntity extends Mob implements MenuProvider, KnightL
     }
 
     @Override
+    public boolean removeWhenFarAway(double distanceToClosestPlayer) {
+        return false;
+    }
+
+    @Override
     public void push(double xa, double ya, double za) {
         ;;
     }

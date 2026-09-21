@@ -1,3 +1,8 @@
+# 1.0.3
+- Added the missing Fruit of Life crafting recipe
+- Fixed Trees of Life despawning before players could reach their Life Hollows
+- Fixed Trees of Life occasionally missing from Life Hollows generated on new chunks
+
 # 1.0.2
 - Fixed coalden trapdoor opening to the wrong side
 - Fixed some chimera bodies not adapting properly to the floor when sitting
