@@ -1,3 +1,6 @@
+# 1.0.2
+- Fixed back parts detached from the puffy body
+
 # 1.0.1
 - Fixed a hard crash due to a missing mixin refmap definition
 - Fixed no red overlay showing up when dealing damage to the chimera

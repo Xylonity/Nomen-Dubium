@@ -36,7 +36,7 @@ public final class PuffyBodyModel extends ChimeraBodyModel {
 		.texOffs(0, 0).addBox(-12.5F, -14.0F, -20.0F, 25.0F, 29.0F, 40.0F, new CubeDeformation(0.0F))
 		.texOffs(0, 69).addBox(-12.5F, -14.0F, -20.0F, 25.0F, 24.0F, 40.0F, new CubeDeformation(0.5F)), PartPose.offset(0.0F, -19.0F, 0.0F));
 
-		PartDefinition extra_connection = body.addOrReplaceChild("extra_connection", CubeListBuilder.create(), PartPose.offset(0.0F, -34.0F, 1.0F));
+		PartDefinition extra_connection = body.addOrReplaceChild("extra_connection", CubeListBuilder.create(), PartPose.offset(0.0F, -33.5F, 1.0F));
 
 		PartDefinition tail_connection = body.addOrReplaceChild("tail_connection", CubeListBuilder.create(), PartPose.offset(0.0F, -14.0F, 20.0F));
 
