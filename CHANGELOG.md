@@ -1,4 +1,5 @@
 # 1.0.2
+- Fixed coalden trapdoor opening to the wrong side
 - Fixed some chimera bodies not adapting properly to the floor when sitting
 - Fixed back parts detached from the puffy body
 - Fixed creatures being too bouncy on entity collision
