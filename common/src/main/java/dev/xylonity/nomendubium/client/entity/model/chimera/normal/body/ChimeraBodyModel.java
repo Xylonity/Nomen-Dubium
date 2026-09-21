@@ -199,29 +199,23 @@ public abstract class ChimeraBodyModel extends NomenDubiumEntityModel<ChimeraEnt
     }
 
     public void moveToBack(PoseStack poseStack) {
-        this.moveTo(this.backConnection, poseStack);
-
-        final Quaternionf initialBodyRotation = new Quaternionf().rotationZYX(this.body.getInitialPose().zRot, this.body.getInitialPose().yRot, this.body.getInitialPose().xRot);
-        final Quaternionf bodyAnimation = new Quaternionf()
-            .rotationZYX(this.body.zRot, this.body.yRot, this.body.xRot)
-            .mul(initialBodyRotation.conjugate());
-        poseStack.mulPose(bodyAnimation);
+        this.moveToAnimatedBackConnection(poseStack);
     }
 
     public void moveToRider(PoseStack poseStack) {
-        final PoseStack riderPose = new PoseStack();
-        this.body.translateAndRotate(riderPose);
-        this.torso.translateAndRotate(riderPose);
-        riderPose.translate(
-            (this.backConnection.x - this.torso.x) / 16f,
-            (this.backConnection.y - this.torso.y) / 16f,
-            (this.backConnection.z - this.torso.z) / 16f
-        );
+        this.moveToAnimatedBackConnection(poseStack);
+    }
 
-        final Matrix4fc transform = riderPose.last().pose();
+    private void moveToAnimatedBackConnection(PoseStack poseStack) {
+        final PoseStack connectionPose = new PoseStack();
+        this.body.translateAndRotate(connectionPose);
+        this.torso.translateAndRotate(connectionPose);
+        connectionPose.translate((this.backConnection.x - this.torso.x) / 16f, (this.backConnection.y - this.torso.y) / 16f, (this.backConnection.z - this.torso.z) / 16f);
+
+        final Matrix4fc transform = connectionPose.last().pose();
         poseStack.translate(transform.m30(), transform.m31(), transform.m32());
 
-        // Inherits the animated rotation without carrying authored base rotations into the player model
+        // Inherits the animated rotations without carrying authored base rotations into the attached model
         final Quaternionf bodyRotation = new Quaternionf().rotationZYX(this.body.zRot, this.body.yRot, this.body.xRot);
         final Quaternionf initialBodyRotation = new Quaternionf().rotationZYX(
             this.body.getInitialPose().zRot,
