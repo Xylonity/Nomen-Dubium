@@ -36,7 +36,7 @@ side = "BOTH"
 #openGLVersion="[3.2,)"
 [[dependencies.${mod_id}]]
 modId = "knightlib"
-mandatory = true
+type = "required"
 versionRange = "[2.0.0,)"
 ordering = "AFTER"
 side = "BOTH"

@@ -24,7 +24,7 @@ public final class TreeOfLifeScreen extends AbstractContainerScreen<TreeOfLifeMe
 
     @Override
     public void render(@NonNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(graphics);
+        this.renderBackground(graphics, mouseX, mouseY, partialTick);
         super.render(graphics, mouseX, mouseY, partialTick);
         this.renderTooltip(graphics, mouseX, mouseY);
     }

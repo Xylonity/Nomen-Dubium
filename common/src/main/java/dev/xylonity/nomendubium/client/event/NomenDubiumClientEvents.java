@@ -21,7 +21,6 @@ import dev.xylonity.nomendubium.registry.NomenDubiumBlockEntities;
 import dev.xylonity.nomendubium.registry.NomenDubiumBlocks;
 import dev.xylonity.nomendubium.registry.NomenDubiumEntities;
 import dev.xylonity.nomendubium.registry.NomenDubiumMenus;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 
 public final class NomenDubiumClientEvents {
 
@@ -56,7 +55,7 @@ public final class NomenDubiumClientEvents {
     }
 
     private static void registerItemModel(AdditionalModelsRegistrationEvent event, String name) {
-        event.register(new ModelResourceLocation(NomenDubium.of(name), "inventory"));
+        event.registerItemModel(NomenDubium.MOD_ID, name);
     }
 
     @RegisterEvent

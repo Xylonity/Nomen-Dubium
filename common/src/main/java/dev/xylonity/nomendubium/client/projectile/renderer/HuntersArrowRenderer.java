@@ -41,7 +41,7 @@ public final class HuntersArrowRenderer extends EntityRenderer<HuntersArrowEntit
         poses.translate(-0.2, 0, 0);
 
         this.model.resetPose();
-        this.model.renderToBuffer(poses, buffers.getBuffer(this.model.renderType(TEXTURE)), packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+        this.model.renderToBuffer(poses, buffers.getBuffer(this.model.renderType(TEXTURE)), packedLight, OverlayTexture.NO_OVERLAY, -1);
 
         poses.popPose();
 

@@ -7,7 +7,6 @@ import dev.xylonity.nomendubium.common.menu.TreeOfLifeMenu;
 import dev.xylonity.nomendubium.common.recipe.TreeOfLifeRecipe;
 import dev.xylonity.nomendubium.common.recipe.TreeOfLifeRecipeInput;
 import dev.xylonity.nomendubium.registry.NomenDubiumRecipes;
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -26,6 +25,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.NonNull;
@@ -97,7 +97,7 @@ public final class TreeOfLifeEntity extends Mob implements MenuProvider, KnightL
         // Builds the recipe input
         final TreeOfLifeRecipeInput input = new TreeOfLifeRecipeInput(this.inventory.getItem(TreeOfLifeMenu.INGREDIENT_SLOT), this.inventory.getItem(TreeOfLifeMenu.ROOT_OF_LIFE_SLOT));
         // Looks for the matching recipe
-        final Optional<Pair<ResourceLocation, TreeOfLifeRecipe>> recipeHolder = level.getRecipeManager()
+        final Optional<RecipeHolder<TreeOfLifeRecipe>> recipeHolder = level.getRecipeManager()
             .getRecipeFor(NomenDubiumRecipes.TREE_OF_LIFE_TYPE.get(), input, level, this.activeRecipe);
 
         // Invalid recipe
@@ -107,11 +107,11 @@ public final class TreeOfLifeEntity extends Mob implements MenuProvider, KnightL
         }
 
 
-        final Pair<ResourceLocation, TreeOfLifeRecipe> holder = recipeHolder.get();
-        final TreeOfLifeRecipe recipe = holder.getSecond();
+        final RecipeHolder<TreeOfLifeRecipe> holder = recipeHolder.get();
+        final TreeOfLifeRecipe recipe = holder.value();
 
-        if (!holder.getFirst().equals(this.activeRecipe) || this.pendingResult.isEmpty()) {
-            this.activeRecipe = holder.getFirst();
+        if (!holder.id().equals(this.activeRecipe) || this.pendingResult.isEmpty()) {
+            this.activeRecipe = holder.id();
             this.restorationProgress = 0;
             this.pendingResult = recipe.random(this.random);
         }
@@ -159,7 +159,7 @@ public final class TreeOfLifeEntity extends Mob implements MenuProvider, KnightL
             return itemStack.getCount() <= itemStack.getMaxStackSize();
         }
 
-        return ItemStack.isSameItemSameTags(current, itemStack) && current.getCount() + itemStack.getCount() <= current.getMaxStackSize();
+        return ItemStack.isSameItemSameComponents(current, itemStack) && current.getCount() + itemStack.getCount() <= current.getMaxStackSize();
     }
 
     private void resetRestoration() {
@@ -205,7 +205,7 @@ public final class TreeOfLifeEntity extends Mob implements MenuProvider, KnightL
         this.inventory.clearContent();
         for (int slot = 0; slot < this.inventory.getContainerSize(); slot++) {
             if (tag.contains("InventorySlot" + slot)) {
-                this.inventory.setItem(slot, ItemStack.of(tag.getCompound("InventorySlot" + slot)));
+                this.inventory.setItem(slot, ItemStack.parseOptional(this.registryAccess(), tag.getCompound("InventorySlot" + slot)));
             }
 
         }
@@ -213,7 +213,7 @@ public final class TreeOfLifeEntity extends Mob implements MenuProvider, KnightL
         this.restorationProgress = Math.max(0, tag.getInt("restoration_progress"));
         this.restorationTime = Math.max(0, tag.getInt("restoration_time"));
         this.activeRecipe = tag.contains("active_restoration_recipe") ? ResourceLocation.tryParse(tag.getString("active_restoration_recipe")) : null;
-        this.pendingResult = tag.contains("pending_restoration_result") ? ItemStack.of(tag.getCompound("pending_restoration_result")) : ItemStack.EMPTY;
+        this.pendingResult = tag.contains("pending_restoration_result") ? ItemStack.parseOptional(this.registryAccess(), tag.getCompound("pending_restoration_result")) : ItemStack.EMPTY;
     }
 
     @Override
@@ -222,7 +222,7 @@ public final class TreeOfLifeEntity extends Mob implements MenuProvider, KnightL
         for (int slot = 0; slot < this.inventory.getContainerSize(); slot++) {
             final ItemStack stack = this.inventory.getItem(slot);
             if (!stack.isEmpty()) {
-                tag.put("InventorySlot" + slot, stack.save(new CompoundTag()));
+                tag.put("InventorySlot" + slot, stack.save(this.registryAccess()));
             }
 
         }
@@ -234,7 +234,7 @@ public final class TreeOfLifeEntity extends Mob implements MenuProvider, KnightL
             tag.putString("active_restoration_recipe", this.activeRecipe.toString());
         }
         if (!this.pendingResult.isEmpty()) {
-            tag.put("pending_restoration_result", this.pendingResult.save(new CompoundTag()));
+            tag.put("pending_restoration_result", this.pendingResult.save(this.registryAccess()));
         }
 
     }
@@ -242,6 +242,11 @@ public final class TreeOfLifeEntity extends Mob implements MenuProvider, KnightL
     @Override
     public boolean isInvulnerableTo(DamageSource source) {
         return !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY) || super.isInvulnerableTo(source);
+    }
+
+    @Override
+    public boolean removeWhenFarAway(double distanceToClosestPlayer) {
+        return false;
     }
 
     @Override

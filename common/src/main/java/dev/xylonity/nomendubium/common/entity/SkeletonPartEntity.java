@@ -59,11 +59,11 @@ public final class SkeletonPartEntity extends Entity {
     }
 
     @Override
-    protected void defineSynchedData() {
-        this.entityData.define(PART_TYPE, SkeletonPartType.HULKING_BODY.index());
-        this.entityData.define(PARENT_ID, -1);
-        this.entityData.define(REVIVAL_TICKS, 0);
-        this.entityData.define(REVIVAL_PALETTE, ChimeraPaletteVariant.NORMAL.index());
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(PART_TYPE, SkeletonPartType.HULKING_BODY.index());
+        builder.define(PARENT_ID, -1);
+        builder.define(REVIVAL_TICKS, 0);
+        builder.define(REVIVAL_PALETTE, ChimeraPaletteVariant.NORMAL.index());
     }
 
     @Override

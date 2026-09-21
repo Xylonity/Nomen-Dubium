@@ -1,8 +1,10 @@
 package dev.xylonity.nomendubium.common.menu;
 
 import dev.xylonity.nomendubium.common.item.fossil.util.FossilCategory;
+import dev.xylonity.nomendubium.common.item.util.ItemStackData;
 import dev.xylonity.nomendubium.registry.NomenDubiumItems;
 import dev.xylonity.nomendubium.registry.NomenDubiumMenus;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -364,10 +366,12 @@ public class PaleontologyTableMenu extends AbstractContainerMenu {
     }
 
     private FossilCategory getOrAssignCategory(ItemStack workpiece) {
-        FossilCategory category = FossilCategory.name(workpiece.hasTag() ? workpiece.getTag().getString("FossilCategory") : null);
+        final CompoundTag workpieceData = ItemStackData.get(workpiece);
+        FossilCategory category = FossilCategory.name(workpieceData.contains("FossilCategory") ? workpieceData.getString("FossilCategory") : null);
         if (category == null) {
             category = FossilCategory.random(this.player.level().getRandom());
-            workpiece.getOrCreateTag().putString("FossilCategory", category.serializedName());
+            final FossilCategory selectedCategory = category;
+            ItemStackData.update(workpiece, tag -> tag.putString("FossilCategory", selectedCategory.serializedName()));
             this.container.setChanged();
         }
 

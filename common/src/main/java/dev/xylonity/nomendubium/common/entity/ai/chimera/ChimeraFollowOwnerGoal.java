@@ -8,7 +8,7 @@ public final class ChimeraFollowOwnerGoal extends FollowOwnerGoal {
     private final ChimeraEntity chimera;
 
     public ChimeraFollowOwnerGoal(ChimeraEntity chimera) {
-        super(chimera, 1.1, 8.0F, 3.0F, false);
+        super(chimera, 1.1, 8.0F, 3.0F);
         this.chimera = chimera;
     }
 

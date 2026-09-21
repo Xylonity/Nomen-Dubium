@@ -40,15 +40,15 @@ public final class FossilisedMawProjectileEntity extends AbstractArrow implement
     }
 
     public FossilisedMawProjectileEntity(ServerLevel level, LivingEntity owner, ItemStack thrownItem, boolean creativePickup) {
-        super(NomenDubiumEntities.FOSSILISED_MAW.get(), owner, level);
+        super(NomenDubiumEntities.FOSSILISED_MAW.get(), owner, level, thrownItem, null);
         pickup = creativePickup ? Pickup.CREATIVE_ONLY : Pickup.ALLOWED;
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(IMPACT_FACE, -1);
-        this.entityData.define(IMPACT_ROLL, 0F);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(IMPACT_FACE, -1);
+        builder.define(IMPACT_ROLL, 0F);
     }
 
     @Override
@@ -125,7 +125,7 @@ public final class FossilisedMawProjectileEntity extends AbstractArrow implement
     }
 
     @Override
-    protected @NonNull ItemStack getPickupItem() {
+    protected @NonNull ItemStack getDefaultPickupItem() {
         return new ItemStack(NomenDubiumItems.FOSSILISED_MAW.get());
     }
 

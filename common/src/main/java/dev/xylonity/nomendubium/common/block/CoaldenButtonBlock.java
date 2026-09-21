@@ -13,7 +13,7 @@ public final class CoaldenButtonBlock extends ButtonBlock {
     private static final int FIRE_SPREAD_SPEED = 1;
 
     public CoaldenButtonBlock(BlockSetType blockSetType, Properties properties) {
-        super(properties, blockSetType, 30, true);
+        super(blockSetType, 30, properties);
     }
 
     public int getFlammability(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {

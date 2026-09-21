@@ -357,7 +357,7 @@ public final class LifeHollowFeature extends Feature<NoneFeatureConfiguration> {
                     case 2, 3, 4 -> Blocks.LILY_OF_THE_VALLEY.defaultBlockState();
                     case 5, 6, 7 -> Blocks.WHITE_TULIP.defaultBlockState();
                     case 8, 9, 10 -> Blocks.FERN.defaultBlockState();
-                    case 11, 12, 13, 14, 15, 16, 17, 18, 19 -> Blocks.GRASS.defaultBlockState();
+                    case 11, 12, 13, 14, 15, 16, 17, 18, 19 -> Blocks.SHORT_GRASS.defaultBlockState();
                     default -> Blocks.MOSS_CARPET.defaultBlockState();
                 };
 
@@ -463,6 +463,7 @@ public final class LifeHollowFeature extends Feature<NoneFeatureConfiguration> {
             return false;
         }
 
+        tree.setPersistenceRequired();
         tree.moveTo(centerX + 0.5, floorY + 1.0, centerZ + 0.5, 90, 0);
         tree.setYBodyRot(90);
         tree.setYHeadRot(90);

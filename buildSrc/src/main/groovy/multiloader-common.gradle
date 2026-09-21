@@ -108,6 +108,8 @@ processResources {
             'description'                  : project.description,
             "forge_version"                : forge_version,
             "forge_loader_version_range"   : forge_loader_version_range,
+            'neoforge_version'              : neoforge_version,
+            'neoforge_loader_version_range' : neoforge_loader_version_range,
             'knightlib_version'             : knightlib_version,
             'credits'                      : credits,
             'java_version'                 : java_version

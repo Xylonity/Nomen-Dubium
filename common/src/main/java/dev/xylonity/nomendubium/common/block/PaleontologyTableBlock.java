@@ -1,5 +1,6 @@
 package dev.xylonity.nomendubium.common.block;
 
+import com.mojang.serialization.MapCodec;
 import dev.xylonity.knightlib.KnightLib;
 import dev.xylonity.nomendubium.common.blockentity.PaleontologyTableBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -19,12 +20,19 @@ import org.jspecify.annotations.NonNull;
 
 public final class PaleontologyTableBlock extends BaseEntityBlock {
 
+    public static final MapCodec<PaleontologyTableBlock> CODEC = simpleCodec(PaleontologyTableBlock::new);
+
     public PaleontologyTableBlock(BlockBehaviour.Properties properties) {
         super(properties);
     }
 
     @Override
-    public @NonNull InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
+    }
+
+    @Override
+    protected @NonNull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (level instanceof ServerLevel && level.getBlockEntity(pos) instanceof PaleontologyTableBlockEntity table) {
             KnightLib.PLATFORM.openMenu((ServerPlayer) player, table, friendlyByteBuf -> friendlyByteBuf.writeBlockPos(pos));
         }

@@ -1,10 +1,5 @@
-# 1.0.2
-- Fixed coalden trapdoor opening to the wrong side
-- Fixed some chimera bodies not adapting properly to the floor when sitting
-- Fixed back parts detached from the puffy body
-- Fixed creatures being too bouncy on entity collision
-- Fixed spikes back parts flying when attached to a lanky body type
-- Fixed incorrect back part rotation not adapting to the relevant body part transforms from the chimera
+# 1.0.3
+- Port to 1.21.1
 
 # 1.0.1
 - Fixed a hard crash due to a missing mixin refmap definition

@@ -1,13 +1,13 @@
 {
-    "type":  "minecraft:crafting_shapeless",
-    "category":  "redstone",
-    "group":  "wooden_button",
-    "ingredients":  [
-                        {
-                            "item":  "nomendubium:coalden_planks"
-                        }
-                    ],
-    "result":  {
-                   "item":  "nomendubium:coalden_button"
-               }
+  "type": "minecraft:crafting_shapeless",
+  "category": "redstone",
+  "group": "wooden_button",
+  "ingredients": [
+    {
+      "item": "nomendubium:coalden_planks"
+    }
+  ],
+  "result": {
+    "id": "nomendubium:coalden_button"
+  }
 }

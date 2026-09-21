@@ -60,8 +60,8 @@ public final class PrehistoricMawProjectileEntity extends ThrowableProjectile im
     }
 
     @Override
-    protected void defineSynchedData() {
-        this.entityData.define(RETURNING, false);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(RETURNING, false);
     }
 
     @Override
@@ -225,8 +225,8 @@ public final class PrehistoricMawProjectileEntity extends ThrowableProjectile im
     }
 
     @Override
-    protected float getGravity() {
-        return 0.0F;
+    protected double getDefaultGravity() {
+        return 0.0;
     }
 
     @Override
@@ -272,7 +272,7 @@ public final class PrehistoricMawProjectileEntity extends ThrowableProjectile im
         super.readAdditionalSaveData(tag);
         entityData.set(RETURNING, tag.getBoolean("returning"));
         returnsToInventory = !tag.contains("returns_to_inventory") || tag.getBoolean("returns_to_inventory");
-        thrownItem = tag.contains("item") ? ItemStack.of(tag.getCompound("item")) : ItemStack.EMPTY;
+        thrownItem = tag.contains("item") ? ItemStack.parseOptional(this.registryAccess(), tag.getCompound("item")) : ItemStack.EMPTY;
         launchDamage = Mth.clamp(tag.contains("launch_damage") ? tag.getFloat("launch_damage") : PrehistoricMawItem.getAttackDamage(thrownItem),
             NomenDubiumConfig.PREHISTORIC_MAW_BASE_DAMAGE, NomenDubiumConfig.PREHISTORIC_MAW_MAX_DAMAGE
         );
@@ -285,7 +285,7 @@ public final class PrehistoricMawProjectileEntity extends ThrowableProjectile im
         tag.putBoolean("returning", isReturning());
         tag.putBoolean("returns_to_inventory", returnsToInventory);
         if (!thrownItem.isEmpty()) {
-            tag.put("item", thrownItem.save(new CompoundTag()));
+            tag.put("item", thrownItem.save(this.registryAccess()));
         }
 
         tag.putFloat("launch_damage", launchDamage);

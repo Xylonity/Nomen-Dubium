@@ -1,14 +1,14 @@
 {
-    "type":  "minecraft:crafting_shapeless",
-    "category":  "building",
-    "group":  "planks",
-    "ingredients":  [
-                        {
-                            "tag":  "nomendubium:coalden_logs"
-                        }
-                    ],
-    "result":  {
-                   "item":  "nomendubium:coalden_planks",
-                   "count":  4
-               }
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "planks",
+  "ingredients": [
+    {
+      "tag": "nomendubium:coalden_logs"
+    }
+  ],
+  "result": {
+    "id": "nomendubium:coalden_planks",
+    "count": 4
+  }
 }

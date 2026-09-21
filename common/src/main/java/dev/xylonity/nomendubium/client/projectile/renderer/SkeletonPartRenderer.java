@@ -77,7 +77,7 @@ public final class SkeletonPartRenderer extends EntityRenderer<SkeletonPartEntit
         part.model().setupAnim(entity, 0, 0, entity.tickCount + partialTicks, 0, 0);
 
         final VertexConsumer consumer = buffers.getBuffer(part.model().renderType(part.texture()));
-        part.model().renderToBuffer(poses, consumer, packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+        part.model().renderToBuffer(poses, consumer, packedLight, OverlayTexture.NO_OVERLAY, -1);
 
         poses.popPose();
 

@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
@@ -18,6 +20,7 @@ import net.minecraft.world.level.block.SnowLayerBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
@@ -33,7 +36,7 @@ public final class OpenPitFeature extends Feature<NoneFeatureConfiguration> {
     private static final double SPIRAL_TURNS = 1.35D;
     private static final double SANDY_RIM_RADIUS = 1.30D;
 
-    private static final ResourceLocation ARCHAEOLOGY_LOOT = NomenDubium.of("archaeology/open_pit");
+    private static final ResourceKey<LootTable> ARCHAEOLOGY_LOOT = ResourceKey.create(Registries.LOOT_TABLE, NomenDubium.of("archaeology/open_pit"));
 
     public OpenPitFeature(Codec<NoneFeatureConfiguration> codec) {
         super(codec);

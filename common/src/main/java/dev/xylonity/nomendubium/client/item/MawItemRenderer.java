@@ -41,7 +41,7 @@ public final class MawItemRenderer extends BlockEntityWithoutLevelRenderer {
     }
 
     private static ModelResourceLocation model(String name) {
-        return new ModelResourceLocation(NomenDubium.of(name), "inventory");
+        return new ModelResourceLocation(NomenDubium.of("item/" + name), "standalone");
     }
 
     private static boolean usesSmallIcon(ItemDisplayContext displayContext) {

@@ -243,7 +243,7 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
 
     @Override
     public void render(@NonNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(graphics);
+        this.renderBackground(graphics, mouseX, mouseY, partialTick);
         super.render(graphics, mouseX, mouseY, partialTick);
 
         // If a tool is selected, tool rendering
@@ -988,7 +988,7 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
     private static ResourceLocation[] createParticleTextures(String prefix, int frameCount) {
         final ResourceLocation[] textures = new ResourceLocation[frameCount];
         for (int i = 0; i < textures.length; i++) {
-            textures[i] = new ResourceLocation("minecraft", "textures/particle/" + prefix + i + ".png");
+            textures[i] = ResourceLocation.fromNamespaceAndPath("minecraft", "textures/particle/" + prefix + i + ".png");
         }
 
         return textures;
@@ -997,7 +997,7 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
     private static ResourceLocation[] createBrushDustTextures() {
         final ResourceLocation[] textures = new ResourceLocation[8];
         for (int i = 0; i < textures.length; i++) {
-            textures[i] = new ResourceLocation("minecraft", "textures/particle/generic_" + i + ".png");
+            textures[i] = ResourceLocation.fromNamespaceAndPath("minecraft", "textures/particle/generic_" + i + ".png");
         }
 
         return textures;

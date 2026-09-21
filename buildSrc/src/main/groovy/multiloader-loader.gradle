@@ -12,6 +12,7 @@ configurations {
 }
 
 dependencies {
+    compileOnly group: 'org.jspecify', name: 'jspecify', version: '1.0.0'
     compileOnly(project(':common')) {
         capabilities {
             requireCapability "$group:$mod_id"

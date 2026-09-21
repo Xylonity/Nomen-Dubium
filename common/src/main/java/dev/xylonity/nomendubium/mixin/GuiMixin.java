@@ -1,6 +1,7 @@
 package dev.xylonity.nomendubium.mixin;
 
 import dev.xylonity.nomendubium.client.AmberVisionClient;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -13,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class GuiMixin {
 
     @Inject(method = "renderCrosshair", at = @At("HEAD"), cancellable = true)
-    private void nomendubium$hideCrosshairDuringAmberVision(GuiGraphics graphics, CallbackInfo ci) {
+    private void nomendubium$hideCrosshairDuringAmberVision(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         if (AmberVisionClient.isActive()) {
             ci.cancel();
         }

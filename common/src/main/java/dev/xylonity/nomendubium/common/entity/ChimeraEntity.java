@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -174,7 +175,8 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
             .add(Attributes.ARMOR, 4.0)
             .add(Attributes.KNOCKBACK_RESISTANCE, 0.75)
             .add(Attributes.FOLLOW_RANGE, 32.0)
-            .add(Attributes.JUMP_STRENGTH, 0.48);
+            .add(Attributes.JUMP_STRENGTH, 0.48)
+            .add(Attributes.STEP_HEIGHT, 1.25);
     }
 
     @Override
@@ -198,22 +200,22 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(BODY, ChimeraBodyVariant.HULKING.index());
-        this.entityData.define(HEAD, ChimeraHeadVariant.CRUNCHING.index());
-        this.entityData.define(TAIL, ChimeraTailVariant.SPIKED.index());
-        this.entityData.define(BACK, ChimeraBackVariant.NONE.index());
-        this.entityData.define(PALETTE, ChimeraPaletteVariant.NORMAL.index());
-        this.entityData.define(HOSTILE, false);
-        this.entityData.define(MAIN_ACTION, ACTION_FOLLOW);
-        this.entityData.define(ROARING, false);
-        this.entityData.define(SHIELD_CHARGING, false);
-        this.entityData.define(SHIELD_CHARGE_Y_ROT, 0.0F);
-        this.entityData.define(CRUNCHING_BITING, false);
-        this.entityData.define(SNORTING_EXTRACTING, false);
-        this.entityData.define(BEAKED_PECKING, false);
-        this.entityData.define(BEAKED_PECK_Y_ROT, 0.0F);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(BODY, ChimeraBodyVariant.HULKING.index());
+        builder.define(HEAD, ChimeraHeadVariant.CRUNCHING.index());
+        builder.define(TAIL, ChimeraTailVariant.SPIKED.index());
+        builder.define(BACK, ChimeraBackVariant.NONE.index());
+        builder.define(PALETTE, ChimeraPaletteVariant.NORMAL.index());
+        builder.define(HOSTILE, false);
+        builder.define(MAIN_ACTION, ACTION_FOLLOW);
+        builder.define(ROARING, false);
+        builder.define(SHIELD_CHARGING, false);
+        builder.define(SHIELD_CHARGE_Y_ROT, 0.0F);
+        builder.define(CRUNCHING_BITING, false);
+        builder.define(SNORTING_EXTRACTING, false);
+        builder.define(BEAKED_PECKING, false);
+        builder.define(BEAKED_PECK_Y_ROT, 0.0F);
     }
 
     @Override
@@ -521,7 +523,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     }
 
     @Override
-    public EntityDimensions getDimensions(Pose pose) {
+    protected EntityDimensions getDefaultDimensions(Pose pose) {
         return this.getBodySkeletonType().entityDimensions();
     }
 
@@ -546,8 +548,8 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     }
 
     @Override
-    public double getPassengersRidingOffset() {
-        return this.getBbHeight();
+    protected Vec3 getPassengerAttachmentPoint(Entity passenger, EntityDimensions dimensions, float partialTick) {
+        return new Vec3(0.0, dimensions.height(), 0.0);
     }
 
     @Override
@@ -1204,7 +1206,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         if (hostile) {
             this.setOrderedToSit(false);
             this.setInSittingPose(false);
-            this.setTame(false);
+            this.setTame(false, false);
             this.setOwnerUUID(null);
             this.ejectPassengers();
         }
@@ -1218,35 +1220,35 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
                 this.setAttributeBase(Attributes.ARMOR, 4.0);
                 this.setAttributeBase(Attributes.KNOCKBACK_RESISTANCE, 0.75);
                 this.setAttributeBase(Attributes.JUMP_STRENGTH, 0.48);
-                this.setMaxUpStep(1.25F);
+                this.setAttributeBase(Attributes.STEP_HEIGHT, 1.25F);
             }
             case SHELLED -> {
                 this.setAttributeBase(Attributes.MOVEMENT_SPEED, NomenDubiumConfig.SHELLED_CHIMERA_SPEED);
                 this.setAttributeBase(Attributes.ARMOR, 10.0);
                 this.setAttributeBase(Attributes.KNOCKBACK_RESISTANCE, 0.90);
                 this.setAttributeBase(Attributes.JUMP_STRENGTH, 0.42);
-                this.setMaxUpStep(1.0F);
+                this.setAttributeBase(Attributes.STEP_HEIGHT, 1.0F);
             }
             case AVIAN -> {
                 this.setAttributeBase(Attributes.MOVEMENT_SPEED, NomenDubiumConfig.AVIAN_CHIMERA_SPEED);
                 this.setAttributeBase(Attributes.ARMOR, 2.0);
                 this.setAttributeBase(Attributes.KNOCKBACK_RESISTANCE, 0.20);
                 this.setAttributeBase(Attributes.JUMP_STRENGTH, 0.55);
-                this.setMaxUpStep(1.0F);
+                this.setAttributeBase(Attributes.STEP_HEIGHT, 1.0F);
             }
             case LANKY -> {
                 this.setAttributeBase(Attributes.MOVEMENT_SPEED, NomenDubiumConfig.LANKY_CHIMERA_SPEED);
                 this.setAttributeBase(Attributes.ARMOR, 2.0);
                 this.setAttributeBase(Attributes.KNOCKBACK_RESISTANCE, 0.20);
                 this.setAttributeBase(Attributes.JUMP_STRENGTH, 1.05);
-                this.setMaxUpStep(1.5F);
+                this.setAttributeBase(Attributes.STEP_HEIGHT, 1.5F);
             }
             case PUFFY -> {
                 this.setAttributeBase(Attributes.MOVEMENT_SPEED, NomenDubiumConfig.PUFFY_CHIMERA_SPEED);
                 this.setAttributeBase(Attributes.ARMOR, 3.0);
                 this.setAttributeBase(Attributes.KNOCKBACK_RESISTANCE, 0.35);
                 this.setAttributeBase(Attributes.JUMP_STRENGTH, 0.45);
-                this.setMaxUpStep(1.0F);
+                this.setAttributeBase(Attributes.STEP_HEIGHT, 1.0F);
             }
 
         }
@@ -1280,7 +1282,7 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         this.setAttributeBase(Attributes.ATTACK_KNOCKBACK, attackKnockback);
     }
 
-    private void setAttributeBase(Attribute attribute, double value) {
+    private void setAttributeBase(Holder<Attribute> attribute, double value) {
         final AttributeInstance instance = this.getAttribute(attribute);
         if (instance != null) {
             instance.setBaseValue(value);

@@ -133,7 +133,7 @@ public final class ChimeraRenderer extends EntityRenderer<ChimeraEntity> {
         }
 
         final int overlay = LivingEntityRenderer.getOverlayCoords(entity, 0.0F);
-        part.model().renderToBuffer(poses, consumer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+        part.model().renderToBuffer(poses, consumer, light, overlay, -1);
     }
 
     private void renderRider(ChimeraEntity chimera, ChimeraBodyModel body, float partialTicks, PoseStack poseStack, MultiBufferSource buffers, int packedLight) {

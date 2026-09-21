@@ -53,6 +53,10 @@ public final class ExcavationStructurePiece extends StructurePiece {
         final int[][] offsets = this.variant == ExcavationStructure.Variant.LIFE_HOLLOW ? LIFE_HOLLOW_OFFSETS : OPEN_PIT_OFFSETS;
         for (int[] offset : offsets) {
             final BlockPos tryy = center.offset(offset[0], 0, offset[1]);
+            if (!chunkBounds.isInside(tryy)) {
+                continue;
+            }
+
             final boolean placed = switch (this.variant) {
                 case OPEN_PIT -> NomenDubiumWorldgen.OPEN_PIT.get().place(NoneFeatureConfiguration.INSTANCE, level, chunkGenerator, random, tryy);
                 case LIFE_HOLLOW -> NomenDubiumWorldgen.LIFE_HOLLOW.get().place(NoneFeatureConfiguration.INSTANCE, level, chunkGenerator, random, tryy);

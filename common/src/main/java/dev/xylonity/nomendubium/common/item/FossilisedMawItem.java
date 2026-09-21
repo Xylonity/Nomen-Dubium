@@ -1,7 +1,5 @@
 package dev.xylonity.nomendubium.common.item;
 
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.Multimap;
 import dev.xylonity.knightlib.api.item.KnightLibRenderedItem;
 import dev.xylonity.nomendubium.client.item.MawItemRenderer;
 import dev.xylonity.nomendubium.common.entity.FossilisedMawProjectileEntity;
@@ -12,12 +10,14 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.NonNull;
@@ -47,7 +47,7 @@ public final class FossilisedMawItem extends DescribedItem implements KnightLibR
     }
 
     @Override
-    public int getUseDuration(@NonNull ItemStack stack) {
+    public int getUseDuration(@NonNull ItemStack stack, LivingEntity entity) {
         return 72000;
     }
 
@@ -57,7 +57,7 @@ public final class FossilisedMawItem extends DescribedItem implements KnightLibR
             return;
         }
 
-        final int charge = getUseDuration(stack) - timeLeft;
+        final int charge = getUseDuration(stack, livingEntity) - timeLeft;
         if (charge < 12) {
             return;
         }
@@ -82,19 +82,13 @@ public final class FossilisedMawItem extends DescribedItem implements KnightLibR
 
     }
 
-    public static Multimap<net.minecraft.world.entity.ai.attributes.Attribute, AttributeModifier> createAttributes(float totalAttackDamage) {
-        return ImmutableMultimap.<net.minecraft.world.entity.ai.attributes.Attribute, AttributeModifier>builder()
-            .put(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_UUID, "Weapon modifier",
-                totalAttackDamage - 1.0F, AttributeModifier.Operation.ADDITION))
-            .put(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_UUID, "Weapon modifier",
-                -3.2F, AttributeModifier.Operation.ADDITION))
+    public static ItemAttributeModifiers createAttributes(float totalAttackDamage) {
+        return ItemAttributeModifiers.builder()
+            .add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID,
+                totalAttackDamage - 1.0F, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+            .add(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID,
+                -3.2F, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
             .build();
-    }
-
-    @Override
-    public Multimap<net.minecraft.world.entity.ai.attributes.Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot slot) {
-        return slot == EquipmentSlot.MAINHAND ? createAttributes(NomenDubiumConfig.FOSSILISED_MAW_DAMAGE) : super.getDefaultAttributeModifiers(slot);
-
     }
 
     @Override

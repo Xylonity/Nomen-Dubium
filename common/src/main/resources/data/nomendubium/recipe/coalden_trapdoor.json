@@ -1,18 +1,18 @@
 {
-    "type":  "minecraft:crafting_shaped",
-    "category":  "redstone",
-    "group":  "wooden_trapdoor",
-    "key":  {
-                "#":  {
-                          "item":  "nomendubium:coalden_planks"
-                      }
-            },
-    "pattern":  [
-                    "###",
-                    "###"
-                ],
-    "result":  {
-                   "item":  "nomendubium:coalden_trapdoor",
-                   "count":  2
-               }
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "group": "wooden_trapdoor",
+  "key": {
+    "#": {
+      "item": "nomendubium:coalden_planks"
+    }
+  },
+  "pattern": [
+    "###",
+    "###"
+  ],
+  "result": {
+    "id": "nomendubium:coalden_trapdoor",
+    "count": 2
+  }
 }

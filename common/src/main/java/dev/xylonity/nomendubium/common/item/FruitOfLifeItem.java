@@ -1,7 +1,9 @@
 package dev.xylonity.nomendubium.common.item;
 
 import dev.xylonity.nomendubium.common.entity.variant.ChimeraPaletteVariant;
+import dev.xylonity.nomendubium.common.item.util.ItemStackData;
 import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
@@ -18,14 +20,15 @@ public final class FruitOfLifeItem extends DescribedItem {
     public ItemStack createStack(@Nullable ChimeraPaletteVariant palette) {
         final ItemStack stack = new ItemStack(this);
         if (palette != null) {
-            stack.getOrCreateTag().putString("ChimeraPalette", palette.parsedName());
+            ItemStackData.update(stack, tag -> tag.putString("ChimeraPalette", palette.parsedName()));
         }
 
         return stack;
     }
 
     public static @Nullable ChimeraPaletteVariant getPalette(ItemStack stack) {
-        return ChimeraPaletteVariant.byName(stack.hasTag() ? stack.getTag().getString("ChimeraPalette") : null);
+        final CompoundTag tag = ItemStackData.get(stack);
+        return ChimeraPaletteVariant.byName(tag.contains("ChimeraPalette") ? tag.getString("ChimeraPalette") : null);
     }
 
     @Override

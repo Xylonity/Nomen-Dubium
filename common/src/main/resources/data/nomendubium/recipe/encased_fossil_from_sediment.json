@@ -1,21 +1,21 @@
 {
-    "type":  "minecraft:crafting_shaped",
-    "category":  "misc",
-    "key":  {
-                "B":  {
-                          "item":  "nomendubium:fossil_bone"
-                      },
-                "S":  {
-                          "item":  "nomendubium:sediment"
-                      }
-            },
-    "pattern":  [
-                    "SSS",
-                    "SBS",
-                    "SSS"
-                ],
-    "result":  {
-                   "item":  "nomendubium:encased_fossil",
-                   "count":  1
-               }
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "nomendubium:fossil_bone"
+    },
+    "S": {
+      "item": "nomendubium:sediment"
+    }
+  },
+  "pattern": [
+    "SSS",
+    "SBS",
+    "SSS"
+  ],
+  "result": {
+    "id": "nomendubium:encased_fossil",
+    "count": 1
+  }
 }

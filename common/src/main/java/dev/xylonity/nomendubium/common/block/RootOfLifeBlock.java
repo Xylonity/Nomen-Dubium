@@ -1,5 +1,6 @@
 package dev.xylonity.nomendubium.common.block;
 
+import com.mojang.serialization.MapCodec;
 import dev.xylonity.nomendubium.registry.NomenDubiumItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -22,8 +23,15 @@ import org.jspecify.annotations.NonNull;
 
 public final class RootOfLifeBlock extends BushBlock {
 
+    public static final MapCodec<RootOfLifeBlock> CODEC = simpleCodec(RootOfLifeBlock::new);
+
     public RootOfLifeBlock(BlockBehaviour.Properties properties) {
         super(properties);
+    }
+
+    @Override
+    protected MapCodec<? extends BushBlock> codec() {
+        return CODEC;
     }
 
     @Override
@@ -32,7 +40,7 @@ public final class RootOfLifeBlock extends BushBlock {
     }
 
     @Override
-    public @NonNull InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected @NonNull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (!(level instanceof ServerLevel serverLevel)) {
             return InteractionResult.SUCCESS;
         }

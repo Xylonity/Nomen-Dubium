@@ -2,6 +2,7 @@ package dev.xylonity.nomendubium.common.entity;
 
 import dev.xylonity.nomendubium.registry.NomenDubiumEntities;
 import dev.xylonity.nomendubium.registry.NomenDubiumItems;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
@@ -12,6 +13,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.projectile.ItemSupplier;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -27,12 +29,12 @@ public final class HuntersArrowEntity extends AbstractArrow implements ItemSuppl
     }
 
     public HuntersArrowEntity(Level level, LivingEntity owner, ItemStack arrowStack, ItemStack weaponStack) {
-        super(NomenDubiumEntities.HUNTERS_ARROW.get(), owner, level);
+        super(NomenDubiumEntities.HUNTERS_ARROW.get(), owner, level, arrowStack, weaponStack.isEmpty() ? null : weaponStack);
         setBaseDamage(BASE_DAMAGE);
     }
 
     public HuntersArrowEntity(Level level, double x, double y, double z, ItemStack arrowStack, ItemStack weaponStack) {
-        super(NomenDubiumEntities.HUNTERS_ARROW.get(), x, y, z, level);
+        super(NomenDubiumEntities.HUNTERS_ARROW.get(), x, y, z, level, arrowStack, weaponStack.isEmpty() ? null : weaponStack);
         setBaseDamage(BASE_DAMAGE);
     }
 
@@ -64,8 +66,8 @@ public final class HuntersArrowEntity extends AbstractArrow implements ItemSuppl
             return false;
         }
 
-        return equippedStack.getAttributeModifiers(slot).get(Attributes.ARMOR).stream()
-            .anyMatch(modifier -> modifier.getAmount() > 0);
+        return equippedStack.getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY)
+            .compute(0.0, slot) > 0.0;
     }
 
     @Override
@@ -84,7 +86,7 @@ public final class HuntersArrowEntity extends AbstractArrow implements ItemSuppl
     }
 
     @Override
-    protected @NonNull ItemStack getPickupItem() {
+    protected @NonNull ItemStack getDefaultPickupItem() {
         return new ItemStack(NomenDubiumItems.HUNTERS_ARROW.get());
     }
 

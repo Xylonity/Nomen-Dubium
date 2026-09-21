@@ -3,9 +3,11 @@ package dev.xylonity.nomendubium.common.item.fossil;
 import dev.xylonity.nomendubium.common.entity.SkeletonPartEntity;
 import dev.xylonity.nomendubium.common.entity.skeleton.SkeletonPartType;
 import dev.xylonity.nomendubium.common.item.DescribedItem;
+import dev.xylonity.nomendubium.common.item.util.ItemStackData;
 import dev.xylonity.nomendubium.registry.NomenDubiumEntities;
 import java.util.function.Consumer;
 import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
@@ -27,12 +29,13 @@ public final class FossilItem extends DescribedItem {
 
     public ItemStack createStack(String part) {
         final ItemStack stack = new ItemStack(this);
-        stack.getOrCreateTag().putString("FossilPart", part);
+        ItemStackData.update(stack, tag -> tag.putString("FossilPart", part));
         return stack;
     }
 
     public static String getPart(ItemStack stack) {
-        return stack.hasTag() && stack.getTag().contains("FossilPart") ? stack.getTag().getString("FossilPart") : null;
+        final CompoundTag tag = ItemStackData.get(stack);
+        return tag.contains("FossilPart") ? tag.getString("FossilPart") : null;
     }
 
     @Override

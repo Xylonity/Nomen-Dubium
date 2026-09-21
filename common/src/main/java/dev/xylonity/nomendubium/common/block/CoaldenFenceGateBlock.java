@@ -13,7 +13,7 @@ public final class CoaldenFenceGateBlock extends FenceGateBlock {
     private static final int FIRE_SPREAD_SPEED = 1;
 
     public CoaldenFenceGateBlock(WoodType woodType, Properties properties) {
-        super(properties, woodType);
+        super(woodType, properties);
     }
 
     public int getFlammability(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
