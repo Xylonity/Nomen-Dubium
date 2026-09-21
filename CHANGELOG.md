@@ -1,4 +1,5 @@
 # 1.0.2
+- Fixed some chimera bodies not adapting properly to the floor when sitting
 - Fixed back parts detached from the puffy body
 - Fixed creatures being too bouncy on entity collision
 - Fixed spikes back parts flying when attached to a lanky body type
