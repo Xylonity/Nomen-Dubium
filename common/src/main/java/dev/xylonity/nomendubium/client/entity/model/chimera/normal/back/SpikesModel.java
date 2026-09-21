@@ -3,6 +3,7 @@ package dev.xylonity.nomendubium.client.entity.model.chimera.normal.back;
 import dev.xylonity.nomendubium.client.entity.model.chimera.ChimeraModelConnections;
 import dev.xylonity.nomendubium.client.entity.model.NomenDubiumEntityModel;
 import dev.xylonity.nomendubium.common.entity.ChimeraEntity;
+import dev.xylonity.nomendubium.common.entity.variant.ChimeraBodyVariant;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
@@ -13,8 +14,24 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 
 public final class SpikesModel extends NomenDubiumEntityModel<ChimeraEntity> {
 
+	private final ModelPart leftSideSpikes;
+	private final ModelPart rightSideSpikes;
+
 	public SpikesModel(ModelPart root) {
 		super(root);
+		final ModelPart spikes = root.getChild("spikes");
+		this.leftSideSpikes = spikes.getChild("L_side_spikes");
+		this.rightSideSpikes = spikes.getChild("R_side_spikes");
+	}
+
+	@Override
+	public void setupAnim(ChimeraEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+		super.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+		if (entity.getBodyVariant() == ChimeraBodyVariant.LANKY) {
+			this.leftSideSpikes.x += 1.0F;
+			this.rightSideSpikes.x -= 1.0F;
+		}
+
 	}
 
 	public static LayerDefinition createLayer() {
@@ -25,8 +42,7 @@ public final class SpikesModel extends NomenDubiumEntityModel<ChimeraEntity> {
 
 		PartDefinition R_top_spikes = spikes.addOrReplaceChild("R_top_spikes", CubeListBuilder.create().texOffs(16, 23).mirror().addBox(0.0F, -15.0F, -6.0F, 3.0F, 16.0F, 4.0F, new CubeDeformation(0.0F)).mirror(false)
 		.texOffs(0, 23).mirror().addBox(0.0F, -22.0F, -13.0F, 3.0F, 23.0F, 5.0F, new CubeDeformation(0.0F)).mirror(false)
-		.texOffs(30, 23).mirror().addBox(0.0F, -9.0F, -19.0F, 3.0F, 10.0F, 4.0F, new CubeDeformation(0.0F)).mirror(false)
-		.texOffs(0, 0).mirror().addBox(5.0F, 1.001F, -13.0F, 30.0F, 4.0F, 5.0F, new CubeDeformation(0.0F)).mirror(false), PartPose.offset(5.0F, -1.0F, 6.0F));
+		.texOffs(30, 23).mirror().addBox(0.0F, -9.0F, -19.0F, 3.0F, 10.0F, 4.0F, new CubeDeformation(0.0F)).mirror(false), PartPose.offset(5.0F, -1.0F, 6.0F));
 
 		PartDefinition L_top_spikes = spikes.addOrReplaceChild("L_top_spikes", CubeListBuilder.create().texOffs(16, 23).addBox(-3.0F, -15.0F, -6.0F, 3.0F, 16.0F, 4.0F, new CubeDeformation(0.0F))
 		.texOffs(0, 23).addBox(-3.0F, -22.0F, -13.0F, 3.0F, 23.0F, 5.0F, new CubeDeformation(0.0F))
@@ -37,7 +53,8 @@ public final class SpikesModel extends NomenDubiumEntityModel<ChimeraEntity> {
 		.texOffs(0, 0).addBox(-29.0F, -1.999F, 0.0F, 30.0F, 4.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offset(-11.0F, 2.0F, -7.0F));
 
 		PartDefinition R_side_spikes = spikes.addOrReplaceChild("R_side_spikes", CubeListBuilder.create().texOffs(0, 9).mirror().addBox(-1.0F, -1.999F, -6.0F, 22.0F, 3.0F, 4.0F, new CubeDeformation(0.0F)).mirror(false)
-		.texOffs(0, 16).mirror().addBox(-1.0F, -1.999F, 7.0F, 16.0F, 3.0F, 4.0F, new CubeDeformation(0.0F)).mirror(false), PartPose.offset(11.0F, 2.0F, -7.0F));
+		.texOffs(0, 16).mirror().addBox(-1.0F, -1.999F, 7.0F, 16.0F, 3.0F, 4.0F, new CubeDeformation(0.0F)).mirror(false)
+		.texOffs(0, 0).mirror().addBox(-1.0F, -1.999F, 0.0F, 30.0F, 4.0F, 5.0F, new CubeDeformation(0.0F)).mirror(false), PartPose.offset(11.0F, 2.0F, -7.0F));
 
 		PartDefinition body_connection = spikes.addOrReplaceChild("body_connection", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
