@@ -49,7 +49,7 @@ public abstract class ChimeraBodyModel extends NomenDubiumEntityModel<ChimeraEnt
         final float idlePhase = ageInTicks * 0.09F;
 
         // Small whole body translation inherited by every part
-        this.body.y += Mth.sin(idlePhase) * gait.idleBob * idleWeight;
+        this.body.y += Mth.sin(idlePhase) * gait.idleBob * idleWeight * (1.0F - sit);
         this.body.y += Mth.abs(Mth.sin(walkPhase)) * gait.walkBob * movement;
         this.body.y += gait.sitDrop * sit;
         if (this.gait == Gait.LANKY) {
@@ -153,6 +153,7 @@ public abstract class ChimeraBodyModel extends NomenDubiumEntityModel<ChimeraEnt
 
         // Front limbs remain planted while the hips lower
         leg.upper.y -= this.gait.sitDrop * (frontWeight + rearWeight * 0.15F) * sit;
+        leg.upper.y += leg.sitGroundOffset * sit;
         final float fold = Mth.lerp(rearWeight, this.gait.frontBrace, this.gait.rearFold);
         leg.upper.xRot += this.headDirection * fold * sit;
 
@@ -243,17 +244,25 @@ public abstract class ChimeraBodyModel extends NomenDubiumEntityModel<ChimeraEnt
     }
 
     protected static LegSpec leg(String upper, float phase) {
-        return new LegSpec(upper, null, null, phase);
+        return leg(upper, phase, 0.0F);
+    }
+
+    protected static LegSpec leg(String upper, float phase, float sitGroundOffset) {
+        return new LegSpec(upper, null, null, phase, sitGroundOffset);
     }
 
     protected static LegSpec leg(String upper, String lower, String foot, float phase) {
-        return new LegSpec(upper, lower, foot, phase);
+        return leg(upper, lower, foot, phase, 0.0F);
+    }
+
+    protected static LegSpec leg(String upper, String lower, String foot, float phase, float sitGroundOffset) {
+        return new LegSpec(upper, lower, foot, phase, sitGroundOffset);
     }
 
     protected enum Gait {
-        HULKING(0.62F, 0.48F, 0.0F, 0.0F, 0.0F, 0.13F, 0.45F, 0.012F, 0.020F, 0.018F, 9.0F, 0.17F, 0.10F, 1.05F, 0.55F, 0.16F),
-        SHELLED(0.52F, 0.32F, 0.0F, 0.0F, 0.0F, 0.08F, 0.28F, 0.008F, 0.012F, 0.010F, 5.0F, 0.10F, 0.06F, 0.72F, 0.45F, 0.12F),
-        AVIAN(0.76F, 0.72F, 0.70F, 0.22F, 0.72F, 0.18F, 0.55F, 0.018F, 0.032F, 0.026F, 14.0F, 0.18F, 0.14F, 1.10F, 1.05F, 0.14F),
+        HULKING(0.62F, 0.48F, 0.0F, 0.0F, 0.0F, 0.13F, 0.45F, 0.012F, 0.020F, 0.018F, 11.5F, 0.17F, 0.10F, 1.05F, 0.55F, 0.16F),
+        SHELLED(0.52F, 0.32F, 0.0F, 0.0F, 0.0F, 0.08F, 0.28F, 0.008F, 0.012F, 0.010F, 5.0F, 0.10F, 0.06F, 0.45F, 0.45F, 0.12F),
+        AVIAN(0.76F, 0.72F, 0.70F, 0.22F, 0.72F, 0.18F, 0.55F, 0.018F, 0.032F, 0.026F, 19.0F, 0.18F, 0.14F, 2.00F, 1.20F, 0.14F),
         LANKY(0.58F, 0.38F, 0.0F, 0.0F, 0.0F, 0.16F, 0.72F, 0.015F, 0.025F, 0.020F, 24.0F, 0.48F, 0.06F, 1.12F, 0.0F, 0.12F),
         PUFFY(0.82F, 0.52F, 0.0F, 0.0F, 0.0F, 0.24F, 0.38F, 0.020F, 0.035F, 0.030F, 6.0F, 0.12F, 0.08F, 0.62F, 0.0F, 0.20F);
 
@@ -299,14 +308,15 @@ public abstract class ChimeraBodyModel extends NomenDubiumEntityModel<ChimeraEnt
             String upper,
             String lower,
             String foot,
-            float phase
+            float phase,
+            float sitGroundOffset
     ) {
 
         private LegRig resolve(ModelPart body) {
             final ModelPart upperPart = body.getChild(this.upper);
             final ModelPart lowerPart = this.lower == null ? null : upperPart.getChild(this.lower);
             final ModelPart footPart = this.foot == null ? null : lowerPart.getChild(this.foot);
-            return new LegRig(upperPart, lowerPart, footPart, this.phase);
+            return new LegRig(upperPart, lowerPart, footPart, this.phase, this.sitGroundOffset);
         }
 
     }
@@ -315,7 +325,8 @@ public abstract class ChimeraBodyModel extends NomenDubiumEntityModel<ChimeraEnt
             ModelPart upper,
             ModelPart lower,
             ModelPart foot,
-            float phase
+            float phase,
+            float sitGroundOffset
     ) {
         ;;
     }

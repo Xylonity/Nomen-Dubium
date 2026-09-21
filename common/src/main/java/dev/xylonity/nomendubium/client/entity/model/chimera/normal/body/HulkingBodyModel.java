@@ -11,7 +11,7 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 public final class HulkingBodyModel extends ChimeraBodyModel {
 
     public HulkingBodyModel(ModelPart root) {
-        super(root, Gait.HULKING, leg("R_front_leg", 0.0F), leg("L_back_leg", 0.0F), leg("L_front_leg", (float) Math.PI), leg("R_back_leg", (float) Math.PI));
+        super(root, Gait.HULKING, leg("R_front_leg", 0.0F, 0.25F), leg("L_back_leg", 0.0F, -7.45F), leg("L_front_leg", (float) Math.PI, 0.25F), leg("R_back_leg", (float) Math.PI, -7.45F));
     }
 
     public static LayerDefinition createLayer() {

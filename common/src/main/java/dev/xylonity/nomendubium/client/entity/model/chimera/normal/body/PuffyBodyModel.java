@@ -11,7 +11,7 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 public final class PuffyBodyModel extends ChimeraBodyModel {
 
 	public PuffyBodyModel(ModelPart root) {
-		super(root, Gait.PUFFY, leg("front_left_leg", 0.0F), leg("middle_right_leg", 0.0F), leg("back_left_leg", 0.0F), leg("front_right_leg", (float) Math.PI), leg("middle_left_leg", (float) Math.PI), leg("back_right_leg", (float) Math.PI));
+		super(root, Gait.PUFFY, leg("front_left_leg", 0.0F, 0.75F), leg("middle_right_leg", 0.0F, -3.8F), leg("back_left_leg", 0.0F, -7.75F), leg("front_right_leg", (float) Math.PI, 0.75F), leg("middle_left_leg", (float) Math.PI, -3.8F), leg("back_right_leg", (float) Math.PI, -7.75F));
 	}
 
 	public static LayerDefinition createLayer() {
