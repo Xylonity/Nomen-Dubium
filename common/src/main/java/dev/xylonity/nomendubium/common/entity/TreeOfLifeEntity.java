@@ -175,11 +175,9 @@ public final class TreeOfLifeEntity extends Mob implements MenuProvider, KnightL
         }
 
         return serverLevel.getRecipeManager()
-            .getRecipes()
+            .getAllRecipesFor(NomenDubiumRecipes.TREE_OF_LIFE_TYPE.get())
             .stream()
-            .filter(TreeOfLifeRecipe.class::isInstance)
-            .map(TreeOfLifeRecipe.class::cast)
-            .anyMatch(recipe -> recipe.isIngredient(stack));
+            .anyMatch(holder -> holder.value().isIngredient(stack));
     }
 
     @Override

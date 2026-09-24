@@ -1,3 +1,6 @@
+# 1.0.4
+- Fixed Tree of Life recipes not working properly
+
 # 1.0.3
 - Port to 1.21.1
 
