@@ -631,8 +631,7 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
             final int seconds = Math.max(0, (this.menu.getCountdownTicksRemaining() + 19) / 20);
             if (seconds > 0 && seconds != this.seenCountdownSecond) {
                 this.seenCountdownSecond = seconds;
-                final int countdownSeconds = (PaleontologyTableMenu.COUNTDOWN_DURATION + 19) / 20;
-                final float pitch = 0.82F + (countdownSeconds - seconds) * 0.18F;
+                final float pitch = 0.82F + Math.max(0, 3 - seconds) * 0.18F;
                 this.playUiSound(SoundEvents.WOODEN_BUTTON_CLICK_ON, pitch, 0.58F);
             }
 
@@ -711,11 +710,10 @@ public class PaleontologyTableScreen extends AbstractContainerScreen<Paleontolog
             return;
         }
 
-        final float elapsed = Mth.clamp(PaleontologyTableMenu.COUNTDOWN_DURATION - this.menu.getCountdownTicksRemaining() + partialTick, 0.0F, PaleontologyTableMenu.COUNTDOWN_DURATION - 0.001F);
-        final int segment = Math.min(2, (int) (elapsed / 20.0F));
-        final int number = 3 - segment;
+        final float remaining = Math.max(0.001F, this.menu.getCountdownTicksRemaining() - partialTick);
+        final int number = Mth.ceil(remaining / 20.0F);
 
-        final float phase = (elapsed - segment * 20.0F) / 20.0F;
+        final float phase = (number * 20.0F - remaining) / 20.0F;
         final float enter = Mth.clamp(phase / 0.28F, 0.0F, 1.0F);
         final float eased = 1.0F - (float) Math.pow(1.0F - enter, 3.0D);
         final float pop = Mth.clamp((phase - 0.78F) / 0.22F, 0.0F, 1.0F);

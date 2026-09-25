@@ -1,6 +1,7 @@
 package dev.xylonity.nomendubium.common.menu;
 
 import dev.xylonity.nomendubium.common.item.fossil.util.FossilCategory;
+import dev.xylonity.nomendubium.config.NomenDubiumConfig;
 import dev.xylonity.nomendubium.registry.NomenDubiumItems;
 import dev.xylonity.nomendubium.registry.NomenDubiumMenus;
 import net.minecraft.world.Container;
@@ -47,12 +48,6 @@ public class PaleontologyTableMenu extends AbstractContainerMenu {
     public static final int BUTTON_RELEASE_TOOL = 13;
 
     public static final int MAX_PROGRESS = 600;
-    public static final int GLOBAL_DURATION = 20 * 60;
-    public static final int COUNTDOWN_DURATION = 20 * 3;
-    private static final int INITIAL_ROUND_DURATION = 90;
-    private static final int MIN_ROUND_DURATION = 34;
-    private static final int CHISEL_ROUND_TIME_BONUS = 30;
-    private static final float ROUND_DURATION_SCALE = 0.75F;
 
     private final int[] gameData = new int[DATA_COUNT];
 
@@ -377,8 +372,8 @@ public class PaleontologyTableMenu extends AbstractContainerMenu {
     // Resets the previous attempt and gives the player a moment to get ready
     private void startCountdown() {
         this.set(DATA_STATE, STATE_COUNTDOWN);
-        this.set(DATA_COUNTDOWN_REMAINING, COUNTDOWN_DURATION);
-        this.set(DATA_GLOBAL_REMAINING, GLOBAL_DURATION);
+        this.set(DATA_COUNTDOWN_REMAINING, NomenDubiumConfig.PALEONTOLOGY_TABLE_COUNTDOWN_DURATION * 20);
+        this.set(DATA_GLOBAL_REMAINING, globalDuration());
         this.set(DATA_PROGRESS, 0);
         this.set(DATA_ROUND_INDEX, 0);
         this.set(DATA_HELD_TOOL, -1);
@@ -390,7 +385,7 @@ public class PaleontologyTableMenu extends AbstractContainerMenu {
         // Specifies a random tool among the 3 available
         this.set(DATA_TOOL, this.player.level().getRandom().nextInt(3));
         this.set(DATA_COUNTDOWN_REMAINING, 0);
-        this.beginRound(INITIAL_ROUND_DURATION);
+        this.beginRound(NomenDubiumConfig.PALEONTOLOGY_TABLE_INITIAL_ROUND_DURATION);
     }
 
     // Changes to a different tool and gives the player less time on each new round
@@ -401,16 +396,18 @@ public class PaleontologyTableMenu extends AbstractContainerMenu {
         this.set(DATA_TOOL, (oldTool + offset) % 3);
         this.set(DATA_ROUND_INDEX, this.get(DATA_ROUND_INDEX) + 1);
 
-        final int duration = Math.max(MIN_ROUND_DURATION, INITIAL_ROUND_DURATION - this.get(DATA_ROUND_INDEX) * 4);
+        final int decrease = this.get(DATA_ROUND_INDEX) * NomenDubiumConfig.PALEONTOLOGY_TABLE_ROUND_DURATION_DECREASE;
+        final int duration = Math.max(NomenDubiumConfig.PALEONTOLOGY_TABLE_MIN_ROUND_DURATION, NomenDubiumConfig.PALEONTOLOGY_TABLE_INITIAL_ROUND_DURATION - decrease);
         this.beginRound(duration);
     }
 
     // Gives early rounds some extra time, then reduces that help as the global timer runs out
     private void beginRound(int duration) {
-        final int baseDuration = this.getTool() == TOOL_CHISEL ? duration + CHISEL_ROUND_TIME_BONUS : duration;
-        final int remainingDuration = Math.max(0, Math.min(GLOBAL_DURATION, this.get(DATA_GLOBAL_REMAINING)));
-        final int dynamicDuration = baseDuration + Math.round(baseDuration * remainingDuration / (float) GLOBAL_DURATION);
-        final int adjustedDuration = Math.max(1, Math.round(dynamicDuration * ROUND_DURATION_SCALE));
+        final int globalDuration = globalDuration();
+        final int baseDuration = this.getTool() == TOOL_CHISEL ? duration + NomenDubiumConfig.PALEONTOLOGY_TABLE_CHISEL_ROUND_BONUS : duration;
+        final int remainingDuration = Math.max(0, Math.min(globalDuration, this.get(DATA_GLOBAL_REMAINING)));
+        final int dynamicDuration = baseDuration + Math.round(baseDuration * remainingDuration / (float) globalDuration);
+        final int adjustedDuration = Math.max(1, Math.round(dynamicDuration * NomenDubiumConfig.PALEONTOLOGY_TABLE_ROUND_DURATION_MULTIPLIER));
 
         this.set(DATA_ROUND_DURATION, adjustedDuration);
         this.set(DATA_ROUND_REMAINING, adjustedDuration);
@@ -430,20 +427,24 @@ public class PaleontologyTableMenu extends AbstractContainerMenu {
         this.lastActionTick = Long.MIN_VALUE;
     }
 
+    private static int globalDuration() {
+        return NomenDubiumConfig.PALEONTOLOGY_TABLE_GAME_DURATION * 20;
+    }
+
     private static int maxActions(int tool) {
         return switch (tool) {
-            case TOOL_CHISEL -> 15;
-            case TOOL_HAMMER -> 100;
-            case TOOL_BRUSH -> 40;
+            case TOOL_CHISEL -> NomenDubiumConfig.PALEONTOLOGY_TABLE_CHISEL_MAX_ACTIONS;
+            case TOOL_HAMMER -> NomenDubiumConfig.PALEONTOLOGY_TABLE_HAMMER_MAX_ACTIONS;
+            case TOOL_BRUSH -> NomenDubiumConfig.PALEONTOLOGY_TABLE_BRUSH_MAX_ACTIONS;
             default -> 0;
         };
     }
 
     private static int progressPerAction(int tool) {
         return switch (tool) {
-            case TOOL_CHISEL -> 13;
-            case TOOL_HAMMER -> 3;
-            case TOOL_BRUSH -> 7;
+            case TOOL_CHISEL -> NomenDubiumConfig.PALEONTOLOGY_TABLE_CHISEL_PROGRESS;
+            case TOOL_HAMMER -> NomenDubiumConfig.PALEONTOLOGY_TABLE_HAMMER_PROGRESS;
+            case TOOL_BRUSH -> NomenDubiumConfig.PALEONTOLOGY_TABLE_BRUSH_PROGRESS;
             default -> 0;
         };
 

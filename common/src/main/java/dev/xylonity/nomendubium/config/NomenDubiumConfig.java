@@ -124,4 +124,113 @@ public final class NomenDubiumConfig {
     )
     public static double SNORTING_CHIMERA_HEAD_DAMAGE = 5.0;
 
+    @ConfigEntry(
+        category = "Paleontology Table",
+        comment = "Total time in seconds to excavate an encased fossil before it breaks.",
+        min = 5,
+        max = 1600
+    )
+    public static int PALEONTOLOGY_TABLE_GAME_DURATION = 60;
+
+    @ConfigEntry(
+        category = "Paleontology Table",
+        comment = "Countdown in seconds shown before the excavation begins.",
+        min = 1,
+        max = 30
+    )
+    public static int PALEONTOLOGY_TABLE_COUNTDOWN_DURATION = 3;
+
+    @ConfigEntry(
+        category = "Paleontology Table",
+        comment = "Base duration in ticks of the first tool round.",
+        note = "Rounds last up to twice their base duration while plenty of game time remains, and are then scaled by the round duration multiplier.",
+        min = 1,
+        max = 1200
+    )
+    public static int PALEONTOLOGY_TABLE_INITIAL_ROUND_DURATION = 90;
+
+    @ConfigEntry(
+        category = "Paleontology Table",
+        comment = "Ticks removed from the base round duration on each new round.",
+        min = 0,
+        max = 1200
+    )
+    public static int PALEONTOLOGY_TABLE_ROUND_DURATION_DECREASE = 4;
+
+    @ConfigEntry(
+        category = "Paleontology Table",
+        comment = "Minimum base duration in ticks a round can decrease to.",
+        note = "This value should be less than or equal to the initial round duration.",
+        min = 1,
+        max = 1200
+    )
+    public static int PALEONTOLOGY_TABLE_MIN_ROUND_DURATION = 34;
+
+    @ConfigEntry(
+        category = "Paleontology Table",
+        comment = "Extra ticks added to the base duration of chisel rounds.",
+        min = 0,
+        max = 1200
+    )
+    public static int PALEONTOLOGY_TABLE_CHISEL_ROUND_BONUS = 30;
+
+    @ConfigEntry(
+        category = "Paleontology Table",
+        comment = "Multiplier applied to the final duration of every round.",
+        min = 0.05,
+        max = 4.0
+    )
+    public static float PALEONTOLOGY_TABLE_ROUND_DURATION_MULTIPLIER = 0.75F;
+
+    @ConfigEntry(
+        category = "Paleontology Table",
+        comment = "Progress added by each chisel stroke.",
+        note = "A fossil is fully excavated at 600 progress.",
+        min = 1,
+        max = 600
+    )
+    public static int PALEONTOLOGY_TABLE_CHISEL_PROGRESS = 13;
+
+    @ConfigEntry(
+        category = "Paleontology Table",
+        comment = "Progress added by each hammer hit.",
+        note = "A fossil is fully excavated at 600 progress.",
+        min = 1,
+        max = 600
+    )
+    public static int PALEONTOLOGY_TABLE_HAMMER_PROGRESS = 3;
+
+    @ConfigEntry(
+        category = "Paleontology Table",
+        comment = "Progress added by each full brush circle.",
+        note = "A fossil is fully excavated at 600 progress.",
+        min = 1,
+        max = 600
+    )
+    public static int PALEONTOLOGY_TABLE_BRUSH_PROGRESS = 7;
+
+    @ConfigEntry(
+        category = "Paleontology Table",
+        comment = "Maximum chisel strokes that count towards progress in a single round.",
+        min = 1,
+        max = 1000
+    )
+    public static int PALEONTOLOGY_TABLE_CHISEL_MAX_ACTIONS = 15;
+
+    @ConfigEntry(
+        category = "Paleontology Table",
+        comment = "Maximum hammer hits that count towards progress in a single round.",
+        min = 1,
+        max = 1000
+    )
+    public static int PALEONTOLOGY_TABLE_HAMMER_MAX_ACTIONS = 100;
+
+    @ConfigEntry(
+        category = "Paleontology Table",
+        comment = "Maximum brush circles that count towards progress in a single round.",
+        min = 1,
+        max = 1000
+    )
+    public static int PALEONTOLOGY_TABLE_BRUSH_MAX_ACTIONS = 40;
+
 }
