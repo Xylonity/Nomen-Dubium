@@ -1,3 +1,7 @@
+# 1.0.5
+- Added some config options for the paleontology table minigame
+- This is gonna be one of the last updates we are going to do for this mod, due to popularity constraints the mod will remain in an idle state
+
 # 1.0.4
 - Fixed Tree of Life recipes not working properly
 
