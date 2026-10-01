@@ -5,22 +5,39 @@
         "name": "nomendubium:whispers",
         "stream": true
       }
-    ]
+    ],
+    "subtitle": "subtitles.nomendubium.whispers"
   },
   "chimera_idle": {
     "sounds": [
       "nomendubium:chimera_idle_1",
       "nomendubium:chimera_idle_2"
-    ]
+    ],
+    "subtitle": "subtitles.nomendubium.chimera_idle"
+  },
+  "chimera_hurt": {
+    "sounds": [
+      {
+        "name": "nomendubium:chimera_idle_1",
+        "pitch": 1.35
+      },
+      {
+        "name": "nomendubium:chimera_idle_2",
+        "pitch": 1.35
+      }
+    ],
+    "subtitle": "subtitles.nomendubium.chimera_hurt"
   },
   "chimera_death": {
     "sounds": [
       "nomendubium:chimera_death"
-    ]
+    ],
+    "subtitle": "subtitles.nomendubium.chimera_death"
   },
   "chimera_roar": {
     "sounds": [
       "nomendubium:chimera_roar"
-    ]
+    ],
+    "subtitle": "subtitles.nomendubium.chimera_roar"
   }
 }

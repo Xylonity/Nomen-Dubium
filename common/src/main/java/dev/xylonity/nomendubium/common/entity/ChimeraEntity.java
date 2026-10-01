@@ -31,6 +31,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.AgeableMob;
@@ -163,15 +164,16 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         super(type, level);
         this.resetRootGrowthCooldown();
         this.applyBodyAttributes();
+        this.setHealth(this.getMaxHealth());
     }
 
     public static AttributeSupplier.Builder createAttributes() {
         return TamableAnimal.createMobAttributes()
-            .add(Attributes.MAX_HEALTH, 50.0)
+            .add(Attributes.MAX_HEALTH, NomenDubiumConfig.CHIMERA_MAX_HEALTH)
             .add(Attributes.MOVEMENT_SPEED, NomenDubiumConfig.HULKING_CHIMERA_SPEED)
             .add(Attributes.ATTACK_DAMAGE, NomenDubiumConfig.CRUNCHING_CHIMERA_HEAD_DAMAGE + 2.0)
             .add(Attributes.ATTACK_KNOCKBACK, 1.2)
-            .add(Attributes.ARMOR, 4.0)
+            .add(Attributes.ARMOR, NomenDubiumConfig.HULKING_CHIMERA_ARMOR)
             .add(Attributes.KNOCKBACK_RESISTANCE, 0.75)
             .add(Attributes.FOLLOW_RANGE, 32.0)
             .add(Attributes.JUMP_STRENGTH, 0.48);
@@ -1114,6 +1116,11 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
     }
 
     @Override
+    protected SoundEvent getHurtSound(DamageSource source) {
+        return NomenDubiumSounds.CHIMERA_HURT.get();
+    }
+
+    @Override
     protected SoundEvent getDeathSound() {
         return NomenDubiumSounds.CHIMERA_DEATH.get();
     }
@@ -1215,40 +1222,45 @@ public final class ChimeraEntity extends TamableAnimal implements PlayerRideable
         switch (this.getBodyVariant()) {
             case HULKING -> {
                 this.setAttributeBase(Attributes.MOVEMENT_SPEED, NomenDubiumConfig.HULKING_CHIMERA_SPEED);
-                this.setAttributeBase(Attributes.ARMOR, 4.0);
+                this.setAttributeBase(Attributes.ARMOR, NomenDubiumConfig.HULKING_CHIMERA_ARMOR);
                 this.setAttributeBase(Attributes.KNOCKBACK_RESISTANCE, 0.75);
                 this.setAttributeBase(Attributes.JUMP_STRENGTH, 0.48);
                 this.setMaxUpStep(1.25F);
             }
             case SHELLED -> {
                 this.setAttributeBase(Attributes.MOVEMENT_SPEED, NomenDubiumConfig.SHELLED_CHIMERA_SPEED);
-                this.setAttributeBase(Attributes.ARMOR, 10.0);
+                this.setAttributeBase(Attributes.ARMOR, NomenDubiumConfig.SHELLED_CHIMERA_ARMOR);
                 this.setAttributeBase(Attributes.KNOCKBACK_RESISTANCE, 0.90);
                 this.setAttributeBase(Attributes.JUMP_STRENGTH, 0.42);
                 this.setMaxUpStep(1.0F);
             }
             case AVIAN -> {
                 this.setAttributeBase(Attributes.MOVEMENT_SPEED, NomenDubiumConfig.AVIAN_CHIMERA_SPEED);
-                this.setAttributeBase(Attributes.ARMOR, 2.0);
+                this.setAttributeBase(Attributes.ARMOR, NomenDubiumConfig.AVIAN_CHIMERA_ARMOR);
                 this.setAttributeBase(Attributes.KNOCKBACK_RESISTANCE, 0.20);
                 this.setAttributeBase(Attributes.JUMP_STRENGTH, 0.55);
                 this.setMaxUpStep(1.0F);
             }
             case LANKY -> {
                 this.setAttributeBase(Attributes.MOVEMENT_SPEED, NomenDubiumConfig.LANKY_CHIMERA_SPEED);
-                this.setAttributeBase(Attributes.ARMOR, 2.0);
+                this.setAttributeBase(Attributes.ARMOR, NomenDubiumConfig.LANKY_CHIMERA_ARMOR);
                 this.setAttributeBase(Attributes.KNOCKBACK_RESISTANCE, 0.20);
                 this.setAttributeBase(Attributes.JUMP_STRENGTH, 1.05);
                 this.setMaxUpStep(1.5F);
             }
             case PUFFY -> {
                 this.setAttributeBase(Attributes.MOVEMENT_SPEED, NomenDubiumConfig.PUFFY_CHIMERA_SPEED);
-                this.setAttributeBase(Attributes.ARMOR, 3.0);
+                this.setAttributeBase(Attributes.ARMOR, NomenDubiumConfig.PUFFY_CHIMERA_ARMOR);
                 this.setAttributeBase(Attributes.KNOCKBACK_RESISTANCE, 0.35);
                 this.setAttributeBase(Attributes.JUMP_STRENGTH, 0.45);
                 this.setMaxUpStep(1.0F);
             }
 
+        }
+
+        this.setAttributeBase(Attributes.MAX_HEALTH, NomenDubiumConfig.CHIMERA_MAX_HEALTH);
+        if (!this.level().isClientSide && this.getHealth() > this.getMaxHealth()) {
+            this.setHealth(this.getMaxHealth());
         }
 
         this.applyCombatAttributes();

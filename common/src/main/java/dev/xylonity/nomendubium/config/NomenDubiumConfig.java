@@ -86,6 +86,54 @@ public final class NomenDubiumConfig {
 
     @ConfigEntry(
         category = "Chimera",
+        comment = "Maximum health of every Chimera.",
+        min = 1.0,
+        max = 1024.0
+    )
+    public static double CHIMERA_MAX_HEALTH = 50.0;
+
+    @ConfigEntry(
+        category = "Chimera",
+        comment = "Armor of a Hulking Chimera.",
+        min = 0.0,
+        max = 30.0
+    )
+    public static double HULKING_CHIMERA_ARMOR = 4.0;
+
+    @ConfigEntry(
+        category = "Chimera",
+        comment = "Armor of a Shelled Chimera.",
+        min = 0.0,
+        max = 30.0
+    )
+    public static double SHELLED_CHIMERA_ARMOR = 10.0;
+
+    @ConfigEntry(
+        category = "Chimera",
+        comment = "Armor of an Avian Chimera.",
+        min = 0.0,
+        max = 30.0
+    )
+    public static double AVIAN_CHIMERA_ARMOR = 2.0;
+
+    @ConfigEntry(
+        category = "Chimera",
+        comment = "Armor of a Lanky Chimera.",
+        min = 0.0,
+        max = 30.0
+    )
+    public static double LANKY_CHIMERA_ARMOR = 2.0;
+
+    @ConfigEntry(
+        category = "Chimera",
+        comment = "Armor of a Puffy Chimera.",
+        min = 0.0,
+        max = 30.0
+    )
+    public static double PUFFY_CHIMERA_ARMOR = 3.0;
+
+    @ConfigEntry(
+        category = "Chimera",
         comment = "Attack damage provided by the Crunching head before tail modifiers.",
         min = 0.0,
         max = 1024.0

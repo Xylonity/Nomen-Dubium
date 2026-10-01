@@ -129,17 +129,24 @@
   "entity.nomendubium.chimera": "Chimera",
   "entity.nomendubium.skeleton_part": "Chimera Skeleton",
   "entity.nomendubium.hunters_arrow": "Hunter's Arrow",
+  "entity.nomendubium.primitive_arrow": "Primitive Arrow",
   "entity.nomendubium.prehistoric_maw": "Prehistoric Maw",
   "entity.nomendubium.fossilised_maw": "Fossilised Maw",
   "entity.nomendubium.tree_of_life": "Tree Of Life",
 
-  "gui.nomendubium.tool.chisel": "Use de chisel!",
+  "gui.nomendubium.tool.chisel": "Use the chisel!",
   "gui.nomendubium.tool.hammer": "Hammer the fossil!",
   "gui.nomendubium.tool.brush": "Brush in circles!",
   "gui.nomendubium.finished": "Restoration complete!",
   "gui.nomendubium.time_up": "The fossil shattered.",
   "gui.nomendubium.insert_fossil": "Insert a fossil",
   "gui.nomendubium.time": "Time: %s",
+
+  "subtitles.nomendubium.whispers": "Whispers echo",
+  "subtitles.nomendubium.chimera_idle": "Chimera growls",
+  "subtitles.nomendubium.chimera_hurt": "Chimera hurts",
+  "subtitles.nomendubium.chimera_death": "Chimera dies",
+  "subtitles.nomendubium.chimera_roar": "Chimera roars",
 
   "message.nomendubium.fruit_of_life.incomplete": "The skeleton needs a body, head, and tail.",
 
