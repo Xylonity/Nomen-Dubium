@@ -13,6 +13,7 @@ public final class NomenDubiumSounds {
 
     public static final ResourceEntry<SoundEvent> WHISPERS = register("whispers");
     public static final ResourceEntry<SoundEvent> CHIMERA_IDLE = register("chimera_idle");
+    public static final ResourceEntry<SoundEvent> CHIMERA_HURT = register("chimera_hurt");
     public static final ResourceEntry<SoundEvent> CHIMERA_DEATH = register("chimera_death");
     public static final ResourceEntry<SoundEvent> CHIMERA_ROAR = register("chimera_roar");
 
