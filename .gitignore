@@ -9,3 +9,6 @@
 /fabric/.gradle
 /build/reports
 /fabric/runs
+/fabric/run
+/forge/build
+/forge/run
