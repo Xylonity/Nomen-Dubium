@@ -1,3 +1,6 @@
+# 1.0.6
+- Added some advancements
+
 # 1.0.5
 - Added config options for the Chimera max health and the armor of each body type
 - Added a hurt sound to the Chimera
