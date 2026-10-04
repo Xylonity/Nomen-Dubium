@@ -1,0 +1,33 @@
+{
+  "display": {
+    "icon": {
+      "id": "nomendubium:root_of_life"
+    },
+    "title": {
+      "translate": "advancements.nomendubium.tree_of_life.title"
+    },
+    "description": {
+      "translate": "advancements.nomendubium.tree_of_life.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "nomendubium:amber_vision",
+  "criteria": {
+    "completed": {
+      "trigger": "minecraft:player_interacted_with_entity",
+      "conditions": {
+        "entity": {
+          "type": "nomendubium:tree_of_life"
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "completed"
+    ]
+  ]
+}

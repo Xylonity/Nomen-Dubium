@@ -1,0 +1,37 @@
+{
+  "display": {
+    "icon": {
+      "id": "nomendubium:paleontology_table"
+    },
+    "title": {
+      "translate": "advancements.nomendubium.paleontology_table.title"
+    },
+    "description": {
+      "translate": "advancements.nomendubium.paleontology_table.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "nomendubium:root",
+  "criteria": {
+    "completed": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "nomendubium:paleontology_table"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "completed"
+    ]
+  ]
+}

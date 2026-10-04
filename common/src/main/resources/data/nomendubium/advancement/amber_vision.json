@@ -1,0 +1,35 @@
+{
+  "display": {
+    "icon": {
+      "id": "nomendubium:amber"
+    },
+    "title": {
+      "translate": "advancements.nomendubium.amber_vision.title"
+    },
+    "description": {
+      "translate": "advancements.nomendubium.amber_vision.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "nomendubium:root",
+  "criteria": {
+    "completed": {
+      "trigger": "minecraft:consume_item",
+      "conditions": {
+        "item": {
+          "items": [
+            "nomendubium:amber"
+          ]
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "completed"
+    ]
+  ]
+}

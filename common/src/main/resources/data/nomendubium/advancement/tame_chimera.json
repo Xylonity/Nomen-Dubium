@@ -1,0 +1,33 @@
+{
+  "display": {
+    "icon": {
+      "id": "nomendubium:sap_of_life"
+    },
+    "title": {
+      "translate": "advancements.nomendubium.tame_chimera.title"
+    },
+    "description": {
+      "translate": "advancements.nomendubium.tame_chimera.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "nomendubium:revive_chimera",
+  "criteria": {
+    "completed": {
+      "trigger": "minecraft:tame_animal",
+      "conditions": {
+        "entity": {
+          "type": "nomendubium:chimera"
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "completed"
+    ]
+  ]
+}

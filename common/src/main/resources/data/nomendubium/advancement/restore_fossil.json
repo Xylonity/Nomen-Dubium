@@ -1,0 +1,33 @@
+{
+  "display": {
+    "icon": {
+      "id": "nomendubium:fossil",
+      "components": {
+        "minecraft:custom_data": {
+          "FossilPart": "hulking_body"
+        }
+      }
+    },
+    "title": {
+      "translate": "advancements.nomendubium.restore_fossil.title"
+    },
+    "description": {
+      "translate": "advancements.nomendubium.restore_fossil.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "nomendubium:paleontology_table",
+  "criteria": {
+    "completed": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "completed"
+    ]
+  ]
+}

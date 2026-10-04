@@ -1,0 +1,28 @@
+{
+  "display": {
+    "icon": {
+      "id": "nomendubium:fruit_of_life"
+    },
+    "title": {
+      "translate": "advancements.nomendubium.revive_chimera.title"
+    },
+    "description": {
+      "translate": "advancements.nomendubium.revive_chimera.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "nomendubium:assemble_skeleton",
+  "criteria": {
+    "completed": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "completed"
+    ]
+  ]
+}

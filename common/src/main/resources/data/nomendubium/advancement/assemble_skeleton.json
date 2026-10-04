@@ -1,0 +1,33 @@
+{
+  "display": {
+    "icon": {
+      "id": "nomendubium:fossil",
+      "components": {
+        "minecraft:custom_data": {
+          "FossilPart": "hulking_body"
+        }
+      }
+    },
+    "title": {
+      "translate": "advancements.nomendubium.assemble_skeleton.title"
+    },
+    "description": {
+      "translate": "advancements.nomendubium.assemble_skeleton.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "nomendubium:restore_fossil",
+  "criteria": {
+    "completed": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "completed"
+    ]
+  ]
+}

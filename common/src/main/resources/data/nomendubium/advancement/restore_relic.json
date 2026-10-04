@@ -1,0 +1,28 @@
+{
+  "display": {
+    "icon": {
+      "id": "nomendubium:shattered_diamond"
+    },
+    "title": {
+      "translate": "advancements.nomendubium.restore_relic.title"
+    },
+    "description": {
+      "translate": "advancements.nomendubium.restore_relic.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "nomendubium:tree_of_life",
+  "criteria": {
+    "completed": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "completed"
+    ]
+  ]
+}
