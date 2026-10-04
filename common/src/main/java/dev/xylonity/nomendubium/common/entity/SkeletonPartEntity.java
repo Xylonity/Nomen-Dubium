@@ -1,5 +1,6 @@
 package dev.xylonity.nomendubium.common.entity;
 
+import dev.xylonity.nomendubium.common.advancement.NomenDubiumAdvancements;
 import dev.xylonity.nomendubium.common.entity.skeleton.SkeletonPartType;
 import dev.xylonity.nomendubium.common.entity.variant.ChimeraBackVariant;
 import dev.xylonity.nomendubium.common.entity.variant.ChimeraBodyVariant;
@@ -17,6 +18,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -49,6 +51,7 @@ public final class SkeletonPartEntity extends Entity {
     private final Map<ChimeraPartCategory, UUID> attachments = new EnumMap<>(ChimeraPartCategory.class);
 
     private UUID parentUuid;
+    private UUID revivalPlayerUuid;
     private boolean dismantling;
     private int clientRevivalTicks;
 
@@ -219,6 +222,7 @@ public final class SkeletonPartEntity extends Entity {
     protected void readAdditionalSaveData(CompoundTag tag) {
         setPartType(SkeletonPartType.byFossilPart(tag.contains("part") ? tag.getString("part") : SkeletonPartType.HULKING_BODY.fossilPart()));
         parentUuid = getUuidPer(tag, "parent");
+        revivalPlayerUuid = tag.hasUUID("revival_player") ? tag.getUUID("revival_player") : null;
         entityData.set(PARENT_ID, -1);
         entityData.set(REVIVAL_TICKS, tag.getInt("revival_ticks"));
         entityData.set(REVIVAL_PALETTE, tag.contains("revival_palette") ? tag.getInt("revival_palette") : ChimeraPaletteVariant.NORMAL.index());
@@ -239,6 +243,10 @@ public final class SkeletonPartEntity extends Entity {
 
         if (isReviving()) {
             tag.putInt("revival_ticks", entityData.get(REVIVAL_TICKS));
+            if (revivalPlayerUuid != null) {
+                tag.putUUID("revival_player", revivalPlayerUuid);
+            }
+
             tag.putInt("revival_palette", entityData.get(REVIVAL_PALETTE));
         }
 
@@ -341,6 +349,8 @@ public final class SkeletonPartEntity extends Entity {
 
         entityData.set(REVIVAL_PALETTE, palette.index());
         entityData.set(REVIVAL_TICKS, 1);
+        revivalPlayerUuid = player.getUUID();
+        NomenDubiumAdvancements.award(player, NomenDubiumAdvancements.ASSEMBLE_SKELETON);
         if (!player.getAbilities().instabuild) {
             fruit.shrink(1);
         }
@@ -409,6 +419,14 @@ public final class SkeletonPartEntity extends Entity {
         level.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, getX(), centerY, getZ(), 50, 1.0D, 1.2D, 1.0D, 0.15D);
         level.playSound(null, blockPosition(), SoundEvents.TOTEM_USE, SoundSource.NEUTRAL, 1.3F, 0.9F);
 
+        if (revivalPlayerUuid != null) {
+            final ServerPlayer player = level.getServer().getPlayerList().getPlayer(revivalPlayerUuid);
+            if (player != null) {
+                NomenDubiumAdvancements.award(player, NomenDubiumAdvancements.REVIVE_CHIMERA);
+            }
+
+        }
+
         discardAssembly();
     }
 
@@ -463,6 +481,10 @@ public final class SkeletonPartEntity extends Entity {
 
         if (!player.getAbilities().instabuild) {
             heldItem.shrink(1);
+        }
+
+        if (getAttachedPart(ChimeraPartCategory.HEAD) != null && getAttachedPart(ChimeraPartCategory.TAIL) != null) {
+            NomenDubiumAdvancements.award(player, NomenDubiumAdvancements.ASSEMBLE_SKELETON);
         }
 
         return true;

@@ -1,0 +1,37 @@
+{
+  "display": {
+    "icon": {
+      "item": "nomendubium:prehistoric_maw"
+    },
+    "title": {
+      "translate": "advancements.nomendubium.prehistoric_maw.title"
+    },
+    "description": {
+      "translate": "advancements.nomendubium.prehistoric_maw.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "nomendubium:restore_relic",
+  "criteria": {
+    "completed": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "nomendubium:prehistoric_maw"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "completed"
+    ]
+  ]
+}

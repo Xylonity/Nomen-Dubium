@@ -1,0 +1,37 @@
+{
+  "display": {
+    "icon": {
+      "item": "nomendubium:fruit_of_life"
+    },
+    "title": {
+      "translate": "advancements.nomendubium.fruit_of_life.title"
+    },
+    "description": {
+      "translate": "advancements.nomendubium.fruit_of_life.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "nomendubium:tree_of_life",
+  "criteria": {
+    "completed": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "nomendubium:fruit_of_life"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "completed"
+    ]
+  ]
+}

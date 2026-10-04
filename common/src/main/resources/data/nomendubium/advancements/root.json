@@ -1,0 +1,44 @@
+{
+  "display": {
+    "icon": {
+      "item": "nomendubium:encased_fossil"
+    },
+    "title": {
+      "translate": "advancements.nomendubium.root.title"
+    },
+    "description": {
+      "translate": "advancements.nomendubium.root.description"
+    },
+    "frame": "task",
+    "show_toast": false,
+    "announce_to_chat": false,
+    "hidden": false,
+    "background": "minecraft:textures/block/deepslate.png"
+  },
+  "criteria": {
+    "completed": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "nomendubium:encased_fossil",
+              "nomendubium:fossil",
+              "nomendubium:amber",
+              "nomendubium:fossil_bone",
+              "nomendubium:fossilised_apple",
+              "nomendubium:fossilised_shell",
+              "nomendubium:fossilised_maw",
+              "nomendubium:shattered_diamond"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "completed"
+    ]
+  ]
+}

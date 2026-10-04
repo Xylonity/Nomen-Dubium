@@ -1,5 +1,6 @@
 package dev.xylonity.nomendubium.common.menu;
 
+import dev.xylonity.nomendubium.common.advancement.NomenDubiumAdvancements;
 import dev.xylonity.nomendubium.common.entity.TreeOfLifeEntity;
 import dev.xylonity.nomendubium.registry.NomenDubiumItems;
 import dev.xylonity.nomendubium.registry.NomenDubiumMenus;
@@ -62,6 +63,12 @@ public final class TreeOfLifeMenu extends AbstractContainerMenu {
             @Override
             public boolean mayPlace(@NonNull ItemStack stack) {
                 return false;
+            }
+
+            @Override
+            public void onTake(Player player, ItemStack stack) {
+                super.onTake(player, stack);
+                NomenDubiumAdvancements.award(player, NomenDubiumAdvancements.RESTORE_RELIC);
             }
 
         });

@@ -1,5 +1,6 @@
 package dev.xylonity.nomendubium.common.menu;
 
+import dev.xylonity.nomendubium.common.advancement.NomenDubiumAdvancements;
 import dev.xylonity.nomendubium.common.item.fossil.util.FossilCategory;
 import dev.xylonity.nomendubium.config.NomenDubiumConfig;
 import dev.xylonity.nomendubium.registry.NomenDubiumItems;
@@ -458,6 +459,7 @@ public class PaleontologyTableMenu extends AbstractContainerMenu {
         this.set(DATA_PROGRESS, MAX_PROGRESS);
         this.set(DATA_STATE, STATE_WON);
         this.set(DATA_HELD_TOOL, -1);
+        NomenDubiumAdvancements.award(this.player, NomenDubiumAdvancements.RESTORE_FOSSIL);
     }
 
     private void failGame() {
