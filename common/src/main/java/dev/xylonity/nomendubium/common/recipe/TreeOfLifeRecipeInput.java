@@ -1,26 +1,26 @@
 package dev.xylonity.nomendubium.common.recipe;
 
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeInput;
 
-public final class TreeOfLifeRecipeInput extends SimpleContainer implements RecipeInput {
+public record TreeOfLifeRecipeInput(
+        ItemStack ingredient,
+        ItemStack rootOfLife
+) implements RecipeInput {
 
-    public TreeOfLifeRecipeInput(ItemStack ingredient, ItemStack rootOfLife) {
-        super(ingredient, rootOfLife);
-    }
+    @Override
+    public ItemStack getItem(int index) {
+        return switch (index) {
+            case 0 -> this.ingredient;
+            case 1 -> this.rootOfLife;
+            default -> throw new IllegalArgumentException("No item for index " + index);
+        };
 
-    public ItemStack ingredient() {
-        return this.getItem(0);
-    }
-
-    public ItemStack rootOfLife() {
-        return this.getItem(1);
     }
 
     @Override
     public int size() {
-        return this.getContainerSize();
+        return 2;
     }
 
 }
