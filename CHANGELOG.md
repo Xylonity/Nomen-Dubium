@@ -1,3 +1,6 @@
+# 1.0.7
+- Added a config option for the amount of uses of the Regenerating Chop
+
 # 1.0.6
 - Added some advancements
 

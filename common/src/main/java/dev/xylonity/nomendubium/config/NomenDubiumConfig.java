@@ -20,6 +20,14 @@ public final class NomenDubiumConfig {
     public static int REGENERATING_CHOP_REGENERATION_INTERVAL = 20;
 
     @ConfigEntry(
+        category = "Regenerating Chop",
+        comment = "Times the Regenerating Chop can be eaten when fully regenerated.",
+        min = 1,
+        max = 100
+    )
+    public static int REGENERATING_CHOP_USES = 3;
+
+    @ConfigEntry(
         category = "Maws",
         comment = "Damage dealt by the Fossilised Maw.",
         min = 0.0,
