@@ -1,3 +1,7 @@
+# 1.0.8
+- Added a config option for the amount of uses of the Regenerating Chop
+- Fixed a crash on Fabric when getting close to a Tree of Life
+
 # 1.0.7
 - Added some advancements
 

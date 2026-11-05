@@ -78,7 +78,7 @@
   "item.nomendubium.fossilised_maw.tooltip.1": "● Hold use, then release to throw it through multiple targets",
   "item.nomendubium.fossilised_maw.tooltip.2": "● It can be picked up again after landing.",
   "item.nomendubium.regenerating_chop": "Regenerating Chop",
-  "item.nomendubium.regenerating_chop.tooltip.1": "● Can be eaten three times before it needs to regenerate",
+  "item.nomendubium.regenerating_chop.tooltip.1": "● Can be eaten %s times before it needs to regenerate",
   "item.nomendubium.regenerating_chop.tooltip.2": "● Slowly restores its uses while carried.",
   "item.nomendubium.coalden_sign": "Coalden Sign",
 
